@@ -1,6 +1,6 @@
 {
   "name": "xpack",
-  "displayName": "xPack C/C++ Build",
+  "displayName": "xPack C/C++ Managed Build",
   "description": "A Visual Studio Code extension to manage and build C/C++ projects using xPacks",
   "version": "0.0.1",
   "engines": {
@@ -10,14 +10,14 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:xpack.helloWorld"
+    "onCommand:xpack.greeting"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "xpack.helloWorld",
-        "title": "Hello World"
+        "command": "xpack.greeting",
+        "title": "xPack: Greeting!"
       }
     ]
   },
