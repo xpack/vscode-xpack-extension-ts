@@ -1,25 +1,41 @@
 {
   "name": "xpack",
-  "displayName": "xPack C/C++ Managed Build",
-  "description": "A Visual Studio Code extension to manage and build C/C++ projects using xPacks",
-  "version": "0.0.1",
-  "engines": {
-    "vscode": "^1.54.0"
-  },
+  "displayName": "xPack C/C++ Managed Build Tools",
+  "description": "Manage and build C/C++ projects with CMake, meson, etc using the xPacks tools.",
+  "version": "0.0.1-pre",
+  "publisher": "ilg-vscode",
+  "license": "MIT",
   "categories": [
+    "Programming Languages",
     "Other"
   ],
-  "activationEvents": [
-    "onCommand:xpack.greeting"
+  "keywords": [
+    "cmake",
+    "meson",
+    "xpack",
+    "build",
+    "c++"
   ],
-  "main": "./out/extension.js",
-  "contributes": {
-    "commands": [
-      {
-        "command": "xpack.greeting",
-        "title": "xPack: Greeting!"
-      }
-    ]
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xpack/vscode-xpack-extension-ts.git"
+  },
+  "author": {
+    "name": "Liviu Ionescu",
+    "email": "ilg@livius.net",
+    "url": "https://github.com/ilg-ul/"
+  },
+  "bugs": {
+    "url": "https://github.com/xpack/vscode-xpack-extension-ts/issues/"
+  },
+  "homepage": "https://github.com/xpack/vscode-xpack-extension-ts/blob/master/README.md",
+  "markdown": "github",
+  "icon": "assets/images/icon.png",
+  "galleryBanner": {
+    "theme": "light"
+  },
+  "engines": {
+    "vscode": "^1.54.0"
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
@@ -27,7 +43,10 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/test/runTest.js",
+    "git-log": "git log --pretty='%cd * %h %s' --date=short",
+    "fix": "echo fix",
+    "package": "vsce ls && vsce package"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",
@@ -40,6 +59,19 @@
     "glob": "^7.1.6",
     "mocha": "^8.2.1",
     "typescript": "^4.1.3",
+    "vsce": "^1.87.0",
     "vscode-test": "^1.5.0"
+  },
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onCommand:xpack.greeting"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "xpack.greeting",
+        "title": "xPack: Greeting!"
+      }
+    ]
   }
 }
