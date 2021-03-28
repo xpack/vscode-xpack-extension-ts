@@ -1,16 +1,16 @@
-# xPack C/C++ Managed Build
+# xPack C/C++ Managed Build (early evaluation!)
 
-Manage and build C/C++ projects with CMake, meson, etc using the xPack tools.
+Manage and build C/C++ projects with CMake, meson, etc, using the xPack tools.
 
 ## Features
 
-Manage tipical multi-configuration projects (like debug/release), but also
+Manage typical multi-configuration projects (like debug/release), but also
 complex,  multi-platform, multi-architecture, multi-toolchain projects,
 with an emphasis on modern C/C++ and embedded applications.
 
 This project is part of the [xPack Project](https://github.com/xpack).
 
-It is intended as a replacement of the managed build system available
+It is intended as a replacement for the managed build system available
 in [Eclipse Embedded CDT](https://projects.eclipse.org/projects/iot.embed-cdt/).
 
 ## Requirements
@@ -25,28 +25,31 @@ For details please follow the instructions in the
 
 The xPack Project does not introduce a new package format, but uses
 exactly the same format as **npm**; xPacks are npm packages that
-can be stored in usual Git repositories, public or private, and
+can be stored in usual Git repositories, and
 even published on
 [npmjs.com](https://www.npmjs.com/search?q=xpack)
 or compatible servers.
 
 The xPack Managed Build is neutral to the build system, and basically
-can invoke any tools, old and new, but favours modern tools which can
-generate a `compile_commands.json` file (like CMake and meson) since this
+can invoke any tools, old and new, but favours modern tools
+(like CMake and meson) which can
+generate a `compile_commands.json` file, since this
 greatly simplifies/automates the project IntelliSense configuration.
 
 ## Concepts
 
-The xPack Managed Build uses a simple logical structure, the project is
-composed of a collection of named **build configurations**, each with
-its own set of named **actions** defined as array of strings.
+Compared to typical CMake/meson projects, which in most cases use a
+single build folder, an xPack Managed Build project is
+by design defined as a collection of named **build configurations**,
+each built in a separate folder, and each with its own set of
+named **actions**, defined as array of strings holding commands.
 
-The actions can be composed from substitutions, performed via the
+The actions can use generic templates, with substitutions performed by the
 [LiquidJS](https://liquidjs.com) template engine, based on
 user defined string **properties**.
 
-An typical example of a project with two build configurations
-using CMake can be:
+An typical example of a project with two build configurations,
+using CMake, may look like:
 
 ```json
 {
