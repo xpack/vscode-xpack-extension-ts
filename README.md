@@ -1,6 +1,6 @@
 # xPack C/C++ Managed Build
 
-Manage and build C/C++ projects with CMake, meson, etc using the xPacks tools.
+Manage and build C/C++ projects with CMake, meson, etc using the xPack tools.
 
 ## Features
 

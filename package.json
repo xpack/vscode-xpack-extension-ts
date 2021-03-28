@@ -1,7 +1,7 @@
 {
   "name": "xpack",
   "displayName": "xPack C/C++ Managed Build Tools",
-  "description": "Manage and build C/C++ projects with CMake, meson, etc using the xPacks tools.",
+  "description": "Manage and build C/C++ projects with CMake, meson, etc using the xPack tools.",
   "version": "0.0.1",
   "publisher": "ilg-vscode",
   "license": "MIT",
@@ -46,7 +46,8 @@
     "test": "node ./out/test/runTest.js",
     "git-log": "git log --pretty='%cd * %h %s' --date=short",
     "fix": "echo fix",
-    "package": "vsce ls && vsce package"
+    "package": "vsce ls && vsce package",
+    "publish": "vsce publish"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",
