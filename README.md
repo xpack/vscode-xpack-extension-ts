@@ -1,70 +1,142 @@
-# xpack README
+# xPack C/C++ Managed Build
 
-This is the README for your extension "xpack". After writing up a brief description, we recommend including the following sections.
+Manage and build C/C++ projects with CMake, meson, etc using the xPacks tools.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+Manage tipical multi-configuration projects (like debug/release), but also
+complex,  multi-platform, multi-architecture, multi-toolchain projects,
+with an emphasis on modern C/C++ and embedded applications.
 
-For example if there is an image subfolder under your extension project workspace:
+This project is part of the [xPack Project](https://github.com/xpack).
 
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+It is intended as a replacement of the managed build system available
+in [Eclipse Embedded CDT](https://projects.eclipse.org/projects/iot.embed-cdt/).
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+A recent [xpm](https://xpack.github.io/xpm/),
+which is a portable [Node.js](https://nodejs.org/) command line application.
 
-## Extension Settings
+For details please follow the instructions in the
+[install](https://xpack.github.io/install/) page.
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+## How it works
 
-For example:
+The xPack Project does not introduce a new package format, but uses
+exactly the same format as **npm**; xPacks are npm packages that
+can be stored in usual Git repositories, public or private, and
+even published on
+[npmjs.com](https://www.npmjs.com/search?q=xpack)
+or compatible servers.
 
-This extension contributes the following settings:
+The xPack Managed Build is neutral to the build system, and basically
+can invoke any tools, old and new, but favours modern tools which can
+generate a `compile_commands.json` file (like CMake and meson) since this
+greatly simplifies/automates the project IntelliSense configuration.
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+## Concepts
+
+The xPack Managed Build uses a simple logical structure, the project is
+composed of a collection of named **build configurations**, each with
+its own set of named **actions** defined as array of strings.
+
+The actions can be composed from substitutions, performed via the
+[LiquidJS](https://liquidjs.com) template engine, based on
+user defined string **properties**.
+
+An typical example of a project with two build configurations
+using CMake can be:
+
+```json
+{
+  "name": "hello-world",
+  "version": "0.1.0",
+  "description": "A Hello World project",
+  "main": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "xpack"
+  ],
+  "license": "MIT",
+  "config": {},
+  "dependencies": {},
+  "devDependencies": {
+    "@xpack-dev-tools/cmake": "3.19.2-2.1",
+    "@xpack-dev-tools/ninja-build": "1.10.2-2.1"
+  },
+  "xpack": {
+    "properties": {
+      "buildFolderRelativePath": "build/{{ configuration.name }}",
+      "commandCmakeGenerate": "cmake -S . -B {{ properties.buildFolderRelativePath }} -G Ninja -D CMAKE_BUILD_TYPE={{ properties.buildType }}",
+      "commandCmakeBuild": "cmake --build {{ properties.buildFolderRelativePath }}",
+      "commandCmakeClean": "cmake --build {{ properties.buildFolderRelativePath }} --target clean"
+    },
+    "actions": {
+      "build": [
+        "xpm run build --config debug",
+        "xpm run build --config release"
+      ],
+      "clean": [
+        "xpm run clean --config debug",
+        "xpm run clean --config release"
+      ]
+    },
+    "buildConfigurations": {
+      "debug": {
+        "properties": {
+          "buildType": "Debug"
+        },
+        "actions": {
+          "build": [
+            "{{ properties.commandCmakeGenerate }}",
+            "{{ properties.commandCmakeBuild }}"
+          ],
+          "clean": "{{ properties.commandCmakeClean }}",
+          "execute": "{{ properties.buildFolderRelativePath }}/hello-world"
+        }
+      },
+      "release": {
+        "properties": {
+          "buildType": "Release"
+        },
+        "actions": {
+          "build": [
+            "{{ properties.commandCmakeGenerate }}",
+            "{{ properties.commandCmakeBuild }}"
+          ],
+          "clean": "{{ properties.commandCmakeClean }}",
+          "execute": "{{ properties.buildFolderRelativePath }}/hello-world"
+        }
+      }
+    }
+  }
+}
+```
+
+Using xpm, the build can be invoked with:
+
+```console
+$ xpm install
+$ xpm run build
+```
+
+Note: this example assumes the presence of a toolchain, like GCC or clang.
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+- none so far
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
+The list is kept in reverse chronological order, with the most recent
+release on the top.
 
-### 1.0.0
+### 0.0.1
 
-Initial release of ...
+Initial release with minimal content, intended to validate the workflow.
 
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+There is only one simple action defined, `xPack: Greeting`,
+which prints a short message.
