@@ -10,5 +10,5 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 README-MAINTAINER.md
-
+**/xpacks/**
 tests/**
