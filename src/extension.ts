@@ -3,7 +3,7 @@
 import * as vscode from 'vscode'
 
 // This method is called when your extension is activated
-export function activate (context: vscode.ExtensionContext): void {
+export async function activate (context: vscode.ExtensionContext): Promise<void> {
   console.log('"ilg-vscode.xpack" activated')
 
   // The command has been defined in the package.json file
