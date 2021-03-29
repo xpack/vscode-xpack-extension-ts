@@ -67,6 +67,7 @@
   },
   "main": "./out/extension.js",
   "activationEvents": [
+    "onLanguage:json",
     "onCommand:xpack.greeting"
   ],
   "contributes": {
@@ -75,6 +76,41 @@
         "command": "xpack.greeting",
         "title": "xPack: Greeting!"
       }
-    ]
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "xPack",
+      "properties": {
+        "xpack.runInTerminal": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run xpm commands in a terminal, otherwise shows the output in the output panel"
+        },
+        "xpack.includeDirectories": {
+          "type": "array",
+          "scope": "resource",
+          "default": [],
+          "description": "Look for 'package.json' files in these directories"
+        },
+        "xpack.useRootDirectory": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "Look for 'package.json' in the root directory of the workspace"
+        },
+        "xpack.xpm.bin": {
+          "scope": "machine",
+          "type": "string",
+          "default": "xpm",
+          "description": "xpm bin name"
+        },
+        "xpack.validate.enable": {
+          "type": "boolean",
+          "scope": "resource",
+          "default": true,
+          "description": "Validate installed modules"
+        }
+      }
+    }
   }
 }
