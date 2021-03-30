@@ -1,0 +1,7 @@
+{
+  "view.name": "xPack Actions",
+  "command.run": "Run",
+  "command.debug": "Debug",
+  "command.openScript": "Open",
+  "command.runInstall": "Run Install"
+}
