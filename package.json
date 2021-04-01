@@ -40,32 +40,19 @@
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
+    "tsc": "tsc -h",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
-    "lint": "ts-standard",
-    "lint-": "eslint src --ext ts",
+    "lint": "ts-standard src",
     "test": "node ./out/test/runTest.js",
     "git-log": "git log --pretty='%cd * %h %s' --date=short",
-    "fix": "ts-standard --fix",
+    "fix": "ts-standard --fix src",
     "package": "vsce ls && vsce package",
     "publish": "vsce publish"
   },
-  "dependencies": {
-    "jsonc-parser": "^3.0.0",
-    "minimatch": "^3.0.4",
-    "request-light": "^0.4.0",
-    "vscode-nls": "^5.0.0"
-  },
   "devDependencies": {
-    "@types/glob": "^7.1.3",
-    "@types/mocha": "^8.0.4",
     "@types/node": "^12.11.7",
     "@types/vscode": "^1.54.0",
-    "@typescript-eslint/eslint-plugin": "^4.14.1",
-    "@typescript-eslint/parser": "^4.14.1",
-    "eslint": "^7.19.0",
-    "glob": "^7.1.6",
-    "mocha": "^8.2.1",
     "ts-standard": "^10.0.0",
     "typescript": "^4.1.3",
     "vsce": "^1.87.0",
@@ -74,56 +61,50 @@
   "main": "./out/extension.js",
   "activationEvents": [
     "onLanguage:json",
-    "onCommand:xpack.greeting",
     "workspaceContains:package.json",
     "onView:xpack"
   ],
   "contributes": {
     "commands": [
       {
-        "command": "xpack.greeting",
-        "title": "xPack: Greeting!"
+        "command": "xpack.runXpmInstall",
+        "title": "%command.runXpmInstall%"
       },
       {
-        "command": "xpm.runScript",
+        "command": "xpack.runScript",
         "title": "%command.run%",
         "icon": "$(run)"
       },
       {
-        "command": "xpm.debugScript",
+        "command": "xpack.debugScript",
         "title": "%command.debug%",
         "icon": "$(debug)"
       },
       {
-        "command": "xpm.openScript",
-        "title": "%command.openScript%"
-      },
-      {
-        "command": "xpm.runInstall",
-        "title": "%command.runInstall%"
+        "command": "xpack.openScript",
+        "title": "%command.openScript"
       }
     ],
-    "menus": {
-      "commandPalette": [
-         {
-          "command": "xpm.runScript",
-          "when": "false"
-        },
-        {
-          "command": "xpm.debugScript",
-          "when": "false"
-        },
-        {
-          "command": "xpm.openScript",
-          "when": "false"
-        },
-        {
-          "command": "xpm.runInstall",
-          "when": "false"
-        }
-      ]
-    },
     "configuration": {
+      "id": "xpack",
+      "type": "object",
+      "title": "xPack",
+      "properties": {
+        "xpack.runInTerminal": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run xpm commands in a terminal, otherwise shows the output in the output panel"
+        },
+        "xpack.xpm.bin": {
+          "scope": "machine",
+          "type": "string",
+          "default": "xpm",
+          "description": "The name of the xpm binary"
+        }
+      }
+    },
+    "configuration.none": {
+      "id": "xpack",
       "type": "object",
       "title": "xPack",
       "properties": {
@@ -163,9 +144,9 @@
         {
           "id": "xpack",
           "name": "%view.name%",
-          "when": "npm:showScriptExplorer",
+          "when--": "npm:showScriptExplorer",
           "icon": "$(json)",
-          "visibility": "hidden"
+          "visibility--": "hidden"
         }
       ]
     }
