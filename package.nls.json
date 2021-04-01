@@ -1,7 +1,8 @@
 {
   "view.name": "xPack Actions",
-  "command.run": "Run",
-  "command.debug": "Debug",
-  "command.openScript": "Open",
-  "command.runInstall": "Run Install"
+  "command.runXpmInstall": "xPack: xpm install",
+
+  "command.run": "xPack: Run",
+  "command.debug": "xPack: Debug",
+  "command.openScript": "xPack: Open"
 }
