@@ -35,8 +35,6 @@ import {
   ShellQuotedString,
   workspace,
   WorkspaceFolder,
-  window,
-  env,
   RelativePattern,
   Position,
   QuickPickItem,
@@ -56,8 +54,9 @@ import {
 
 const localize = nls.loadMessageBundle()
 
-export interface NpmTaskDefinition extends TaskDefinition {
-  script: string
+export interface XpackTaskDefinition extends TaskDefinition {
+  actionName: string
+  buildConfigurationName?: string
   path?: string
 }
 
@@ -70,7 +69,7 @@ type AutoDetect = 'on' | 'off'
 
 let cachedTasks: TaskWithLocation[] | undefined
 
-const INSTALL_SCRIPT = 'install'
+const INSTALL_COMMAND = 'install'
 
 export interface TaskLocation {
   document: Uri
@@ -98,7 +97,7 @@ export class NpmTaskProvider implements TaskProvider {
   public async resolveTask (_task: Task): Promise<Task | undefined> {
     const npmTask = (_task.definition as any).script
     if (npmTask !== undefined) {
-      const kind: NpmTaskDefinition = (_task.definition as any)
+      const kind: XpackTaskDefinition = (_task.definition as any)
       let packageJsonUri: Uri
       if (_task.scope === undefined || _task.scope === TaskScope.Global ||
         _task.scope === TaskScope.Workspace) {
@@ -115,11 +114,11 @@ export class NpmTaskProvider implements TaskProvider {
           '/package.json'
         })
       }
-      const cmd = [kind.script]
-      if (kind.script !== INSTALL_SCRIPT) {
+      const cmd = [kind.actionName]
+      if (kind.actionName !== INSTALL_COMMAND) {
         cmd.unshift('run')
       }
-      return await createTask(await getPackageManager(this.context,
+      return await createTask(await getPackageManagerName(this.context,
         _task.scope.uri), kind, cmd, _task.scope, packageJsonUri)
     }
     return undefined
@@ -176,41 +175,10 @@ export function isWorkspaceFolder (value: any): value is WorkspaceFolder {
   return value !== undefined && typeof value !== 'number'
 }
 
-export async function getPackageManager (extensionContext: ExtensionContext,
+export async function getPackageManagerName (extensionContext: ExtensionContext,
   folder: Uri, showWarning: boolean = true): Promise<string> {
-  let packageManagerName = workspace.getConfiguration('npm',
-    folder).get<string>('packageManager', 'npm')
-
-  if (packageManagerName === 'auto') {
-    const { name, multiplePMDetected } = {
-      name: 'npm',
-      multiplePMDetected: false
-    } // await findPreferredPM(folder.fsPath);
-    packageManagerName = name
-    const neverShowWarning = 'npm.multiplePMWarning.neverShow'
-    const isNeverShowWarning = extensionContext.globalState
-      .get<boolean>(neverShowWarning)
-    if (showWarning && multiplePMDetected &&
-      isNeverShowWarning !== undefined && !isNeverShowWarning) {
-      const multiplePMWarning = localize('npm.multiplePMWarning',
-        'Using {0} as the preferred package manager. Found multiple ' +
-      'lockfiles for {1}.', packageManagerName, folder.fsPath)
-      const neverShowAgain = localize('npm.multiplePMWarning.doNotShow',
-        'Do not show again')
-      const learnMore = localize('npm.multiplePMWarning.learnMore',
-        'Learn more')
-      const result = await window.showInformationMessage(multiplePMWarning,
-        learnMore, neverShowAgain)
-      switch (result) {
-        case neverShowAgain:
-          await extensionContext.globalState.update(neverShowWarning, true)
-          break
-        case learnMore:
-          await env.openExternal(Uri.parse(
-            'https://nodejs.dev/learn/the-package-lock-json-file'))
-      }
-    }
-  }
+  const packageManagerName = workspace.getConfiguration('xpack',
+    folder).get<string>('xpack.xpm.bin', 'xpm')
 
   return packageManagerName
 }
@@ -357,7 +325,7 @@ async function provideNpmScriptsForFolder (context: ExtensionContext,
   const result: TaskWithLocation[] = []
 
   const prePostScripts = getPrePostScripts(scripts)
-  const packageManager = await getPackageManager(context, folder.uri,
+  const packageManager = await getPackageManagerName(context, folder.uri,
     showWarning)
 
   for (const { name, value, nameRange } of scripts.scripts) {
@@ -386,8 +354,8 @@ async function provideNpmScriptsForFolder (context: ExtensionContext,
 
   // always add npm install (without a problem matcher)
   result.push({
-    task: await createTask(packageManager, INSTALL_SCRIPT,
-      [INSTALL_SCRIPT], folder, packageJsonUri,
+    task: await createTask(packageManager, INSTALL_COMMAND,
+      [INSTALL_COMMAND], folder, packageJsonUri,
       'install dependencies from package', [])
   })
   return result
@@ -402,14 +370,15 @@ export function getTaskName (script: string,
 }
 
 export async function createTask (packageManager: string,
-  script: NpmTaskDefinition | string, cmd: string[],
+  actionName: XpackTaskDefinition | string, cmd: string[],
   folder: WorkspaceFolder, packageJsonUri: Uri, detail?: string,
-  matcher?: any): Promise<Task> {
-  let kind: NpmTaskDefinition
-  if (typeof script === 'string') {
-    kind = { type: 'npm', script: script }
+  matcher?: any):
+  Promise<Task> {
+  let kind: XpackTaskDefinition
+  if (typeof actionName === 'string') {
+    kind = { type: 'xpm', actionName }
   } else {
-    kind = script
+    kind = actionName
   }
 
   function getCommandLine (cmd: string[]): Array<string | ShellQuotedString> {
@@ -447,7 +416,7 @@ export async function createTask (packageManager: string,
   if (relativePackageJson.length !== 0) {
     kind.path = relativePackageJson
   }
-  const taskName = getTaskName(kind.script, relativePackageJson)
+  const taskName = getTaskName(kind.actionName, relativePackageJson)
   const cwd = path.dirname(packageJsonUri.fsPath)
   const task = new Task(kind, folder, taskName, 'npm',
     new ShellExecution(packageManager, getCommandLine(cmd), { cwd: cwd }),
@@ -493,8 +462,19 @@ export async function runScript (context: ExtensionContext,
   const uri = document.uri
   const folder = workspace.getWorkspaceFolder(uri)
   if (folder != null) {
-    const task = await createTask(await getPackageManager(context,
+    const task = await createTask(await getPackageManagerName(context,
       folder.uri), script, ['run', script], folder, uri)
+    await tasks.executeTask(task)
+  }
+}
+
+export async function runInstall (context: ExtensionContext,
+  document: TextDocument): Promise<void> {
+  const uri = document.uri
+  const folder = workspace.getWorkspaceFolder(uri)
+  if (folder != null) {
+    const task = await createTask(await getPackageManagerName(context,
+      folder.uri), 'install', ['install'], folder, uri)
     await tasks.executeTask(task)
   }
 }
@@ -503,7 +483,7 @@ export async function startDebugging (context: ExtensionContext,
   scriptName: string, cwd: string, folder: WorkspaceFolder): Promise<void> {
   await commands.executeCommand(
     'extension.js-debug.createDebuggerTerminal',
-    `${await getPackageManager(context, folder.uri)} run ${scriptName}`,
+    `${await getPackageManagerName(context, folder.uri)} run ${scriptName}`,
     folder,
     { cwd }
   )

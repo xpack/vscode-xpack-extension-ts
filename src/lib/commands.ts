@@ -13,28 +13,33 @@
 
 // ----------------------------------------------------------------------------
 
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode'
 
-import { Commands } from './lib/commands'
+// import { Xpack } from './xpack'
 
 // ----------------------------------------------------------------------------
 
-let commands: Commands
+export class Commands {
+  private readonly _context: vscode.ExtensionContext
 
-export async function activate (
-  context: vscode.ExtensionContext): Promise<void> {
-  console.log('"ilg-vscode.xpack" activated')
+  constructor (private readonly context: vscode.ExtensionContext) {
+    this._context = context
+  }
 
-  commands = new Commands(context)
-  commands.register()
+  register (): void {
+    const context = this._context
 
-  console.log('"ilg-vscode.xpack" activation completed')
-}
+    context.subscriptions.push(vscode.commands.registerCommand(
+      'xpack.runXpmInstall', this.runXpmInstall, this))
+  }
 
-export function deactivate (): void {
-  console.log('"ilg-vscode.xpack" deactivated')
+  async runXpmInstall (args: any): Promise<void> {
+    console.log(typeof args)
+
+    // Display a message box to the user
+    await vscode.window.showInformationMessage(
+      'should run xpm install!')
+  }
 }
 
 // ----------------------------------------------------------------------------
