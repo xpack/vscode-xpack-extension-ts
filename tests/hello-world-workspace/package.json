@@ -1,5 +1,5 @@
 {
-  "name": "@<scope>/hello-world-native",
+  "name": "hello-world-native",
   "version": "0.1.0",
   "description": "A Hello World project",
   "main": "",
@@ -18,9 +18,9 @@
     "xpack"
   ],
   "author": {
-    "name": "<author-name>",
-    "email": "<author-email>",
-    "url": "<author-url>"
+    "name": "Liviu Ionescu",
+    "email": "ilg@livius.net",
+    "url": "https://github.com/ilg-ul/"
   },
   "license": "MIT",
   "config": {},
@@ -38,11 +38,11 @@
       "commandCmakeClean": "cmake --build {{ properties.buildFolderRelativePath }} --target clean"
     },
     "actions": {
-      "build": [
+      "build-all": [
         "xpm run build --config debug",
         "xpm run build --config release"
       ],
-      "clean": [
+      "clean-all": [
         "xpm run clean --config debug",
         "xpm run clean --config release"
       ]
