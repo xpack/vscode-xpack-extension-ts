@@ -19,7 +19,7 @@
       "preLaunchTask": "${defaultBuildTask}"
     },
     {
-      "name": "Extension Tests",
+      "name": "Extension Tests Orig",
       "type": "extensionHost",
       "request": "launch",
       "args": [
