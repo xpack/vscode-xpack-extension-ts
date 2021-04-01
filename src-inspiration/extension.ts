@@ -29,11 +29,11 @@ import * as vscode from 'vscode'
 //   NpmTaskProvider
 // } from './lib/other/tasks'
 
-import { Commands } from './lib/commands'
+// import { Commands } from './lib/commands'
 
 // ----------------------------------------------------------------------------
 
-let commands: Commands
+// let commands: Commands
 
 // let treeDataProvider: NpmScriptsTreeDataProvider | undefined
 
@@ -41,8 +41,8 @@ export async function activate (
   context: vscode.ExtensionContext): Promise<void> {
   console.log('"ilg-vscode.xpack" activated')
 
-  commands = new Commands(context)
-  commands.register()
+  // commands = new Commands(context)
+  // commands.register()
 
   // configureHttpRequest()
   // context.subscriptions.push(vscode.workspace.onDidChangeConfiguration(
