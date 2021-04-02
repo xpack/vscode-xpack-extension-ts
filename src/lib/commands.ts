@@ -15,9 +15,24 @@
 
 import * as vscode from 'vscode'
 
-// import { Xpack } from './xpack'
+import { VoidFunction } from './xpack'
 
 // ----------------------------------------------------------------------------
+
+let commands: Commands
+let _invalidateCacheFunctions: VoidFunction[]
+
+export function registerCommands (
+  context: vscode.ExtensionContext,
+  invalidateCacheFunctions: VoidFunction[]
+): void {
+  _invalidateCacheFunctions = invalidateCacheFunctions
+
+  commands = new Commands(context)
+
+  context.subscriptions.push(vscode.commands.registerCommand(
+    'xpack.treeViewRefresh', commands.treeViewRefresh, commands))
+}
 
 export class Commands {
   private readonly _context: vscode.ExtensionContext
@@ -26,19 +41,11 @@ export class Commands {
     this._context = context
   }
 
-  register (): void {
-    const context = this._context
-
-    context.subscriptions.push(vscode.commands.registerCommand(
-      'xpack.runXpmInstall', this.runXpmInstall, this))
-  }
-
-  async runXpmInstall (args: any): Promise<void> {
-    console.log(typeof args)
-
-    // Display a message box to the user
-    await vscode.window.showInformationMessage(
-      'should run xpm install!')
+  async treeViewRefresh (): Promise<void> {
+    console.log('treeViewRefresh()', _invalidateCacheFunctions.length)
+    _invalidateCacheFunctions.forEach((func) => {
+      func()
+    })
   }
 }
 

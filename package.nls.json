@@ -1,8 +1,4 @@
 {
   "view.name": "xPack Actions",
-  "command.runXpmInstall": "xPack: xpm install",
-
-  "command.run": "xPack: Run",
-  "command.debug": "xPack: Debug",
-  "command.openScript": "xPack: Open"
+	"command.treeViewRefresh": "Refresh"
 }

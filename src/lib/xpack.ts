@@ -21,6 +21,8 @@ import * as path from 'path'
 
 // Helper class for processing xPacks.
 
+export type VoidFunction = (() => void)
+
 export interface XpackFolderPath {
   path: string
   relativePath: string
@@ -99,6 +101,7 @@ export class Xpack {
       return true
     }
     if (json.xpack.buildConfigurations !== undefined) {
+      // Don't use a lambda, to return directly from the loop.
       for (const name of Object.keys(json.xpack.buildConfigurations)) {
         const buildConfiguration: any = json.xpack.buildConfigurations[name]
         if (buildConfiguration.actions !== undefined) {
@@ -112,12 +115,13 @@ export class Xpack {
   async findPackageJsonFilesRecursive (
     folderPath: string,
     workspaceFolderPath: string,
-    maxDepth: number,
+    depth: number,
     xpackFolderPaths: XpackFolderPath[]
   ): Promise<void> {
     assert(folderPath)
 
     // May be null.
+    console.log(`check folder ${folderPath} `)
     const packageJson = await this.checkIfFolderHasPackageJson(folderPath)
     if (this.isPackage(packageJson)) {
       if (this.hasXpackActions(packageJson)) {
@@ -130,7 +134,7 @@ export class Xpack {
       return
     }
 
-    if (maxDepth <= 0) {
+    if (depth <= 0) {
       return
     }
 
@@ -142,7 +146,7 @@ export class Xpack {
         promises.push(this.findPackageJsonFilesRecursive(
           path.join(folderPath, file.name),
           workspaceFolderPath,
-          maxDepth - 1,
+          depth - 1,
           xpackFolderPaths))
       }
     }

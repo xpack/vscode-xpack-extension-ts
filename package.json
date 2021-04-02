@@ -67,24 +67,26 @@
   "contributes": {
     "commands": [
       {
-        "command": "xpack.runXpmInstall",
-        "title": "%command.runXpmInstall%"
-      },
-      {
-        "command": "xpack.runScript",
-        "title": "%command.run%",
-        "icon": "$(run)"
-      },
-      {
-        "command": "xpack.debugScript",
-        "title": "%command.debug%",
-        "icon": "$(debug)"
-      },
-      {
-        "command": "xpack.openScript",
-        "title": "%command.openScript"
+        "command": "xpack.treeViewRefresh",
+        "title": "%command.treeViewRefresh%",
+        "icon": "$(refresh)"
       }
     ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "xpack.treeViewRefresh",
+          "when": "false"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "xpack.treeViewRefresh",
+          "when": "view == xpack",
+          "group": "navigation"
+        }
+      ]
+    },
     "configuration": {
       "id": "xpack",
       "type": "object",

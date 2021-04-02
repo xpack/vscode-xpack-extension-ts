@@ -17,11 +17,17 @@ import * as path from 'path'
 
 import * as vscode from 'vscode'
 
-import { XpackFolderPath } from './xpack'
+import {
+  Xpack,
+  XpackFolderPath,
+  VoidFunction
+} from './xpack'
 
 // ----------------------------------------------------------------------------
 
-const _packageJson = 'package.json'
+const _packageJson: string = 'package.json'
+// TODO: make the depth configurable.
+const _maxSearchDepth: number = 3
 
 type ActionsTree = TreeItemPackageJson[] | TreeItemEmpty[]
 type TreeItemParent = TreeItemPackageJson | TreeItemBuildConfiguration
@@ -29,42 +35,73 @@ type TreeItemChild = TreeItemAction | TreeItemBuildConfiguration
 
 type JsonActionValue = string | string[]
 
+let _invalidateCacheFunctions: VoidFunction[]
+
 /**
  * @summary Base class for all tree items.
- * 
+ *
  * @description
  * Makes sure that all classes implement getParent() and getChildren(),
  * to simplify the data provider.
  */
 class TreeItem extends vscode.TreeItem {
-  getParent (): vscode.TreeItem | null { 
-    return null 
+  getParent (): TreeItem | null {
+    return null
   }
 
-  getChildren (): vscode.TreeItem[] { 
-    return [] 
+  getChildren (): TreeItem[] {
+    return []
   }
 }
 
-let treeDataProvider: XpackActionsTreeDataProvider
+class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
+  refresh (): void { }
+
+  getTreeItem (element: TreeItem): TreeItem {
+    return element
+  }
+
+  async getChildren (element?: TreeItem): Promise<TreeItem[]> {
+    return []
+  }
+}
+
+let treeDataProvider: XpackActionsTreeDataProvider | null = null
 let treeView: vscode.TreeView<vscode.TreeItem>
 
 // ----------------------------------------------------------------------------
 
 // Might need to return the tree.
-export function registerTreeViewActions (
+export function registerExplorer (
   context: vscode.ExtensionContext,
-  xpackFolderPaths: XpackFolderPath[]
-): void {
-  if (vscode.workspace.workspaceFolders != null) {
-    treeDataProvider =
-      new XpackActionsTreeDataProvider(context, xpackFolderPaths)
-
-    treeView = vscode.window.createTreeView('xpack',
-      { treeDataProvider: treeDataProvider, showCollapseAll: true })
-
-    context.subscriptions.push(treeView)
+  invalidateCacheFunctions: VoidFunction[]
+): XpackActionsTreeDataProvider | null {
+  if (vscode.workspace.workspaceFolders == null) {
+    return null
   }
+
+  _invalidateCacheFunctions = invalidateCacheFunctions
+
+  treeDataProvider =
+    new XpackActionsTreeDataProvider(context)
+
+  _invalidateCacheFunctions.push(
+    () => {
+      treeDataProvider?.refresh()
+    }
+  )
+
+  treeView = vscode.window.createTreeView(
+    'xpack',
+    {
+      treeDataProvider: treeDataProvider,
+      showCollapseAll: true
+    }
+  )
+
+  context.subscriptions.push(treeView)
+
+  return treeDataProvider
 }
 
 // ----------------------------------------------------------------------------
@@ -116,6 +153,8 @@ class TreeItemPackageJson extends TreeItem {
   }
 }
 
+// ----------------------------------------------------------------------------
+
 class TreeItemAction extends TreeItem {
   private readonly _parent: TreeItemParent
   private readonly _actionName: string
@@ -146,6 +185,8 @@ class TreeItemAction extends TreeItem {
   }
 }
 
+// ----------------------------------------------------------------------------
+
 class TreeItemBuildConfiguration extends TreeItem {
   private readonly _parent: TreeItemPackageJson
   private readonly _buildConfigurationName: string
@@ -166,7 +207,10 @@ class TreeItemBuildConfiguration extends TreeItem {
     this._parent = parent
   }
 
-  addAction (actionName: string, actionValue: JsonActionValue): TreeItemAction {
+  addAction (
+    actionName: string,
+    actionValue: JsonActionValue
+  ): TreeItemAction {
     const treeItem = new TreeItemAction(actionName, actionValue, this)
     this._actions.push(treeItem)
     return treeItem
@@ -181,8 +225,10 @@ class TreeItemBuildConfiguration extends TreeItem {
   }
 }
 
+// ----------------------------------------------------------------------------
+
 // An empty tree when there are no xPacks/action.
-class TreeItemEmpty extends vscode.TreeItem {
+class TreeItemEmpty extends TreeItem {
   constructor (message: string) {
     super(message, vscode.TreeItemCollapsibleState.None)
     this.contextValue = 'empty'
@@ -191,91 +237,147 @@ class TreeItemEmpty extends vscode.TreeItem {
   }
 }
 
+// ----------------------------------------------------------------------------
+
 /**
  * @summary The data provider for the xPack Actions tree view.
  */
-export class XpackActionsTreeDataProvider implements
-  vscode.TreeDataProvider<vscode.TreeItem> {
+export class XpackActionsTreeDataProvider extends TreeDataProvider {
   private readonly _extensionContext: vscode.ExtensionContext
 
-  // Lazy creation at first use.
+  // Lazy creation at first use and after Refresh.
   private _tree: ActionsTree | null = null
 
-  private readonly _xpackFolderPaths: XpackFolderPath[]
+  private readonly _onDidChangeTreeData: vscode.EventEmitter<TreeItem | null> =
+  new vscode.EventEmitter<TreeItem | null>()
 
-  // private readonly _onDidChangeTreeData:
-  // vscode.EventEmitter<vscode.TreeItem | null> =
-  // new vscode.EventEmitter<vscode.TreeItem | null>()
-  //
-  // readonly onDidChangeTreeData: vscode.Event<vscode.TreeItem | null> =
-  // this._onDidChangeTreeData.event
+  readonly onDidChangeTreeData: vscode.Event<TreeItem | null> =
+  this._onDidChangeTreeData.event
 
   // --------------------------------------------------------------------------
 
   constructor (
-    private readonly context: vscode.ExtensionContext,
-    xpackFolderPaths: XpackFolderPath[]
+    private readonly context: vscode.ExtensionContext
   ) {
-    // const subscriptions = context.subscriptions
+    super()
+
     this._extensionContext = context
-    this._xpackFolderPaths = xpackFolderPaths
   }
 
-  private _createTree (xpackFolderPaths: XpackFolderPath[]): ActionsTree {
-    if (xpackFolderPaths.length === 0) {
-      return [new TreeItemEmpty('No xPack actions defined.')]
-    }
+  // --------------------------------------------------------------------------
 
+  private async _createTree (): Promise<ActionsTree> {
     const tree: TreeItemPackageJson[] = []
 
-    xpackFolderPaths.forEach((xpackFolderPath) => {
-      const packageJson = xpackFolderPath.packageJson
+    // Scan the workspace folders for xPacks.
+    const xpackFolderPaths: XpackFolderPath[] =
+      await this._findXpackFolderPaths(_maxSearchDepth)
 
-      const treeItemPackage = new TreeItemPackageJson(xpackFolderPath)
-      tree.push(treeItemPackage)
+    if (xpackFolderPaths.length === 0) {
+      return [new TreeItemEmpty('No xPack actions identified.')]
+    }
 
-      if (packageJson.xpack.actions !== undefined) {
-        for (const actionName of Object.keys(packageJson.xpack.actions)) {
-          const actionValue: JsonActionValue =
-          packageJson.xpack.actions[actionName]
-          treeItemPackage.addAction(actionName, actionValue)
-        }
+    xpackFolderPaths.forEach(
+      (xpackFolderPath) => {
+        const packageJson = xpackFolderPath.packageJson
+
+        const treeItemPackage = new TreeItemPackageJson(xpackFolderPath)
+        tree.push(treeItemPackage)
+
+        this._addActions(packageJson.xpack.actions, treeItemPackage)
+
+        this._addBuildConfigurations(
+          packageJson.xpack.buildConfigurations,
+          treeItemPackage
+        )
       }
-      if (packageJson.xpack.buildConfigurations !== undefined) {
-        for (const buildConfigurationName of
-          Object.keys(packageJson.xpack.buildConfigurations)) {
-          const treeItemConfiguration =
-            treeItemPackage.addBuildConfiguration(buildConfigurationName)
-
-          const buildConfiguration: any =
-            packageJson.xpack.buildConfigurations[buildConfigurationName]
-          if (buildConfiguration.actions !== undefined) {
-            for (const actionName of Object.keys(buildConfiguration.actions)) {
-              const actionValue: JsonActionValue =
-              buildConfiguration.actions[actionName]
-              treeItemConfiguration.addAction(actionName, actionValue)
-            }
-          }
-        }
-      }
-    })
+    )
 
     console.log('tree created')
     return tree
   }
+
+  private _addActions (
+    fromJson: any,
+    toTreeItem: TreeItemPackageJson | TreeItemBuildConfiguration
+  ): void {
+    if (fromJson !== undefined) {
+      Object.keys(fromJson).forEach(
+        (actionName) => {
+          const actionValue: JsonActionValue = fromJson[actionName]
+          toTreeItem.addAction(actionName, actionValue)
+        }
+      )
+    }
+  }
+
+  private _addBuildConfigurations (
+    fromJson: any,
+    toTreeItem: TreeItemPackageJson
+  ): void {
+    if (fromJson !== undefined) {
+      Object.keys(fromJson).forEach(
+        (buildConfigurationName) => {
+          const treeItemConfiguration =
+            toTreeItem.addBuildConfiguration(buildConfigurationName)
+
+          const buildConfiguration: any = fromJson[buildConfigurationName]
+          this._addActions(buildConfiguration.actions, treeItemConfiguration)
+        }
+      )
+    }
+  }
+
+  private async _findXpackFolderPaths (
+    maxDepth: number
+  ): Promise<XpackFolderPath[]> {
+    const xpackFolderPaths: XpackFolderPath[] = []
+    const xpack = new Xpack()
+
+    if (vscode.workspace.workspaceFolders != null) {
+      const promises: Array<Promise<void>> = []
+      vscode.workspace.workspaceFolders.forEach(
+        (folder) => {
+          if (folder.uri.scheme === 'file') {
+            const promise = xpack.findPackageJsonFilesRecursive(
+              folder.uri.path,
+              folder.uri.path,
+              maxDepth,
+              xpackFolderPaths)
+            promises.push(promise)
+          }
+        }
+      )
+      await Promise.all(promises)
+    }
+
+    return xpackFolderPaths
+  }
+
   // --------------------------------------------------------------------------
 
-  getTreeItem (element: vscode.TreeItem): vscode.TreeItem {
+  refresh (): void {
+    console.log('XpackActionsTreeDataProvider.refresh()')
+
+    this._tree = null
+    this._onDidChangeTreeData.fire(null)
+  }
+
+  getTreeItem (element: TreeItem): TreeItem {
     return element
   }
 
-  async getChildren (element?: vscode.TreeItem): Promise<vscode.TreeItem[]> {
-    if (element === undefined) {
-      // Lazy creation, at first use.
-      if (this._tree === null) {
-        this._tree = this._createTree(this._xpackFolderPaths)
-      }
+  async getChildren (
+    element?: TreeItem
+  ): Promise<TreeItem[]> {
+    // console.log('getChildren', element)
 
+    // Lazy creation, delay to first use or after 'Refresh'.
+    if (this._tree === null) {
+      this._tree = await this._createTree()
+    }
+
+    if (element === undefined) {
       return this._tree
     }
 
@@ -286,7 +388,11 @@ export class XpackActionsTreeDataProvider implements
     }
   }
 
-  getParent (element: vscode.TreeItem): vscode.TreeItem | null {
+  getParent (
+    element: vscode.TreeItem
+  ): vscode.TreeItem | null {
+    // console.log('getParent', element)
+    
     if (element instanceof TreeItem) {
       return element.getParent()
     } else {

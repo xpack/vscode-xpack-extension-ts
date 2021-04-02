@@ -40,11 +40,12 @@
       "preLaunchTask": "${defaultBuildTask}"
     },
     {
-      "name": "Run Extension Empty",
+      "name": "Run Extension no xPack",
       "type": "extensionHost",
       "request": "launch",
       "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}"
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "/Users/ilg/tmp/nnn"
       ],
       "outFiles": [
         "${workspaceFolder}/out/**/*.js"
