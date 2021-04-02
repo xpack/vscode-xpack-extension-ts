@@ -39,12 +39,12 @@
     },
     "actions": {
       "build-all": [
-        "xpm run build --config debug",
-        "xpm run build --config release"
+        "xpm run build --config Debug",
+        "xpm run build --config Release"
       ],
       "clean-all": [
-        "xpm run clean --config debug",
-        "xpm run clean --config release"
+        "xpm run clean --config Debug",
+        "xpm run clean --config Release"
       ]
     },
     "buildConfigurations": {
