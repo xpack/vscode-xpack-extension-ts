@@ -351,7 +351,7 @@ export class XpackActionsTreeDataProvider extends TreeDataProvider {
       await Promise.all(promises)
     }
 
-    return xpackFolderPaths
+    return xpackFolderPaths.sort((a, b) => a.path.localeCompare(b.path))
   }
 
   // --------------------------------------------------------------------------
@@ -392,7 +392,7 @@ export class XpackActionsTreeDataProvider extends TreeDataProvider {
     element: vscode.TreeItem
   ): vscode.TreeItem | null {
     // console.log('getParent', element)
-    
+
     if (element instanceof TreeItem) {
       return element.getParent()
     } else {
