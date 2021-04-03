@@ -18,12 +18,16 @@
 import * as vscode from 'vscode'
 
 import {
+  XpackContext
+} from './lib/common'
+
+import {
   registerCommands
 } from './lib/commands'
 
 import {
-  VoidFunction
-} from './lib/xpack'
+  registerTasks
+} from './lib/tasks'
 
 import {
   registerExplorer
@@ -31,7 +35,7 @@ import {
 
 // ----------------------------------------------------------------------------
 
-const invalidateCacheFunctions: VoidFunction[] = []
+let xpackContext: XpackContext
 
 export async function activate (
   context: vscode.ExtensionContext
@@ -42,9 +46,13 @@ export async function activate (
     console.log('"ilg-vscode.xpack" requires local workspaces')
   }
 
-  registerExplorer(context, invalidateCacheFunctions)
+  xpackContext = new XpackContext(context)
+  await xpackContext.findXpackFolderPaths()
 
-  registerCommands(context, invalidateCacheFunctions)
+  registerExplorer(xpackContext)
+
+  registerCommands(xpackContext)
+  registerTasks(xpackContext)
 
   console.log('"ilg-vscode.xpack" activation completed')
 }

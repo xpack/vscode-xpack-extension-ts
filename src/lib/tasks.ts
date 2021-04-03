@@ -21,31 +21,25 @@ import {
 
 // ----------------------------------------------------------------------------
 
-// Better make it global, to register commands pointing to its functions.
-let _commands: Commands
+let _cachedTasks: TaskWithLocation[] | undefined
 
-export function registerCommands (
-  xpackContext: XpackContext
-): void {
-  const context: vscode.ExtensionContext = xpackContext.vscodeContext
+// ----------------------------------------------------------------------------
 
-  _commands = new Commands(xpackContext)
-
-  context.subscriptions.push(vscode.commands.registerCommand(
-    'xpack.treeViewRefresh', _commands.treeViewRefresh, _commands))
+export interface TaskWithLocation {
+  task: vscode.Task
+  location?: vscode.Location
 }
 
-export class Commands {
-  private readonly _xpackContext: XpackContext
+// ----------------------------------------------------------------------------
 
-  constructor (private readonly xpackContext: XpackContext) {
-    this._xpackContext = xpackContext
-  }
-
-  async treeViewRefresh (): Promise<void> {
-    console.log('treeViewRefresh()')
-    await this._xpackContext.runRefreshFunctions()
-  }
+export function registerTasks (
+  xpackContext: XpackContext
+): void {
+  xpackContext.addRefreshFunction(
+    async () => {
+      _cachedTasks = undefined
+    }
+  )
 }
 
 // ----------------------------------------------------------------------------

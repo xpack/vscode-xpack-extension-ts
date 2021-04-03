@@ -21,14 +21,6 @@ import * as path from 'path'
 
 // Helper class for processing xPacks.
 
-export type VoidFunction = (() => void)
-
-export interface XpackFolderPath {
-  path: string
-  relativePath: string
-  packageJson: any
-}
-
 export class Xpack {
   folderPath?: string
   packageJson?: any
@@ -38,7 +30,7 @@ export class Xpack {
   }
 
   async checkIfFolderHasPackageJson (
-    folderPath: string | undefined
+    folderPath?: string
   ): Promise<any | null> {
     let tmpPath: string | undefined
     if (folderPath !== undefined) {
@@ -110,47 +102,6 @@ export class Xpack {
       }
     }
     return false
-  }
-
-  async findPackageJsonFilesRecursive (
-    folderPath: string,
-    workspaceFolderPath: string,
-    depth: number,
-    xpackFolderPaths: XpackFolderPath[]
-  ): Promise<void> {
-    assert(folderPath)
-
-    // May be null.
-    console.log(`check folder ${folderPath} `)
-    const packageJson = await this.checkIfFolderHasPackageJson(folderPath)
-    if (this.isPackage(packageJson)) {
-      if (this.isXpack(packageJson)) {
-        xpackFolderPaths.push({
-          path: folderPath,
-          relativePath: path.relative(workspaceFolderPath, folderPath),
-          packageJson
-        })
-      }
-      return
-    }
-
-    if (depth <= 0) {
-      return
-    }
-
-    // Recurse on children folders.
-    const files = await fsPromises.readdir(folderPath, { withFileTypes: true })
-    const promises = []
-    for (const file of files) {
-      if (file.isDirectory() && !file.name.startsWith('.')) {
-        promises.push(this.findPackageJsonFilesRecursive(
-          path.join(folderPath, file.name),
-          workspaceFolderPath,
-          depth - 1,
-          xpackFolderPaths))
-      }
-    }
-    await Promise.all(promises)
   }
 }
 
