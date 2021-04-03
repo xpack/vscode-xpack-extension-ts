@@ -124,7 +124,7 @@ export class Xpack {
     console.log(`check folder ${folderPath} `)
     const packageJson = await this.checkIfFolderHasPackageJson(folderPath)
     if (this.isPackage(packageJson)) {
-      if (this.hasXpackActions(packageJson)) {
+      if (this.isXpack(packageJson)) {
         xpackFolderPaths.push({
           path: folderPath,
           relativePath: path.relative(workspaceFolderPath, folderPath),
@@ -142,7 +142,7 @@ export class Xpack {
     const files = await fsPromises.readdir(folderPath, { withFileTypes: true })
     const promises = []
     for (const file of files) {
-      if (file.isDirectory()) {
+      if (file.isDirectory() && !file.name.startsWith('.')) {
         promises.push(this.findPackageJsonFilesRecursive(
           path.join(folderPath, file.name),
           workspaceFolderPath,
