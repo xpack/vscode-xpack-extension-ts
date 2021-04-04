@@ -31,6 +31,7 @@ export type AyncVoidFunction = (() => Promise<void>)
 export interface XpackFolderPath {
   path: string
   relativePath: string
+  workspaceFolder: vscode.WorkspaceFolder
   packageJson: any
 }
 
@@ -70,7 +71,7 @@ export class ExtensionManager {
 
   async _findPackageJsonFilesRecursive (
     folderPath: string,
-    workspaceFolderPath: string,
+    workspaceFolder: vscode.WorkspaceFolder,
     depth: number,
     xpackFolderPaths: XpackFolderPath[]
   ): Promise<void> {
@@ -84,7 +85,8 @@ export class ExtensionManager {
       if (xpack.isXpack()) {
         xpackFolderPaths.push({
           path: folderPath,
-          relativePath: path.relative(workspaceFolderPath, folderPath),
+          relativePath: path.relative(workspaceFolder.uri.path, folderPath),
+          workspaceFolder,
           packageJson
         })
       }
@@ -102,7 +104,7 @@ export class ExtensionManager {
       if (file.isDirectory() && !file.name.startsWith('.')) {
         promises.push(this._findPackageJsonFilesRecursive(
           path.join(folderPath, file.name),
-          workspaceFolderPath,
+          workspaceFolder,
           depth - 1,
           xpackFolderPaths))
       }
@@ -118,11 +120,11 @@ export class ExtensionManager {
     if (vscode.workspace.workspaceFolders != null) {
       const promises: Array<Promise<void>> = []
       vscode.workspace.workspaceFolders.forEach(
-        (folder) => {
-          if (folder.uri.scheme === 'file') {
+        (workspaceFolder) => {
+          if (workspaceFolder.uri.scheme === 'file') {
             const promise = this._findPackageJsonFilesRecursive(
-              folder.uri.path,
-              folder.uri.path,
+              workspaceFolder.uri.path,
+              workspaceFolder,
               maxDepth,
               xpackFolderPaths)
             promises.push(promise)
