@@ -40,3 +40,10 @@ $ npm run fix
 > xpack@0.0.1 fix
 > ts-standard --fix src
 ```
+
+## package.json contributions
+
+The VSCode extensions require some definitions stored in the
+`contributes` property of `package.json`.
+
+- https://code.visualstudio.com/api/references/contribution-points
