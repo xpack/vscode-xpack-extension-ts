@@ -13,6 +13,14 @@
 
 // ----------------------------------------------------------------------------
 
+// This extension contribute tasks using a
+// [Task Provider](https://code.visualstudio.com/api/extension-guides/task-provider).
+
+// For details about using the tasks:
+// https://code.visualstudio.com/docs/editor/tasks
+
+// ----------------------------------------------------------------------------
+
 import * as vscode from 'vscode'
 
 import {
