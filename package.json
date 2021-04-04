@@ -140,6 +140,29 @@
           "visibility--": "hidden"
         }
       ]
-    }
+    },
+    "taskDefinitions": [
+      {
+        "type": "xpack",
+        "required": [
+          "actionName"
+        ],
+        "properties": {
+          "actionName": {
+            "type": "string",
+            "description": "%taskdef.actionName%"
+          },
+          "buildConfigurationName": {
+            "type": "string",
+            "description": "%taskdef.buildConfigurationName%"
+          },
+          "packageJsonPath": {
+            "type": "string",
+            "description": "%taskdef.packageJsonPath%"
+          }
+        },
+        "when": "shellExecutionSupported"
+      }
+    ]
   }
 }
