@@ -36,13 +36,24 @@ export interface XpackFolderPath {
 
 // ----------------------------------------------------------------------------
 
-export class XpackContext {
+export class ExtensionManager {
   vscodeContext: vscode.ExtensionContext
   refreshFunctions: AyncVoidFunction[] = []
   xpackFolderPaths: XpackFolderPath[] = []
 
   constructor (context: vscode.ExtensionContext) {
     this.vscodeContext = context
+  }
+
+  hasLocalWorkspace (): boolean {
+    if (vscode.workspace.workspaceFolders != null) {
+      return vscode.workspace.workspaceFolders.some(
+        (folder) => {
+          return (folder.uri.scheme === 'file')
+        }
+      )
+    }
+    return false
   }
 
   addRefreshFunction (func: AyncVoidFunction): void {

@@ -18,9 +18,9 @@ import * as path from 'path'
 import * as vscode from 'vscode'
 
 import {
-  XpackContext,
+  ExtensionManager,
   XpackFolderPath
-} from './common'
+} from './manager'
 
 // ----------------------------------------------------------------------------
 
@@ -31,6 +31,65 @@ type TreeItemParent = TreeItemPackageJson | TreeItemBuildConfiguration
 type TreeItemChild = TreeItemAction | TreeItemBuildConfiguration
 
 type JsonActionValue = string | string[]
+
+// ----------------------------------------------------------------------------
+
+export class Explorer {
+  // --------------------------------------------------------------------------
+  // Static members & methods.
+
+  static _explorer: Explorer
+
+  static async register (
+    extensionManager: ExtensionManager
+  ): Promise<void> {
+    Explorer._explorer = new Explorer(extensionManager)
+
+    // Add possible async calls here.
+  }
+
+  // --------------------------------------------------------------------------
+  // Members.
+
+  private readonly _extensionManager: ExtensionManager
+  private readonly _treeDataProvider: XpackActionsTreeDataProvider
+  private readonly _treeView: vscode.TreeView<vscode.TreeItem>
+
+  // --------------------------------------------------------------------------
+  // Constructors.
+
+  constructor (private readonly extensionManager: ExtensionManager) {
+    this._extensionManager = extensionManager
+
+    this._treeDataProvider =
+      new XpackActionsTreeDataProvider(extensionManager)
+
+    const context: vscode.ExtensionContext = extensionManager.vscodeContext
+
+    extensionManager.addRefreshFunction(
+      async () => {
+        this._treeDataProvider.refresh()
+      }
+    )
+
+    this._treeView = vscode.window.createTreeView(
+      'xpack',
+      {
+        treeDataProvider: this._treeDataProvider,
+        showCollapseAll: true
+      }
+    )
+
+    context.subscriptions.push(this._treeView)
+  }
+
+  // --------------------------------------------------------------------------
+  // Methods.
+
+  // --------------------------------------------------------------------------
+}
+
+// ----------------------------------------------------------------------------
 
 /**
  * @summary Base class for all tree items.
@@ -49,6 +108,8 @@ class TreeItem extends vscode.TreeItem {
   }
 }
 
+// ----------------------------------------------------------------------------
+
 class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
   refresh (): void { }
 
@@ -59,43 +120,6 @@ class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
   async getChildren (element?: TreeItem): Promise<TreeItem[]> {
     return []
   }
-}
-
-let treeDataProvider: XpackActionsTreeDataProvider | null = null
-let treeView: vscode.TreeView<vscode.TreeItem>
-
-// ----------------------------------------------------------------------------
-
-// Might need to return the tree.
-export function registerExplorer (
-  xpackContext: XpackContext
-): XpackActionsTreeDataProvider | null {
-  if (vscode.workspace.workspaceFolders == null) {
-    return null
-  }
-
-  const context: vscode.ExtensionContext = xpackContext.vscodeContext
-
-  treeDataProvider =
-    new XpackActionsTreeDataProvider(xpackContext)
-
-  xpackContext.addRefreshFunction(
-    async () => {
-      treeDataProvider?.refresh()
-    }
-  )
-
-  treeView = vscode.window.createTreeView(
-    'xpack',
-    {
-      treeDataProvider,
-      showCollapseAll: true
-    }
-  )
-
-  context.subscriptions.push(treeView)
-
-  return treeDataProvider
 }
 
 // ----------------------------------------------------------------------------
@@ -237,7 +261,7 @@ class TreeItemEmpty extends TreeItem {
  * @summary The data provider for the xPack Actions tree view.
  */
 export class XpackActionsTreeDataProvider extends TreeDataProvider {
-  private readonly _xpackContext: XpackContext
+  private readonly _xpackContext: ExtensionManager
 
   // Lazy creation at first use and after Refresh.
   private _tree: ActionsTree | null = null
@@ -251,7 +275,7 @@ export class XpackActionsTreeDataProvider extends TreeDataProvider {
   // --------------------------------------------------------------------------
 
   constructor (
-    private readonly xPackContext: XpackContext
+    private readonly xPackContext: ExtensionManager
   ) {
     super()
 

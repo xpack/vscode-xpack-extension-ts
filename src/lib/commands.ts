@@ -16,36 +16,56 @@
 import * as vscode from 'vscode'
 
 import {
-  XpackContext
-} from './common'
+  ExtensionManager
+} from './manager'
 
 // ----------------------------------------------------------------------------
 
-// Better make it global, to register commands pointing to its functions.
-let _commands: Commands
-
-export function registerCommands (
-  xpackContext: XpackContext
-): void {
-  const context: vscode.ExtensionContext = xpackContext.vscodeContext
-
-  _commands = new Commands(xpackContext)
-
-  context.subscriptions.push(vscode.commands.registerCommand(
-    'xpack.treeViewRefresh', _commands.treeViewRefresh, _commands))
-}
-
 export class Commands {
-  private readonly _xpackContext: XpackContext
+  // --------------------------------------------------------------------------
+  // Static members & methods.
 
-  constructor (private readonly xpackContext: XpackContext) {
-    this._xpackContext = xpackContext
+  static _commands: Commands
+
+  static async register (
+    extensionManager: ExtensionManager
+  ): Promise<void> {
+    Commands._commands = new Commands(extensionManager)
+
+    // Add possible async calls here.
   }
+
+  // --------------------------------------------------------------------------
+  // Members.
+
+  private readonly _extensionManager: ExtensionManager
+
+  // --------------------------------------------------------------------------
+  // Constructors.
+
+  constructor (private readonly extensionManager: ExtensionManager) {
+    this._extensionManager = extensionManager
+
+    const context: vscode.ExtensionContext = extensionManager.vscodeContext
+
+    context.subscriptions.push(
+      vscode.commands.registerCommand(
+        'xpack.treeViewRefresh',
+        this.treeViewRefresh,
+        this
+      )
+    )
+  }
+
+  // --------------------------------------------------------------------------
+  // Methods.
 
   async treeViewRefresh (): Promise<void> {
     console.log('treeViewRefresh()')
-    await this._xpackContext.runRefreshFunctions()
+    await this._extensionManager.runRefreshFunctions()
   }
+
+  // --------------------------------------------------------------------------
 }
 
 // ----------------------------------------------------------------------------
