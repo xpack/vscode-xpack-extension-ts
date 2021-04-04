@@ -18,7 +18,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xpack/vscode-xpack-extension-ts.git"
+    "url": "https://github.com/xpack/vscode-xpack-extension-ts.git"
   },
   "author": {
     "name": "Liviu Ionescu",
@@ -92,17 +92,6 @@
       "type": "object",
       "title": "xPack",
       "properties": {
-        "xpack.runInTerminal": {
-          "type": "boolean",
-          "default": true,
-          "description": "Run xpm commands in a terminal, otherwise shows the output in the output panel"
-        },
-        "xpack.xpm.bin": {
-          "scope": "machine",
-          "type": "string",
-          "default": "xpm",
-          "description": "The name of the xpm binary"
-        }
       }
     },
     "configuration.none": {
@@ -146,7 +135,7 @@
         {
           "id": "xpack",
           "name": "%view.name%",
-          "when--": "npm:showScriptExplorer",
+          "when": "npm:showScriptExplorer",
           "icon": "$(json)",
           "visibility--": "hidden"
         }
