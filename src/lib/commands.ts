@@ -43,7 +43,7 @@ export class Commands {
   // --------------------------------------------------------------------------
   // Constructors.
 
-  constructor (private readonly extensionManager: ExtensionManager) {
+  constructor (extensionManager: ExtensionManager) {
     this._extensionManager = extensionManager
 
     const context: vscode.ExtensionContext = extensionManager.vscodeContext

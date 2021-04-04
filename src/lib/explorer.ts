@@ -48,18 +48,13 @@ export class Explorer {
     // Add possible async calls here.
   }
 
-  // --------------------------------------------------------------------------
-  // Members.
-
-  private readonly _extensionManager: ExtensionManager
   private readonly _treeDataProvider: XpackActionsTreeDataProvider
   private readonly _treeView: vscode.TreeView<vscode.TreeItem>
 
   // --------------------------------------------------------------------------
   // Constructors.
 
-  constructor (private readonly extensionManager: ExtensionManager) {
-    this._extensionManager = extensionManager
+  constructor (readonly extensionManager: ExtensionManager) {
 
     this._treeDataProvider =
       new XpackActionsTreeDataProvider(extensionManager)
@@ -117,7 +112,7 @@ class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
     return element
   }
 
-  async getChildren (element?: TreeItem): Promise<TreeItem[]> {
+  async getChildren (_element?: TreeItem): Promise<TreeItem[]> {
     return []
   }
 }
@@ -125,7 +120,6 @@ class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
 // ----------------------------------------------------------------------------
 
 class TreeItemPackageJson extends TreeItem {
-  private readonly _xpackFolderPath: XpackFolderPath
   private readonly _actions: TreeItemAction[] = []
   private readonly _buildConfigurations: TreeItemBuildConfiguration[] = []
 
@@ -145,7 +139,6 @@ class TreeItemPackageJson extends TreeItem {
     const packageVersion: string = packageJson.version
     this.description = `(${packageName}@${packageVersion})`
 
-    this._xpackFolderPath = xpackFolderPath
   }
 
   addAction (
@@ -175,7 +168,6 @@ class TreeItemPackageJson extends TreeItem {
 
 class TreeItemAction extends TreeItem {
   private readonly _parent: TreeItemParent
-  private readonly _actionName: string
   private readonly _actionValue: string[]
 
   constructor (
@@ -186,7 +178,6 @@ class TreeItemAction extends TreeItem {
     super(actionName, vscode.TreeItemCollapsibleState.None)
 
     this._parent = parent
-    this._actionName = actionName
     if (Array.isArray(actionValue)) {
       this._actionValue = actionValue
     } else {
@@ -207,7 +198,6 @@ class TreeItemAction extends TreeItem {
 
 class TreeItemBuildConfiguration extends TreeItem {
   private readonly _parent: TreeItemPackageJson
-  private readonly _buildConfigurationName: string
   private readonly _actions: TreeItemAction[] = []
 
   constructor (
@@ -221,7 +211,6 @@ class TreeItemBuildConfiguration extends TreeItem {
     this.contextValue = 'folder'
     this.description = '(configuration)'
 
-    this._buildConfigurationName = buildConfigurationName
     this._parent = parent
   }
 
@@ -275,7 +264,7 @@ export class XpackActionsTreeDataProvider extends TreeDataProvider {
   // --------------------------------------------------------------------------
 
   constructor (
-    private readonly xPackContext: ExtensionManager
+    readonly xPackContext: ExtensionManager
   ) {
     super()
 
