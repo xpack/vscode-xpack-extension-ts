@@ -94,7 +94,10 @@ export class Tasks {
     console.log('addTasks()')
 
     for (const xPackFolderPath of this._extensionManager.xpackFolderPaths) {
-      this._xxx.push(await this.createTask('xpm', ['install'], xPackFolderPath))
+      // TODO: add location.
+      this._xxx.push({
+        task: await this.createTask('xpm', ['install'], xPackFolderPath)
+      })
     }
   }
 
@@ -106,29 +109,29 @@ export class Tasks {
     xpmProgramName: string,
     commandArguments: string[],
     xPackFolderPath: XpackFolderPath
-  ): Promise<TaskWithLocation> {
+  ): Promise<vscode.Task> {
     const taskDefinition: XpackTaskDefinition = {
       type: 'xpack',
       actionName: 'action name'
     }
-    const scope: vscode.WorkspaceFolder = {
-      uri: vscode.Uri.file(xPackFolderPath.path),
-      name: 'scope name',
-      index: 0
-    }
+    const scope: vscode.WorkspaceFolder = xPackFolderPath.workspaceFolder
+    const execution: vscode.ShellExecution = new vscode.ShellExecution(
+      xpmProgramName, 
+      commandArguments, 
+      { cwd: xPackFolderPath.path }
+    ) 
+
+    const problemMatchers = undefined
     const task = new vscode.Task(
       taskDefinition,
       scope,
       'task name',
       'task source',
-      new vscode.ShellExecution(
-        xpmProgramName, 
-        commandArguments, 
-        { cwd: xPackFolderPath.path }
-      )
+      execution,
+      problemMatchers
     )
-    // TODO: add location.
-    return { task }
+    task.detail = 'A detailed description'
+     return task
   }
 
   // --------------------------------------------------------------------------
