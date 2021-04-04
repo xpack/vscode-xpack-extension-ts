@@ -39,8 +39,16 @@ interface TaskWithLocation {
   location?: vscode.Location
 }
 
+// This interface reflects the properties of the `xpack` task definition
+// in `package.json`. 
+// It must be filled in and passed as the first parameter
+// when creating tasks.
+// In adition to these members, an inherited `type` must be set
+// to `xpack`. 
 interface XpackTaskDefinition extends vscode.TaskDefinition {
-  script: string
+  actionName: string
+  buildConfigurationName?: string
+  packageJsonPath?: string
 }
 
 // ----------------------------------------------------------------------------
@@ -100,22 +108,26 @@ export class Tasks {
     xPackFolderPath: XpackFolderPath
   ): Promise<TaskWithLocation> {
     const taskDefinition: XpackTaskDefinition = {
-      type: 'xxx',
-      script: 'sss'
+      type: 'xpack',
+      actionName: 'action name'
     }
     const scope: vscode.WorkspaceFolder = {
       uri: vscode.Uri.file(xPackFolderPath.path),
-      name: 'scopename',
+      name: 'scope name',
       index: 0
     }
     const task = new vscode.Task(
       taskDefinition,
       scope,
-      'nnn',
-      'source',
+      'task name',
+      'task source',
       new vscode.ShellExecution(
-        xpmProgramName, commandArguments, { cwd: xPackFolderPath.path })
+        xpmProgramName, 
+        commandArguments, 
+        { cwd: xPackFolderPath.path }
+      )
     )
+    // TODO: add location.
     return { task }
   }
 
