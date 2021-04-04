@@ -9,6 +9,6 @@ vsc-extension-quickstart.md
 **/.eslintrc.json
 **/*.map
 **/*.ts
-README-MAINTAINER.md
+README-*.md
 **/xpacks/**
 tests/**
