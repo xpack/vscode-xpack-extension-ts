@@ -19,6 +19,11 @@ import {
   ExtensionManager
 } from './manager'
 
+import {
+  TreeItem,
+  TreeItemAction
+} from './explorer'
+
 // ----------------------------------------------------------------------------
 
 export class Commands {
@@ -43,7 +48,8 @@ export class Commands {
   // --------------------------------------------------------------------------
   // Constructors.
 
-  constructor (extensionManager: ExtensionManager) {
+  constructor (
+    extensionManager: ExtensionManager) {
     this._extensionManager = extensionManager
 
     const context: vscode.ExtensionContext = extensionManager.vscodeContext
@@ -55,6 +61,13 @@ export class Commands {
         this
       )
     )
+    context.subscriptions.push(
+      vscode.commands.registerCommand(
+        'xpack.runAction',
+        this.runAction,
+        this
+      )
+    )
   }
 
   // --------------------------------------------------------------------------
@@ -63,6 +76,14 @@ export class Commands {
   async treeViewRefresh (): Promise<void> {
     console.log('treeViewRefresh()')
     await this._extensionManager.runRefreshFunctions()
+  }
+
+  async runAction (treeItem: TreeItem): Promise<void> {
+    console.log('runAction()')
+    if (treeItem instanceof TreeItemAction) {
+      console.log(treeItem)
+      await treeItem.runTask()
+    }
   }
 
   // --------------------------------------------------------------------------
