@@ -70,20 +70,41 @@
         "command": "xpack.treeViewRefresh",
         "title": "%command.treeViewRefresh%",
         "icon": "$(refresh)"
-      }
+      },
+      {
+        "command": "xpack.runAction",
+        "title": "%command.runAction%",
+        "icon": "$(run)"
+      }   
     ],
     "menus": {
       "commandPalette": [
         {
           "command": "xpack.treeViewRefresh",
           "when": "false"
-        }
+        },
+        {
+          "command": "xpack.runAction",
+          "when": "false"
+        }   
       ],
       "view/title": [
         {
           "command": "xpack.treeViewRefresh",
-          "when": "view == xpack",
+          "when": "view == xPackActions",
           "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "xpack.runAction",
+          "when": "view == xPackActions && viewItem == action",
+          "group": "navigation@2"
+        },
+        {
+          "command": "xpack.runAction",
+          "when": "view == xPackActions && viewItem == action",
+          "group": "inline"
         }
       ]
     },

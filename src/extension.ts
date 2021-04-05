@@ -41,11 +41,12 @@ export async function activate (
     console.log('"ilg-vscode.xpack" requires local workspaces')
   }
 
-  await _extensionManager.findXpackFolderPaths()
+  // await _extensionManager.findXpackFolderPaths()
+
+  await TaskProvider.register(_extensionManager)
 
   await Explorer.register(_extensionManager)
   await Commands.register(_extensionManager)
-  await TaskProvider.register(_extensionManager)
 
   // Refresh everything again, when all objects are created.
   await _extensionManager.runRefreshFunctions()

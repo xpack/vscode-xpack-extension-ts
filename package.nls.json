@@ -1,6 +1,7 @@
 {
   "view.name": "xPack Actions",
 	"command.treeViewRefresh": "Refresh",
+  "command.runAction": "Run",
 	"taskdef.xpmCommand": "The xpm command to customize.",
 	"taskdef.actionName": "The name of the xPack action to customize.",
   "taskdef.buildConfigurationName": "The name of the xPack build configuration where the action is defined. If omitted, the action does not belong to a configuration, but to the package.",
