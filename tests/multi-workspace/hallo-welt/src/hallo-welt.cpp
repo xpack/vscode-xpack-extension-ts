@@ -27,14 +27,14 @@
 
 // ----------------------------------------------------------------------------
 
-#include "hello-world.h"
+#include "hallo-welt.h"
 
 #include <iostream>
 
 int
 main(int argc, char* argv[])
 {
-  std::cout << "Hello World! " << std::endl;
+  std::cout << "Hallo Welt! " << std::endl;
 
 #if defined(DEBUG)
   std::cout << "(in debug mode)";

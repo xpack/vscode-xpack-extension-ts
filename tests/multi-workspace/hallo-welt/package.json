@@ -58,7 +58,7 @@
             "{{ properties.commandCmakeBuild }}"
           ],
           "clean": "{{ properties.commandCmakeClean }}",
-          "execute": "{{ properties.buildFolderRelativePath }}/hello-world"
+          "execute": "{{ properties.buildFolderRelativePath }}/hallo-welt"
         }
       },
       "Release": {
@@ -71,7 +71,7 @@
             "{{ properties.commandCmakeBuild }}"
           ],
           "clean": "{{ properties.commandCmakeClean }}",
-          "execute": "{{ properties.buildFolderRelativePath }}/hello-world"
+          "execute": "{{ properties.buildFolderRelativePath }}/hallo-welt"
         }
       }
     }
