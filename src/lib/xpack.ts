@@ -55,12 +55,15 @@ export class Xpack {
       }
       return packageJson
     } catch (err) {
+      if (folderPath === undefined) {
+        this.packageJson = null
+      }
       return null
     }
   }
 
   isPackage (json: any = this.packageJson): boolean {
-    if (json === null || json.name === undefined ||
+    if (json === undefined || json === null || json.name === undefined ||
       json.version === undefined) {
       return false
     }
