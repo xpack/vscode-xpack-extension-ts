@@ -19,7 +19,11 @@ import * as vscode from 'vscode'
 
 import {
   ExtensionManager,
-  XpackFolderPath
+  XpackFolderPath,
+  TreeNodeAction,
+  TreeNodeBuildConfiguration,
+  // TreeNodePackage,
+  JsonActionValue
 } from './manager'
 
 // ----------------------------------------------------------------------------
@@ -29,8 +33,6 @@ const _packageJson: string = 'package.json'
 type ActionsTree = TreeItemPackageJson[] | TreeItemEmpty[]
 type TreeItemParent = TreeItemPackageJson | TreeItemBuildConfiguration
 type TreeItemChild = TreeItemAction | TreeItemBuildConfiguration
-
-type JsonActionValue = string | string[]
 
 // ----------------------------------------------------------------------------
 
@@ -73,6 +75,7 @@ export class Explorer {
         showCollapseAll: true
       }
     )
+    console.log('tree view xPackActions registered')
 
     context.subscriptions.push(this._treeView)
   }
@@ -92,7 +95,7 @@ export class Explorer {
  * Makes sure that all classes implement getParent() and getChildren(),
  * to simplify the data provider.
  */
-class TreeItem extends vscode.TreeItem {
+export class TreeItem extends vscode.TreeItem {
   getParent (): TreeItem | null {
     return null
   }
@@ -141,9 +144,10 @@ class TreeItemPackageJson extends TreeItem {
 
   addAction (
     actionName: string,
-    actionValue: JsonActionValue
+    actionValue: JsonActionValue,
+    task: vscode.Task
   ): TreeItemAction {
-    const treeItem = new TreeItemAction(actionName, actionValue, this)
+    const treeItem = new TreeItemAction(actionName, actionValue, task, this)
     this._actions.push(treeItem)
     return treeItem
   }
@@ -164,17 +168,20 @@ class TreeItemPackageJson extends TreeItem {
 
 // ----------------------------------------------------------------------------
 
-class TreeItemAction extends TreeItem {
+export class TreeItemAction extends TreeItem {
   private readonly _parent: TreeItemParent
   private readonly _actionValue: string[]
+  private readonly _task: vscode.Task
 
   constructor (
     actionName: string,
     actionValue: JsonActionValue,
+    task: vscode.Task,
     parent: TreeItemParent
   ) {
     super(actionName, vscode.TreeItemCollapsibleState.None)
 
+    this._task = task
     this._parent = parent
     if (Array.isArray(actionValue)) {
       this._actionValue = actionValue
@@ -185,10 +192,21 @@ class TreeItemAction extends TreeItem {
     this.iconPath = new vscode.ThemeIcon('wrench')
     this.tooltip = this._actionValue.join('\n')
     this.contextValue = 'action'
+
+    const commandRun = {
+      title: 'Run Script',
+      command: 'xpack.runAction',
+      arguments: [this]
+    }
+    this.command = commandRun
   }
 
   getParent (): TreeItemParent {
     return this._parent
+  }
+
+  async runTask (): Promise<vscode.TaskExecution> {
+    return await vscode.tasks.executeTask(this._task)
   }
 }
 
@@ -214,9 +232,10 @@ class TreeItemBuildConfiguration extends TreeItem {
 
   addAction (
     actionName: string,
-    actionValue: JsonActionValue
+    actionValue: JsonActionValue,
+    task: vscode.Task
   ): TreeItemAction {
-    const treeItem = new TreeItemAction(actionName, actionValue, this)
+    const treeItem = new TreeItemAction(actionName, actionValue, task, this)
     this._actions.push(treeItem)
     return treeItem
   }
@@ -248,7 +267,7 @@ class TreeItemEmpty extends TreeItem {
  * @summary The data provider for the xPack Actions tree view.
  */
 export class XpackActionsTreeDataProvider extends TreeDataProvider {
-  private readonly _xpackContext: ExtensionManager
+  private readonly _extensionManager: ExtensionManager
 
   // Lazy creation at first use and after Refresh.
   private _tree: ActionsTree | null = null
@@ -262,11 +281,11 @@ export class XpackActionsTreeDataProvider extends TreeDataProvider {
   // --------------------------------------------------------------------------
 
   constructor (
-    readonly xPackContext: ExtensionManager
+    readonly extensionManager: ExtensionManager
   ) {
     super()
 
-    this._xpackContext = xPackContext
+    this._extensionManager = extensionManager
   }
 
   // --------------------------------------------------------------------------
@@ -274,25 +293,23 @@ export class XpackActionsTreeDataProvider extends TreeDataProvider {
   private async _createTree (): Promise<ActionsTree> {
     const tree: TreeItemPackageJson[] = []
 
-    // Scan the workspace folders for xPacks.
-    const xpackFolderPaths: XpackFolderPath[] =
-      this._xpackContext.xpackFolderPaths
+    // Basically replicate the tree built by the manager.
 
-    if (xpackFolderPaths.length === 0) {
+    if (this._extensionManager.tasksTree.length === 0) {
       return [new TreeItemEmpty('No xPack actions identified.')]
     }
 
-    xpackFolderPaths.forEach(
-      (xpackFolderPath) => {
-        const packageJson = xpackFolderPath.packageJson
+    this._extensionManager.tasksTree.forEach(
+      (treeNodePackage) => {
+        const xpackFolderPath = treeNodePackage.xpackFolderPath
 
         const treeItemPackage = new TreeItemPackageJson(xpackFolderPath)
         tree.push(treeItemPackage)
 
-        this._addActions(packageJson.xpack.actions, treeItemPackage)
+        this._addActions(treeNodePackage.actions, treeItemPackage)
 
         this._addBuildConfigurations(
-          packageJson.xpack.buildConfigurations,
+          treeNodePackage.buildConfigurations,
           treeItemPackage
         )
       }
@@ -303,34 +320,28 @@ export class XpackActionsTreeDataProvider extends TreeDataProvider {
   }
 
   private _addActions (
-    fromJson: any,
+    nodeActions: TreeNodeAction[],
     toTreeItem: TreeItemPackageJson | TreeItemBuildConfiguration
   ): void {
-    if (fromJson !== undefined) {
-      Object.keys(fromJson).forEach(
-        (actionName) => {
-          const actionValue: JsonActionValue = fromJson[actionName]
-          toTreeItem.addAction(actionName, actionValue)
-        }
-      )
-    }
+    nodeActions.forEach(
+      (node) => {
+        toTreeItem.addAction(node.actionName, node.actionValue, node.task)
+      }
+    )
   }
 
   private _addBuildConfigurations (
-    fromJson: any,
+    nodeBuildConfiguration: TreeNodeBuildConfiguration[],
     toTreeItem: TreeItemPackageJson
   ): void {
-    if (fromJson !== undefined) {
-      Object.keys(fromJson).forEach(
-        (buildConfigurationName) => {
-          const treeItemConfiguration =
-            toTreeItem.addBuildConfiguration(buildConfigurationName)
+    nodeBuildConfiguration.forEach(
+      (node) => {
+        const treeItemConfiguration =
+            toTreeItem.addBuildConfiguration(node.buildConfigurationName)
 
-          const buildConfiguration: any = fromJson[buildConfigurationName]
-          this._addActions(buildConfiguration.actions, treeItemConfiguration)
-        }
-      )
-    }
+        this._addActions(node.actions, treeItemConfiguration)
+      }
+    )
   }
 
   // --------------------------------------------------------------------------
