@@ -62,7 +62,7 @@
   "activationEvents": [
     "onLanguage:json",
     "workspaceContains:package.json",
-    "onView:xpack"
+    "onView:xPackActions"
   ],
   "contributes": {
     "commands": [
@@ -133,7 +133,7 @@
     "views": {
       "explorer": [
         {
-          "id": "xpack",
+          "id": "xPackActions",
           "name": "%view.name%",
           "when": "npm:showScriptExplorer",
           "icon": "$(json)",

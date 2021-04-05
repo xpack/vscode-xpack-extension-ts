@@ -55,7 +55,6 @@ export class Explorer {
   // Constructors.
 
   constructor (readonly extensionManager: ExtensionManager) {
-
     this._treeDataProvider =
       new XpackActionsTreeDataProvider(extensionManager)
 
@@ -68,7 +67,7 @@ export class Explorer {
     )
 
     this._treeView = vscode.window.createTreeView(
-      'xpack',
+      'xPackActions',
       {
         treeDataProvider: this._treeDataProvider,
         showCollapseAll: true
@@ -138,7 +137,6 @@ class TreeItemPackageJson extends TreeItem {
     const packageName: string = packageJson.name
     const packageVersion: string = packageJson.version
     this.description = `(${packageName}@${packageVersion})`
-
   }
 
   addAction (
