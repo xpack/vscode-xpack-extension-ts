@@ -1,0 +1,21 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "install",
+      "path": "hallo-welt/",
+      "problemMatcher": [],
+      "label": "npm: install - hallo-welt",
+      "detail": "install dependencies from package"
+    },
+    {
+      "type": "xPack",
+      "xpmCommand": "install",
+      "packageFolderRelativePath": "hallo-welt",
+      "problemMatcher": [],
+      "label": "xPack: install dependencies (hallo-welt)",
+      "detail": "xpm install"
+    }
+  ]
+}

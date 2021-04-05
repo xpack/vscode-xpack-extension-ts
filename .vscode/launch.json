@@ -6,12 +6,29 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Run Extension",
+      "name": "Run Extension Single",
       "type": "extensionHost",
       "request": "launch",
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "${workspaceFolder}/tests/hello-world-workspace"
+        "${workspaceFolder}/tests/single-workspace"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/out/**/*.js"
+      ],
+      "skipFiles": [
+        "async_hooks.js",
+        "inspector_async_hook.js"
+      ],
+      "preLaunchTask": "${defaultBuildTask}"
+    },
+    {
+      "name": "Run Extension Multi",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "${workspaceFolder}/tests/multi-workspace"
       ],
       "outFiles": [
         "${workspaceFolder}/out/**/*.js"

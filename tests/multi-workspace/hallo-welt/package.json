@@ -1,0 +1,79 @@
+{
+  "name": "hallo-welt",
+  "version": "0.1.0",
+  "description": "A Hallo Welt project",
+  "main": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/<user-id>/hello-world-native.git"
+  },
+  "bugs": {
+    "url": "https://github.com/<user-id>/hello-world-native/issues/"
+  },
+  "homepage": "https://github.com/<user-id>/hello-world-native/",
+  "keywords": [
+    "xpack"
+  ],
+  "author": {
+    "name": "Liviu Ionescu",
+    "email": "ilg@livius.net",
+    "url": "https://github.com/ilg-ul/"
+  },
+  "license": "MIT",
+  "config": {},
+  "dependencies": {},
+  "devDependencies": {
+    "@xpack-dev-tools/cmake": "3.19.2-2.1",
+    "@xpack-dev-tools/ninja-build": "1.10.2-2.1"
+  },
+  "xpack": {
+    "properties": {
+      "buildFolderRelativePath": "build/{{ configuration.name | downcase }}",
+      "commandCmakeGenerate": "cmake -S . -B {{ properties.buildFolderRelativePath }} -G Ninja -D CMAKE_BUILD_TYPE={{ properties.buildType }}",
+      "commandCmakeGenerateMake": "cmake -S . -B {{ properties.buildFolderRelativePath }} -G make -D CMAKE_BUILD_TYPE={{ properties.buildType }}",
+      "commandCmakeBuild": "cmake --build {{ properties.buildFolderRelativePath }}",
+      "commandCmakeClean": "cmake --build {{ properties.buildFolderRelativePath }} --target clean"
+    },
+    "actions": {
+      "build-all": [
+        "xpm run build --config Debug",
+        "xpm run build --config Release"
+      ],
+      "clean-all": [
+        "xpm run clean --config Debug",
+        "xpm run clean --config Release"
+      ]
+    },
+    "buildConfigurations": {
+      "Debug": {
+        "properties": {
+          "buildType": "Debug"
+        },
+        "actions": {
+          "build": [
+            "{{ properties.commandCmakeGenerate }}",
+            "{{ properties.commandCmakeBuild }}"
+          ],
+          "clean": "{{ properties.commandCmakeClean }}",
+          "execute": "{{ properties.buildFolderRelativePath }}/hello-world"
+        }
+      },
+      "Release": {
+        "properties": {
+          "buildType": "Release"
+        },
+        "actions": {
+          "build": [
+            "{{ properties.commandCmakeGenerate }}",
+            "{{ properties.commandCmakeBuild }}"
+          ],
+          "clean": "{{ properties.commandCmakeClean }}",
+          "execute": "{{ properties.buildFolderRelativePath }}/hello-world"
+        }
+      }
+    }
+  }
+}
