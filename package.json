@@ -61,7 +61,7 @@
   "main": "./out/extension.js",
   "activationEvents": [
     "onLanguage:json",
-    "workspaceContains:package.json",
+    "workspaceContains:**/package.json",
     "onView:xPackActions"
   ],
   "contributes": {
@@ -143,11 +143,14 @@
     },
     "taskDefinitions": [
       {
-        "type": "xpack",
+        "type": "xPack",
         "required": [
-          "actionName"
         ],
         "properties": {
+          "xpmCommand": {
+            "type": "string",
+            "description": "%taskdef.xpmCommand%"
+          },
           "actionName": {
             "type": "string",
             "description": "%taskdef.actionName%"
@@ -156,9 +159,9 @@
             "type": "string",
             "description": "%taskdef.buildConfigurationName%"
           },
-          "packageJsonPath": {
+          "packageFolderRelativePath": {
             "type": "string",
-            "description": "%taskdef.packageJsonPath%"
+            "description": "%taskdef.packageFolderRelativePath%"
           }
         },
         "when": "shellExecutionSupported"

@@ -34,45 +34,42 @@ import {
 
 // ----------------------------------------------------------------------------
 
-interface TaskWithLocation {
-  task: vscode.Task
-  location?: vscode.Location
-}
+// interface TaskWithLocation {
+//   task: vscode.Task
+//   location?: vscode.Location
+// }
 
 // This interface reflects the properties of the `xpack` task definition
-// in `package.json`. 
+// in `package.json`.
 // It must be filled in and passed as the first parameter
 // when creating tasks.
 // In adition to these members, an inherited `type` must be set
-// to `xpack`. 
+// to `xpack`.
 interface XpackTaskDefinition extends vscode.TaskDefinition {
-  actionName: string
+  actionName?: string
   buildConfigurationName?: string
-  packageJsonPath?: string
+  packageFolderRelativePath?: string
 }
 
 // ----------------------------------------------------------------------------
 
-export class Tasks {
+export class TaskProvider implements vscode.TaskProvider {
   // --------------------------------------------------------------------------
   // Static members & methods.
 
-  static _tasks: Tasks
+  static _taskProvider: TaskProvider
 
   static async register (
     extensionManager: ExtensionManager
   ): Promise<void> {
-    Tasks._tasks = new Tasks(extensionManager)
-
-    await Tasks._tasks.addTasks()
+    TaskProvider._taskProvider = new TaskProvider(extensionManager)
   }
 
   // --------------------------------------------------------------------------
   // Members.
 
   private readonly _extensionManager: ExtensionManager
-
-  _xxx: TaskWithLocation[] = []
+  private _tasks: vscode.Task[] | undefined
 
   // --------------------------------------------------------------------------
   // Constructors.
@@ -85,53 +82,205 @@ export class Tasks {
         this.refresh()
       }
     )
+
+    const taskProvider = vscode.tasks.registerTaskProvider('xPack', this)
+
+    const context = this._extensionManager.vscodeContext
+    context.subscriptions.push(taskProvider)
   }
 
   // --------------------------------------------------------------------------
   // Methods.
 
-  async addTasks (): Promise<void> {
-    console.log('addTasks()')
+  async provideTasks (
+    token: vscode.CancellationToken
+  ): Promise<vscode.Task[]> {
+    if (this._tasks === undefined) {
+      this._tasks = await this.addTasks(token)
+    }
 
-    for (const xPackFolderPath of this._extensionManager.xpackFolderPaths) {
-      // TODO: add location.
-      this._xxx.push({
-        task: await this.createTask('xpm', ['install'], xPackFolderPath)
-      })
+    return this._tasks
+  }
+
+  async resolveTask (
+    task: vscode.Task,
+    token: vscode.CancellationToken
+  ): Promise<vscode.Task | undefined> {
+    if (token.isCancellationRequested) {
+      return undefined
+    }
+    if (task === undefined) {
+      return undefined
+    } else {
+      throw new Error('Method not yet implemented.')
     }
   }
 
+  // --------------------------------------------------------------------------
+
   refresh (): void {
     console.log('Tasks.refresh()')
+
+    this._tasks = undefined
+  }
+
+  // --------------------------------------------------------------------------
+
+  async addTasks (
+    token: vscode.CancellationToken
+  ): Promise<vscode.Task[]> {
+    const tasks: vscode.Task[] = []
+
+    for (const xpackFolderPath of this._extensionManager.xpackFolderPaths) {
+      if (token.isCancellationRequested) {
+        break
+      }
+
+      const taskDefinitionInstall: XpackTaskDefinition = {
+        type: 'xPack',
+        xpmCommand: 'install'
+      }
+      if (xpackFolderPath.relativePath !== '') {
+        taskDefinitionInstall.packageFolderRelativePath =
+          xpackFolderPath.relativePath
+      }
+
+      const packageJson = xpackFolderPath.packageJson
+
+      let taskLabel = 'install dependencies'
+      if (xpackFolderPath.relativePath !== '') {
+        taskLabel += ` (${xpackFolderPath.relativePath})`
+      }
+
+      const task = await this.createTask(
+        'xpm',
+        ['install'],
+        xpackFolderPath,
+        taskLabel,
+        taskDefinitionInstall
+      )
+      tasks.push(task)
+
+      const actionTasks = await this.addActions(
+        packageJson.xpack.actions,
+        '', // Package actions have no configuration name.
+        xpackFolderPath,
+        token
+      )
+      tasks.push(...actionTasks)
+
+      const configurationTasks = await this.addBuildConfigurationsActions(
+        packageJson.xpack.buildConfigurations,
+        xpackFolderPath,
+        token
+      )
+      tasks.push(...configurationTasks)
+    }
+
+    return tasks
+  }
+
+  async addActions (
+    fromJson: any,
+    buildConfigurationName: string,
+    xpackFolderPath: XpackFolderPath,
+    token: vscode.CancellationToken
+  ): Promise<vscode.Task[]> {
+    const tasks: vscode.Task[] = []
+
+    if (fromJson !== undefined) {
+      for (const actionName of Object.keys(fromJson)) {
+        if (token.isCancellationRequested) {
+          break
+        }
+
+        const taskDefinition: XpackTaskDefinition = {
+          type: 'xPack',
+          actionName
+        }
+
+        if (buildConfigurationName !== '') {
+          taskDefinition.buildConfigurationName = buildConfigurationName
+        }
+        if (xpackFolderPath.relativePath !== '') {
+          taskDefinition.packageFolderRelativePath =
+            xpackFolderPath.relativePath
+        }
+
+        const commandArguments = ['run', actionName]
+        let taskLabel = actionName
+        if (buildConfigurationName !== '') {
+          taskLabel += ` ${buildConfigurationName}`
+          commandArguments.push('--config', buildConfigurationName)
+        }
+        if (xpackFolderPath.relativePath !== '') {
+          taskLabel += ` (${xpackFolderPath.relativePath})`
+        }
+
+        const task = await this.createTask(
+          'xpm',
+          commandArguments,
+          xpackFolderPath,
+          taskLabel,
+          taskDefinition
+        )
+        tasks.push(task)
+      }
+    }
+
+    return tasks
+  }
+
+  async addBuildConfigurationsActions (
+    fromJson: any,
+    xpackFolderPath: XpackFolderPath,
+    token: vscode.CancellationToken
+  ): Promise<vscode.Task[]> {
+    const tasks: vscode.Task[] = []
+
+    if (fromJson !== undefined) {
+      for (const buildConfigurationName of Object.keys(fromJson)) {
+        const buildConfiguration: any = fromJson[buildConfigurationName]
+
+        const actionTasks = await this.addActions(
+          buildConfiguration.actions,
+          buildConfigurationName,
+          xpackFolderPath, token
+        )
+        tasks.push(...actionTasks)
+      }
+    }
+
+    return tasks
   }
 
   async createTask (
     xpmProgramName: string,
     commandArguments: string[],
-    xPackFolderPath: XpackFolderPath
+    xPackFolderPath: XpackFolderPath,
+    taskLabel: string,
+    taskDefinition: XpackTaskDefinition
   ): Promise<vscode.Task> {
-    const taskDefinition: XpackTaskDefinition = {
-      type: 'xpack',
-      actionName: 'action name'
-    }
     const scope: vscode.WorkspaceFolder = xPackFolderPath.workspaceFolder
     const execution: vscode.ShellExecution = new vscode.ShellExecution(
-      xpmProgramName, 
-      commandArguments, 
+      xpmProgramName,
+      commandArguments,
       { cwd: xPackFolderPath.path }
-    ) 
+    )
+
+    const taskPrefix = 'xPack'
 
     const problemMatchers = undefined
     const task = new vscode.Task(
       taskDefinition,
       scope,
-      'task name',
-      'task source',
+      taskLabel,
+      taskPrefix,
       execution,
       problemMatchers
     )
-    task.detail = 'A detailed description'
-     return task
+    task.detail = [xpmProgramName, ...commandArguments].join(' ')
+    return task
   }
 
   // --------------------------------------------------------------------------

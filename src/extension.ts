@@ -20,7 +20,7 @@ import * as vscode from 'vscode'
 // They create and register the objects to VS Code.
 import { ExtensionManager } from './lib/manager'
 import { Commands } from './lib/commands'
-import { Tasks } from './lib/tasks'
+import { TaskProvider } from './lib/tasks'
 import { Explorer } from './lib/explorer'
 
 // ----------------------------------------------------------------------------
@@ -45,7 +45,10 @@ export async function activate (
 
   await Explorer.register(_extensionManager)
   await Commands.register(_extensionManager)
-  await Tasks.register(_extensionManager)
+  await TaskProvider.register(_extensionManager)
+
+  // Refresh everything again, when all objects are created.
+  await _extensionManager.runRefreshFunctions()
 
   console.log('"ilg-vscode.xpack" activation completed')
 }
