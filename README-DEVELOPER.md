@@ -6,14 +6,25 @@ This project is written in TypeScript, as recommended for VSCode extensions.
 
 The current version is TypeScript 4:
 
-- https://www.typescriptlang.org
-- https://www.typescriptlang.org/docs/handbook
+- <https://www.typescriptlang.org>
+- <https://www.typescriptlang.org/docs/handbook>
 
 ## VSCode extension API
 
 The API used to implement VSCode extensions:
 
-- https://code.visualstudio.com/api
+- <https://code.visualstudio.com/api>
+
+### package.json contributions
+
+The VSCode extensions require some definitions stored in the
+`contributes` property of `package.json`.
+
+- <https://code.visualstudio.com/api/references/contribution-points>
+
+Similarly the activation events are documented in:
+
+- <https://code.visualstudio.com/api/references/activation-events>
 
 ## Standard style
 
@@ -40,10 +51,3 @@ $ npm run fix
 > xpack@0.0.1 fix
 > ts-standard --fix src
 ```
-
-## package.json contributions
-
-The VSCode extensions require some definitions stored in the
-`contributes` property of `package.json`.
-
-- https://code.visualstudio.com/api/references/contribution-points
