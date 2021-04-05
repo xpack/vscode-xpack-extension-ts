@@ -38,15 +38,15 @@
     "vscode": "^1.54.0"
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
+    "fix": "ts-standard --fix src",
     "compile": "tsc -p ./",
+    "vscode:prepublish": "npm run compile",
     "tsc": "tsc -h",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "ts-standard src",
     "test": "node ./out/test/runTest.js",
     "git-log": "git log --pretty='%cd * %h %s' --date=short",
-    "fix": "ts-standard --fix src",
     "package": "vsce ls && vsce package",
     "publish": "vsce publish"
   },
