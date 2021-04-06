@@ -166,6 +166,9 @@ export class ExtensionManager {
   // --------------------------------------------------------------------------
 
   async buildTasksTree (): Promise<void> {
+    this.tasksTree = []
+    this.tasks = []
+
     for (const xpackFolderPath of this.xpackFolderPaths) {
       const treeNodePackage: TreeNodePackage =
         new TreeNodePackage(xpackFolderPath)
