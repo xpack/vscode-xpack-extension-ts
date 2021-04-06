@@ -57,6 +57,7 @@ export class ExtensionManager {
   xpackFolderPaths: XpackFolderPath[] = []
 
   tasksTree: TreeNodePackage[] = []
+  buildConfigurations: TreeNodeBuildConfiguration[] = []
   tasks: vscode.Task[] = []
 
   constructor (context: vscode.ExtensionContext) {
@@ -167,6 +168,7 @@ export class ExtensionManager {
 
   async buildTasksTree (): Promise<void> {
     this.tasksTree = []
+    this.buildConfigurations = []
     this.tasks = []
 
     for (const xpackFolderPath of this.xpackFolderPaths) {
@@ -216,6 +218,9 @@ export class ExtensionManager {
           buildConfiguration.actions,
           nodeBuildConfiguration
         )
+
+        // Keep a separate array of all build configurations.
+        this.buildConfigurations.push(nodeBuildConfiguration)
       }
     }
   }
