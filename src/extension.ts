@@ -22,6 +22,7 @@ import { ExtensionManager } from './lib/manager'
 import { Commands } from './lib/commands'
 import { TaskProvider } from './lib/tasks'
 import { Explorer } from './lib/explorer'
+import { StatusBar } from './lib/status'
 
 // ----------------------------------------------------------------------------
 
@@ -46,6 +47,9 @@ export async function activate (
   await TaskProvider.register(_extensionManager)
 
   await Explorer.register(_extensionManager)
+
+  await StatusBar.register(_extensionManager)
+
   await Commands.register(_extensionManager)
 
   // Refresh everything again, when all objects are created.

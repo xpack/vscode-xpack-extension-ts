@@ -69,24 +69,34 @@
       {
         "command": "xpack.treeViewRefresh",
         "title": "%command.treeViewRefresh%",
+        "category": "xPack",
         "icon": "$(refresh)"
       },
       {
         "command": "xpack.runAction",
         "title": "%command.runAction%",
         "icon": "$(run)"
-      }   
+      },
+      {
+        "command": "xpack.selectBuildConfiguration",
+        "title": "%command.selectBuildConfiguration%",
+        "category": "xPack"
+      }
     ],
     "menus": {
       "commandPalette": [
         {
           "command": "xpack.treeViewRefresh",
-          "when": "false"
+          "when": "true"
         },
         {
           "command": "xpack.runAction",
           "when": "false"
-        }   
+        },
+        {
+          "command": "xpack.selectBuildConfiguration",
+          "when": "true"
+        }
       ],
       "view/title": [
         {
@@ -112,8 +122,7 @@
       "id": "xpack",
       "type": "object",
       "title": "xPack",
-      "properties": {
-      }
+      "properties": {}
     },
     "configuration.none": {
       "id": "xpack",
@@ -165,8 +174,7 @@
     "taskDefinitions": [
       {
         "type": "xPack",
-        "required": [
-        ],
+        "required": [],
         "properties": {
           "xpmCommand": {
             "type": "string",

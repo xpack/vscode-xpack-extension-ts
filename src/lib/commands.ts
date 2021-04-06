@@ -68,22 +68,38 @@ export class Commands {
         this
       )
     )
+    context.subscriptions.push(
+      vscode.commands.registerCommand(
+        'xpack.selectBuildConfiguration',
+        this.selectBuildConfiguration,
+        this
+      )
+    )
   }
 
   // --------------------------------------------------------------------------
   // Methods.
 
   async treeViewRefresh (): Promise<void> {
-    console.log('treeViewRefresh()')
+    console.log('Command.treeViewRefresh()')
     await this._extensionManager.runRefreshFunctions()
   }
 
+  // When invoked by the tree viewer it get the tree item where it occured.
   async runAction (treeItem: TreeItem): Promise<void> {
-    console.log('runAction()')
+    console.log('Command.runAction()')
     if (treeItem instanceof TreeItemAction) {
       console.log(treeItem)
       await treeItem.runTask()
+    } else {
+      throw new Error('treeItem not yet implemented')
     }
+  }
+
+  async selectBuildConfiguration (): Promise<void> {
+    console.log('Command.selectBuildConfiguration()')
+
+    // TODO: create a picker to select the desired configuration
   }
 
   // --------------------------------------------------------------------------
