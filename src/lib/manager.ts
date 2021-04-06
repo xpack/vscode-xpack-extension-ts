@@ -328,10 +328,10 @@ export class TreeNodePackage {
   }
 
   addBuildConfiguration (
-    buildConfigurationName: string
+    name: string
   ): TreeNodeBuildConfiguration {
     const nodeBuildConfiguration = new TreeNodeBuildConfiguration(
-      buildConfigurationName,
+      name,
       this
     )
     this.buildConfigurations.push(nodeBuildConfiguration)
@@ -341,27 +341,27 @@ export class TreeNodePackage {
 }
 
 export class TreeNodeBuildConfiguration {
-  buildConfigurationName: string
+  name: string
   actions: TreeNodeAction[]
   parent: TreeNodePackage
 
-  constructor (buildConfigurationName: string, parent: TreeNodePackage) {
-    this.buildConfigurationName = buildConfigurationName
+  constructor (name: string, parent: TreeNodePackage) {
+    this.name = name
     this.actions = []
     this.parent = parent
   }
 
   async addAction (
-    actionName: string,
-    actionValue: JsonActionValue,
+    name: string,
+    value: JsonActionValue,
     extensionManager: ExtensionManager
   ): Promise<TreeNodeAction> {
     const task = await extensionManager.createTaskAction(
-      actionName,
-      this.buildConfigurationName,
+      name,
+      this.name,
       this.parent.xpackFolderPath
     )
-    const nodeAction = new TreeNodeAction(actionName, actionValue, task, this)
+    const nodeAction = new TreeNodeAction(name, value, task, this)
     this.actions.push(nodeAction)
 
     return nodeAction
@@ -369,19 +369,19 @@ export class TreeNodeBuildConfiguration {
 }
 
 export class TreeNodeAction {
-  actionName: string
-  actionValue: JsonActionValue
+  name: string
+  value: JsonActionValue
   task: vscode.Task
   parent: TreeNodeBuildConfiguration | TreeNodePackage
 
   constructor (
-    actionName: string,
-    actionValue: JsonActionValue,
+    name: string,
+    value: JsonActionValue,
     task: vscode.Task,
     parent: TreeNodeBuildConfiguration | TreeNodePackage
   ) {
-    this.actionName = actionName
-    this.actionValue = actionValue
+    this.name = name
+    this.value = value
     this.task = task
     this.parent = parent
   }

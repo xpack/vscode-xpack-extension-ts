@@ -361,7 +361,7 @@ export class XpackActionsTreeDataProvider extends TreeDataProvider {
   ): void {
     nodeActions.forEach(
       (node) => {
-        toTreeItem.addAction(node.actionName, node.actionValue, node.task)
+        toTreeItem.addAction(node.name, node.value, node.task)
       }
     )
   }
@@ -373,7 +373,7 @@ export class XpackActionsTreeDataProvider extends TreeDataProvider {
     nodeBuildConfiguration.forEach(
       (node) => {
         const treeItemConfiguration =
-            toTreeItem.addBuildConfiguration(node.buildConfigurationName)
+            toTreeItem.addBuildConfiguration(node.name)
 
         this._addActions(node.actions, treeItemConfiguration)
       }
