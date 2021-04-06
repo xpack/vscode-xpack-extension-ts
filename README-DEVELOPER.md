@@ -20,11 +20,12 @@ The API used to implement VSCode extensions:
 The VSCode extensions require some definitions stored in the
 `contributes` property of `package.json`.
 
-- <https://code.visualstudio.com/api/references/contribution-points>
-
-Similarly the activation events are documented in:
-
-- <https://code.visualstudio.com/api/references/activation-events>
+- [contribution points](https://code.visualstudio.com/api/references/contribution-points)
+- [activation events](https://code.visualstudio.com/api/references/activation-events)
+- [extension manifest](https://code.visualstudio.com/api/references/extension-manifest)
+- [built-in commands](https://code.visualstudio.com/api/references/commands)
+- [when clause contexts](https://code.visualstudio.com/api/references/when-clause-contexts)
+- [product icon references](https://code.visualstudio.com/api/references/icons-in-labels)
 
 ## Standard style
 
