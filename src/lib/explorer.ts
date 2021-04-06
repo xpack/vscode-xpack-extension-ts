@@ -124,11 +124,15 @@ class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
 class TreeItemPackageJson extends TreeItem {
   private readonly _actions: TreeItemAction[] = []
   private readonly _buildConfigurations: TreeItemBuildConfiguration[] = []
+  private readonly _name: string
+  private readonly _path: string
 
   constructor (xpackFolderPath: XpackFolderPath) {
     super(path.join(xpackFolderPath.relativePath, _packageJson),
       vscode.TreeItemCollapsibleState.Expanded)
 
+    this._name = xpackFolderPath.relativePath
+    this._path = path.join(xpackFolderPath.path, _packageJson)
     this.iconPath = new vscode.ThemeIcon('symbol-package')
     // this.description = 'Package actions'
     this.resourceUri =
@@ -164,6 +168,14 @@ class TreeItemPackageJson extends TreeItem {
   getChildren (): TreeItemChild[] {
     return [...this._actions, ...this._buildConfigurations]
   }
+
+  getName (): string {
+    return this._name
+  }
+
+  getPath (): string {
+    return this._path
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -172,6 +184,7 @@ export class TreeItemAction extends TreeItem {
   private readonly _parent: TreeItemParent
   private readonly _actionValue: string[]
   private readonly _task: vscode.Task
+  private readonly _name: string
 
   constructor (
     actionName: string,
@@ -181,6 +194,7 @@ export class TreeItemAction extends TreeItem {
   ) {
     super(actionName, vscode.TreeItemCollapsibleState.None)
 
+    this._name = actionName
     this._task = task
     this._parent = parent
     if (Array.isArray(actionValue)) {
@@ -192,13 +206,25 @@ export class TreeItemAction extends TreeItem {
     this.iconPath = new vscode.ThemeIcon('wrench')
     this.tooltip = this._actionValue.join('\n')
     this.contextValue = 'action'
-
-    const commandRun = {
-      title: 'Run Script',
-      command: 'xpack.runAction',
-      arguments: [this]
+    let packageJsonPath: string = ''
+    if (parent instanceof TreeItemBuildConfiguration) {
+      this.description =
+        `(${parent.getName()} - ${parent.getParent().getName()})`
+      packageJsonPath = parent.getParent().getPath()
+    } else if (parent instanceof TreeItemPackageJson) {
+      this.description = `(${parent.getName()})`
+      packageJsonPath = parent.getPath()
     }
-    this.command = commandRun
+
+    // The command to run when clicking the action item in the tree.
+    this.command = {
+      title: 'Edit Script',
+      command: 'vscode.open',
+      arguments: [
+        vscode.Uri.file(packageJsonPath)
+        // TODO: add location (range of lines).
+      ]
+    }
   }
 
   getParent (): TreeItemParent {
@@ -208,6 +234,10 @@ export class TreeItemAction extends TreeItem {
   async runTask (): Promise<vscode.TaskExecution> {
     return await vscode.tasks.executeTask(this._task)
   }
+
+  getName (): string {
+    return this._name
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -215,6 +245,7 @@ export class TreeItemAction extends TreeItem {
 class TreeItemBuildConfiguration extends TreeItem {
   private readonly _parent: TreeItemPackageJson
   private readonly _actions: TreeItemAction[] = []
+  private readonly _name: string
 
   constructor (
     buildConfigurationName: string,
@@ -222,6 +253,7 @@ class TreeItemBuildConfiguration extends TreeItem {
   ) {
     super(buildConfigurationName, vscode.TreeItemCollapsibleState.Expanded)
 
+    this._name = buildConfigurationName
     this.iconPath = vscode.ThemeIcon.Folder
     this.tooltip = 'xPack build configuration'
     this.contextValue = 'folder'
@@ -242,6 +274,10 @@ class TreeItemBuildConfiguration extends TreeItem {
 
   getChildren (): TreeItemAction[] {
     return this._actions
+  }
+
+  getName (): string {
+    return this._name
   }
 
   getParent (): TreeItemPackageJson {
