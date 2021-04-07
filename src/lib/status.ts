@@ -74,30 +74,45 @@ export class StatusBar implements vscode.Disposable {
     subscriptions.push(statusBarItem)
 
     this._statusBarItem = statusBarItem
+
+    extensionManager.onSelectBuildConfiguration.event(
+      (treeNode) => {
+        console.log(treeNode, 'received')
+
+        this.refresh(treeNode)
+      }
+    )
   }
 
   // --------------------------------------------------------------------------
 
-  refresh (): void {
+  refresh (treeNode?: TreeNodeBuildConfiguration): void {
     console.log('StatusBar.refresh()')
 
-    const extensionManager: ExtensionManager = this._extensionManager
+    let buildConfiguration: TreeNodeBuildConfiguration | undefined = treeNode
+    if (treeNode === undefined) {
+      const extensionManager: ExtensionManager = this._extensionManager
+
+      const buildConfigurations: TreeNodeBuildConfiguration[] =
+        extensionManager.buildConfigurations
+      if (buildConfigurations.length > 0) {
+        buildConfiguration = buildConfigurations[0]
+      }
+    }
 
     const statusBarItem = this._statusBarItem
     statusBarItem.hide()
 
-    const buildConfigurations: TreeNodeBuildConfiguration[] =
-     extensionManager.buildConfigurations
-    if (buildConfigurations.length > 0) {
-      const buildConfiguration = buildConfigurations[0]
+    if (buildConfiguration !== undefined) {
       const name: string = buildConfiguration.name
       statusBarItem.text = `$(tools) ${name}`
-      let tooltip = `Using build configuration ${name}`
+      let tooltip = ''
       const relativePath =
         buildConfiguration.parent.xpackFolderPath.relativePath
       if (relativePath !== '') {
-        tooltip += ` of ${relativePath}`
+        tooltip += `${relativePath} - `
       }
+      tooltip += 'Select the build configuration for IntelliSense'
       statusBarItem.tooltip = tooltip
       statusBarItem.command = 'xpack.selectBuildConfiguration'
       statusBarItem.show()

@@ -16,7 +16,8 @@
 import * as vscode from 'vscode'
 
 import {
-  ExtensionManager
+  ExtensionManager,
+  BuildConfigurationPick
 } from './manager'
 
 import {
@@ -47,12 +48,19 @@ export class Commands implements vscode.Disposable {
   // Members.
 
   private readonly _extensionManager: ExtensionManager
+  private _buildConfigurationPicks: BuildConfigurationPick[] | undefined
 
   // --------------------------------------------------------------------------
   // Constructors.
 
   constructor (extensionManager: ExtensionManager) {
     this._extensionManager = extensionManager
+
+    extensionManager.addRefreshFunction(
+      async () => {
+        this.refresh()
+      }
+    )
 
     const context: vscode.ExtensionContext = extensionManager.vscodeContext
 
@@ -101,8 +109,36 @@ export class Commands implements vscode.Disposable {
   async selectBuildConfiguration (): Promise<void> {
     console.log('Command.selectBuildConfiguration()')
 
-    // TODO: create a picker to select the desired configuration
+    if (this._buildConfigurationPicks === undefined) {
+      this._buildConfigurationPicks =
+        this._extensionManager.buildConfigurations.map(
+          (treeNode) => {
+            return new BuildConfigurationPick(treeNode)
+          }
+        )
+    }
+    const pick = await vscode.window.showQuickPick<BuildConfigurationPick>(
+      this._buildConfigurationPicks,
+      {
+        placeHolder: 'Select the build configuration for IntelliSense'
+      }
+    )
+
+    console.log(pick)
+    if (pick !== undefined) {
+      this._extensionManager.setBuildConfiguration(pick.treeNode)
+    }
   }
+
+  // --------------------------------------------------------------------------
+
+  refresh (): void {
+    console.log('Commands.refresh()')
+
+    this._buildConfigurationPicks = undefined
+  }
+
+  // --------------------------------------------------------------------------
 
   dispose (): void {
     console.log('Commands.dispose()')

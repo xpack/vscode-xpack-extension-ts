@@ -59,8 +59,12 @@ export class ExtensionManager implements vscode.Disposable {
   tasksTree: TreeNodePackage[] = []
   buildConfigurations: TreeNodeBuildConfiguration[] = []
   tasks: vscode.Task[] = []
+  selectedBuildConfiguration: TreeNodeBuildConfiguration | undefined
 
   subscriptions: vscode.Disposable[] = []
+
+  onSelectBuildConfiguration =
+  new vscode.EventEmitter<TreeNodeBuildConfiguration>()
 
   constructor (context: vscode.ExtensionContext) {
     this.vscodeContext = context
@@ -299,6 +303,16 @@ export class ExtensionManager implements vscode.Disposable {
     return task
   }
 
+  // --------------------------------------------------------------------------
+
+  setBuildConfiguration (treeNode: TreeNodeBuildConfiguration): void {
+    this.selectedBuildConfiguration = treeNode
+
+    this.onSelectBuildConfiguration.fire(treeNode)
+  }
+
+  // --------------------------------------------------------------------------
+
   dispose (): void {
     this.subscriptions.forEach(
       (element) => {
@@ -306,6 +320,7 @@ export class ExtensionManager implements vscode.Disposable {
       }
     )
   }
+
   // --------------------------------------------------------------------------
 }
 
@@ -395,6 +410,25 @@ export class TreeNodeAction {
     this.value = value
     this.task = task
     this.parent = parent
+  }
+}
+
+// ----------------------------------------------------------------------------
+
+export class BuildConfigurationPick implements vscode.QuickPickItem {
+  label: string
+  description?: string
+  treeNode: TreeNodeBuildConfiguration
+
+  constructor (
+    treeNode: TreeNodeBuildConfiguration
+  ) {
+    this.label = treeNode.name
+    const relativePath = treeNode.parent.xpackFolderPath.relativePath
+    if (relativePath !== '') {
+      this.description = `(${relativePath})`
+    }
+    this.treeNode = treeNode
   }
 }
 
