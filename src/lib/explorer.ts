@@ -17,6 +17,8 @@ import * as path from 'path'
 
 import * as vscode from 'vscode'
 
+import { Logger } from '@xpack/logger'
+
 import {
   ExtensionManager,
   XpackFolderPath,
@@ -40,19 +42,21 @@ export class Explorer implements vscode.Disposable {
   // --------------------------------------------------------------------------
   // Static members & methods.
 
-  static _explorer: Explorer
-
   static async register (
     extensionManager: ExtensionManager
   ): Promise<Explorer> {
     const _explorer = new Explorer(extensionManager)
     extensionManager.subscriptions.push(_explorer)
 
+    const log = extensionManager.log
+
     // Add possible async calls here.
 
-    console.log('Explorer object created')
+    log.trace('Explorer object created')
     return _explorer
   }
+
+  readonly log: Logger
 
   private readonly _treeDataProvider: XpackActionsTreeDataProvider
   private readonly _treeView: vscode.TreeView<vscode.TreeItem>
@@ -61,6 +65,10 @@ export class Explorer implements vscode.Disposable {
   // Constructors.
 
   constructor (readonly extensionManager: ExtensionManager) {
+    this.log = extensionManager.log
+
+    const log = this.log
+
     this._treeDataProvider =
       new XpackActionsTreeDataProvider(extensionManager)
 
@@ -80,14 +88,16 @@ export class Explorer implements vscode.Disposable {
       }
     )
     context.subscriptions.push(this._treeView)
-    console.log('tree view xPackActions registered')
+    log.trace('tree view xPackActions registered')
   }
 
   // --------------------------------------------------------------------------
   // Methods.
 
   dispose (): void {
-    console.log('Explorer.dispose()')
+    const log = this.log
+
+    log.trace('Explorer.dispose()')
     // Nothing to do
   }
 
@@ -311,7 +321,8 @@ class TreeItemEmpty extends TreeItem {
  * @summary The data provider for the xPack Actions tree view.
  */
 export class XpackActionsTreeDataProvider extends TreeDataProvider {
-  private readonly _extensionManager: ExtensionManager
+  readonly log: Logger
+  readonly extensionManager: ExtensionManager
 
   // Lazy creation at first use and after Refresh.
   private _tree: ActionsTree | null = null
@@ -325,25 +336,28 @@ export class XpackActionsTreeDataProvider extends TreeDataProvider {
   // --------------------------------------------------------------------------
 
   constructor (
-    readonly extensionManager: ExtensionManager
+    extensionManager: ExtensionManager
   ) {
     super()
 
-    this._extensionManager = extensionManager
+    this.extensionManager = extensionManager
+    this.log = extensionManager.log
   }
 
   // --------------------------------------------------------------------------
 
   private async _createTree (): Promise<ActionsTree> {
+    const log = this.log
+
     const tree: TreeItemPackageJson[] = []
 
     // Basically replicate the tree built by the manager.
 
-    if (this._extensionManager.tasksTree.length === 0) {
+    if (this.extensionManager.tasksTree.length === 0) {
       return [new TreeItemEmpty('No xPack actions identified.')]
     }
 
-    this._extensionManager.tasksTree.forEach(
+    this.extensionManager.tasksTree.forEach(
       (treeNodePackage) => {
         const xpackFolderPath = treeNodePackage.xpackFolderPath
 
@@ -359,7 +373,7 @@ export class XpackActionsTreeDataProvider extends TreeDataProvider {
       }
     )
 
-    console.log('tree created')
+    log.trace('tree created')
     return tree
   }
 
@@ -391,7 +405,9 @@ export class XpackActionsTreeDataProvider extends TreeDataProvider {
   // --------------------------------------------------------------------------
 
   refresh (): void {
-    console.log('XpackActionsTreeDataProvider.refresh()')
+    const log = this.log
+
+    log.trace('XpackActionsTreeDataProvider.refresh()')
 
     this._tree = null
     this._onDidChangeTreeData.fire(null)
@@ -404,7 +420,7 @@ export class XpackActionsTreeDataProvider extends TreeDataProvider {
   async getChildren (
     element?: TreeItem
   ): Promise<TreeItem[]> {
-    // console.log('getChildren', element)
+    // log.trace('getChildren', element)
 
     // Lazy creation, delay to first use or after 'Refresh'.
     if (this._tree === null) {
@@ -425,7 +441,7 @@ export class XpackActionsTreeDataProvider extends TreeDataProvider {
   getParent (
     element: vscode.TreeItem
   ): vscode.TreeItem | null {
-    // console.log('getParent', element)
+    // log.trace('getParent', element)
 
     if (element instanceof TreeItem) {
       return element.getParent()

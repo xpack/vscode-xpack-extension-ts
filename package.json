@@ -196,5 +196,8 @@
         "when": "shellExecutionSupported"
       }
     ]
+  },
+  "dependencies": {
+    "@xpack/logger": "^3.0.0"
   }
 }

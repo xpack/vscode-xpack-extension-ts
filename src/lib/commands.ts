@@ -15,6 +15,8 @@
 
 import * as vscode from 'vscode'
 
+import { Logger } from '@xpack/logger'
+
 import {
   ExtensionManager,
   BuildConfigurationPick
@@ -38,23 +40,28 @@ export class Commands implements vscode.Disposable {
     const _commands = new Commands(extensionManager)
     extensionManager.subscriptions.push(_commands)
 
+    const log = extensionManager.log
+
     // Add possible async calls here.
 
-    console.log('Commands object created')
+    log.trace('Commands object created')
     return _commands
   }
 
   // --------------------------------------------------------------------------
   // Members.
 
-  private readonly _extensionManager: ExtensionManager
+  readonly log: Logger
+
+  readonly extensionManager: ExtensionManager
   private _buildConfigurationPicks: BuildConfigurationPick[] | undefined
 
   // --------------------------------------------------------------------------
   // Constructors.
 
   constructor (extensionManager: ExtensionManager) {
-    this._extensionManager = extensionManager
+    this.extensionManager = extensionManager
+    this.log = extensionManager.log
 
     extensionManager.addRefreshFunction(
       async () => {
@@ -91,15 +98,19 @@ export class Commands implements vscode.Disposable {
   // Methods.
 
   async treeViewRefresh (): Promise<void> {
-    console.log('Command.treeViewRefresh()')
-    await this._extensionManager.runRefreshFunctions()
+    const log = this.log
+
+    log.trace('Command.treeViewRefresh()')
+    await this.extensionManager.runRefreshFunctions()
   }
 
   // When invoked by the tree viewer it get the tree item where it occured.
   async runAction (treeItem: TreeItem): Promise<void> {
-    console.log('Command.runAction()')
+    const log = this.log
+
+    log.trace('Command.runAction()')
     if (treeItem instanceof TreeItemAction) {
-      console.log(treeItem)
+      log.trace(treeItem)
       await treeItem.runTask()
     } else {
       throw new Error('treeItem not yet implemented')
@@ -107,11 +118,13 @@ export class Commands implements vscode.Disposable {
   }
 
   async selectBuildConfiguration (): Promise<void> {
-    console.log('Command.selectBuildConfiguration()')
+    const log = this.log
+
+    log.trace('Command.selectBuildConfiguration()')
 
     if (this._buildConfigurationPicks === undefined) {
       this._buildConfigurationPicks =
-        this._extensionManager.buildConfigurations.map(
+        this.extensionManager.buildConfigurations.map(
           (treeNode) => {
             return new BuildConfigurationPick(treeNode)
           }
@@ -124,16 +137,18 @@ export class Commands implements vscode.Disposable {
       }
     )
 
-    console.log(pick)
+    log.trace(pick)
     if (pick !== undefined) {
-      this._extensionManager.setBuildConfiguration(pick.treeNode)
+      this.extensionManager.setBuildConfiguration(pick.treeNode)
     }
   }
 
   // --------------------------------------------------------------------------
 
   refresh (): void {
-    console.log('Commands.refresh()')
+    const log = this.log
+
+    log.trace('Commands.refresh()')
 
     this._buildConfigurationPicks = undefined
   }
@@ -141,7 +156,9 @@ export class Commands implements vscode.Disposable {
   // --------------------------------------------------------------------------
 
   dispose (): void {
-    console.log('Commands.dispose()')
+    const log = this.log
+
+    log.trace('Commands.dispose()')
     // Nothing to do
   }
 

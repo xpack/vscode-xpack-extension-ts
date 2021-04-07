@@ -23,6 +23,8 @@
 
 import * as vscode from 'vscode'
 
+import { Logger } from '@xpack/logger'
+
 import {
   ExtensionManager,
   XpackTaskDefinition
@@ -41,23 +43,30 @@ export class TaskProvider implements vscode.TaskProvider, vscode.Disposable {
     const _taskProvider = new TaskProvider(extensionManager)
     extensionManager.subscriptions.push(_taskProvider)
 
+    const log = extensionManager.log
+
     // Add possible async calls here.
 
-    console.log('TaskProvider object created')
+    log.trace('TaskProvider object created')
     return _taskProvider
   }
 
   // --------------------------------------------------------------------------
   // Members.
 
-  private readonly _extensionManager: ExtensionManager
+  readonly log: Logger
+  readonly extensionManager: ExtensionManager
+
   private _tasks: vscode.Task[] | undefined
 
   // --------------------------------------------------------------------------
   // Constructors.
 
   constructor (extensionManager: ExtensionManager) {
-    this._extensionManager = extensionManager
+    this.extensionManager = extensionManager
+    this.log = extensionManager.log
+
+    const log = this.log
 
     extensionManager.addRefreshFunction(
       async () => {
@@ -65,11 +74,11 @@ export class TaskProvider implements vscode.TaskProvider, vscode.Disposable {
       }
     )
 
-    const context = this._extensionManager.vscodeContext
+    const context = this.extensionManager.vscodeContext
     const taskProvider = vscode.tasks.registerTaskProvider('xPack', this)
     context.subscriptions.push(taskProvider)
 
-    console.log('task provider registered')
+    log.trace('task provider registered')
   }
 
   // --------------------------------------------------------------------------
@@ -102,7 +111,9 @@ export class TaskProvider implements vscode.TaskProvider, vscode.Disposable {
   // --------------------------------------------------------------------------
 
   refresh (): void {
-    console.log('Tasks.refresh()')
+    const log = this.log
+
+    log.trace('Tasks.refresh()')
 
     this._tasks = undefined
   }
@@ -115,7 +126,7 @@ export class TaskProvider implements vscode.TaskProvider, vscode.Disposable {
     const tasks: vscode.Task[] = []
 
     // Add install tasks.
-    for (const xpackFolderPath of this._extensionManager.xpackFolderPaths) {
+    for (const xpackFolderPath of this.extensionManager.xpackFolderPaths) {
       if (token.isCancellationRequested) {
         break
       }
@@ -134,7 +145,7 @@ export class TaskProvider implements vscode.TaskProvider, vscode.Disposable {
         taskLabel += ` (${xpackFolderPath.relativePath})`
       }
 
-      const task = await this._extensionManager.createTask(
+      const task = await this.extensionManager.createTask(
         'xpm',
         ['install'],
         xpackFolderPath,
@@ -145,12 +156,14 @@ export class TaskProvider implements vscode.TaskProvider, vscode.Disposable {
     }
 
     // Add action tasks, created by the manager.
-    tasks.push(...this._extensionManager.tasks)
+    tasks.push(...this.extensionManager.tasks)
     return tasks
   }
 
   dispose (): void {
-    console.log('TaskProvider.dispose()')
+    const log = this.log
+
+    log.trace('TaskProvider.dispose()')
     // Nothing to do
   }
 

@@ -16,6 +16,8 @@
 // The module 'vscode' contains the VS Code extensibility API.
 import * as vscode from 'vscode'
 
+import { Logger } from '@xpack/logger'
+
 // These local modules contain the actual implementation.
 // They create and register the objects to VS Code.
 import { ExtensionManager } from './lib/manager'
@@ -34,12 +36,16 @@ let _extensionManager: ExtensionManager
 export async function activate (
   context: vscode.ExtensionContext
 ): Promise<void> {
-  console.log('"ilg-vscode.xpack" activated')
+  const log = new Logger({
+    level: 'trace' // 'info'
+  })
 
-  _extensionManager = new ExtensionManager(context)
+  log.debug('"ilg-vscode.xpack" activated')
+
+  _extensionManager = new ExtensionManager(context, log)
 
   if (!_extensionManager.hasLocalWorkspace()) {
-    console.log('"ilg-vscode.xpack" requires local workspaces')
+    log.debug('"ilg-vscode.xpack" requires local workspaces')
   }
 
   // await _extensionManager.findXpackFolderPaths()
@@ -52,13 +58,16 @@ export async function activate (
   // Refresh everything again, when all objects are created.
   await _extensionManager.runRefreshFunctions()
 
-  console.log('"ilg-vscode.xpack" activation completed')
+  log.debug('"ilg-vscode.xpack" activation completed')
 }
 
 // VS Code calls this function.
 export function deactivate (): void {
   _extensionManager.dispose()
-  console.log('"ilg-vscode.xpack" deactivated')
+
+  const log = _extensionManager.log
+
+  log.debug('"ilg-vscode.xpack" deactivated')
 }
 
 // ----------------------------------------------------------------------------

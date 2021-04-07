@@ -21,6 +21,8 @@
 
 import * as vscode from 'vscode'
 
+import { Logger } from '@xpack/logger'
+
 import {
   ExtensionManager,
   TreeNodeBuildConfiguration
@@ -39,23 +41,30 @@ export class StatusBar implements vscode.Disposable {
     const _statusBar = new StatusBar(extensionManager)
     extensionManager.subscriptions.push(_statusBar)
 
+    const log = extensionManager.log
+
     // Add possible async calls here.
 
-    console.log('Status object created')
+    log.trace('Status object created')
     return _statusBar
   }
 
   // --------------------------------------------------------------------------
   // Members.
 
-  private readonly _extensionManager: ExtensionManager
+  log: Logger
+  readonly extensionManager: ExtensionManager
+
   private readonly _statusBarItem: vscode.StatusBarItem
 
   // --------------------------------------------------------------------------
   // Constructors.
 
   constructor (extensionManager: ExtensionManager) {
-    this._extensionManager = extensionManager
+    this.extensionManager = extensionManager
+    this.log = extensionManager.log
+
+    const log = this.log
 
     const context: vscode.ExtensionContext = extensionManager.vscodeContext
     const subscriptions = context.subscriptions
@@ -77,7 +86,7 @@ export class StatusBar implements vscode.Disposable {
 
     extensionManager.onSelectBuildConfiguration.event(
       (treeNode) => {
-        console.log(treeNode, 'received')
+        log.trace(treeNode, 'received')
 
         this.refresh(treeNode)
       }
@@ -87,11 +96,13 @@ export class StatusBar implements vscode.Disposable {
   // --------------------------------------------------------------------------
 
   refresh (treeNode?: TreeNodeBuildConfiguration): void {
-    console.log('StatusBar.refresh()')
+    const log = this.log
+
+    log.trace('StatusBar.refresh()')
 
     let buildConfiguration: TreeNodeBuildConfiguration | undefined = treeNode
     if (treeNode === undefined) {
-      const extensionManager: ExtensionManager = this._extensionManager
+      const extensionManager: ExtensionManager = this.extensionManager
 
       const buildConfigurations: TreeNodeBuildConfiguration[] =
         extensionManager.buildConfigurations
@@ -120,7 +131,9 @@ export class StatusBar implements vscode.Disposable {
   }
 
   dispose (): void {
-    console.log('StatusBar.dispose()')
+    const log = this.log
+
+    log.trace('StatusBar.dispose()')
     // Nothing to do
   }
 

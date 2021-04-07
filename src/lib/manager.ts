@@ -19,6 +19,8 @@ import * as path from 'path'
 
 import * as vscode from 'vscode'
 
+import { Logger } from '@xpack/logger'
+
 import { Xpack } from './xpack'
 
 // ----------------------------------------------------------------------------
@@ -53,6 +55,8 @@ export type JsonActionValue = string | string[]
 
 export class ExtensionManager implements vscode.Disposable {
   vscodeContext: vscode.ExtensionContext
+  log: Logger
+
   refreshFunctions: AyncVoidFunction[] = []
   xpackFolderPaths: XpackFolderPath[] = []
 
@@ -66,8 +70,9 @@ export class ExtensionManager implements vscode.Disposable {
   onSelectBuildConfiguration =
   new vscode.EventEmitter<TreeNodeBuildConfiguration>()
 
-  constructor (context: vscode.ExtensionContext) {
+  constructor (context: vscode.ExtensionContext, log: Logger) {
     this.vscodeContext = context
+    this.log = log
   }
 
   hasLocalWorkspace (): boolean {
@@ -102,9 +107,10 @@ export class ExtensionManager implements vscode.Disposable {
     xpackFolderPaths: XpackFolderPath[]
   ): Promise<void> {
     assert(folderPath)
+    const log = this.log
 
     // May be null.
-    console.log(`check folder ${folderPath} `)
+    log.trace(`check folder ${folderPath} `)
     const xpack = new Xpack(folderPath)
     const packageJson = await xpack.checkIfFolderHasPackageJson()
     if (xpack.isPackage()) {
