@@ -36,7 +36,7 @@ type TreeItemChild = TreeItemAction | TreeItemBuildConfiguration
 
 // ----------------------------------------------------------------------------
 
-export class Explorer {
+export class Explorer implements vscode.Disposable {
   // --------------------------------------------------------------------------
   // Static members & methods.
 
@@ -44,10 +44,14 @@ export class Explorer {
 
   static async register (
     extensionManager: ExtensionManager
-  ): Promise<void> {
-    Explorer._explorer = new Explorer(extensionManager)
+  ): Promise<Explorer> {
+    const _explorer = new Explorer(extensionManager)
+    extensionManager.subscriptions.push(_explorer)
 
     // Add possible async calls here.
+
+    console.log('Explorer object created')
+    return _explorer
   }
 
   private readonly _treeDataProvider: XpackActionsTreeDataProvider
@@ -75,13 +79,17 @@ export class Explorer {
         showCollapseAll: true
       }
     )
-    console.log('tree view xPackActions registered')
-
     context.subscriptions.push(this._treeView)
+    console.log('tree view xPackActions registered')
   }
 
   // --------------------------------------------------------------------------
   // Methods.
+
+  dispose (): void {
+    console.log('Explorer.dispose()')
+    // Nothing to do
+  }
 
   // --------------------------------------------------------------------------
 }

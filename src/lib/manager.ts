@@ -51,7 +51,7 @@ export type JsonActionValue = string | string[]
 
 // ----------------------------------------------------------------------------
 
-export class ExtensionManager {
+export class ExtensionManager implements vscode.Disposable {
   vscodeContext: vscode.ExtensionContext
   refreshFunctions: AyncVoidFunction[] = []
   xpackFolderPaths: XpackFolderPath[] = []
@@ -59,6 +59,8 @@ export class ExtensionManager {
   tasksTree: TreeNodePackage[] = []
   buildConfigurations: TreeNodeBuildConfiguration[] = []
   tasks: vscode.Task[] = []
+
+  subscriptions: vscode.Disposable[] = []
 
   constructor (context: vscode.ExtensionContext) {
     this.vscodeContext = context
@@ -292,9 +294,18 @@ export class ExtensionManager {
       problemMatchers
     )
     task.detail = [xpmProgramName, ...commandArguments].join(' ')
+    // Tasks are not disposable, no need to add them to subscriptions.
+
     return task
   }
 
+  dispose (): void {
+    this.subscriptions.forEach(
+      (element) => {
+        element.dispose()
+      }
+    )
+  }
   // --------------------------------------------------------------------------
 }
 

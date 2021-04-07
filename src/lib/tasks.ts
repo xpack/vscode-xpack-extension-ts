@@ -30,16 +30,21 @@ import {
 
 // ----------------------------------------------------------------------------
 
-export class TaskProvider implements vscode.TaskProvider {
+export class TaskProvider implements vscode.TaskProvider, vscode.Disposable {
   // --------------------------------------------------------------------------
   // Static members & methods.
 
-  static _taskProvider: TaskProvider
-
+  // Factory method pattern.
   static async register (
     extensionManager: ExtensionManager
-  ): Promise<void> {
-    TaskProvider._taskProvider = new TaskProvider(extensionManager)
+  ): Promise<TaskProvider> {
+    const _taskProvider = new TaskProvider(extensionManager)
+    extensionManager.subscriptions.push(_taskProvider)
+
+    // Add possible async calls here.
+
+    console.log('TaskProvider object created')
+    return _taskProvider
   }
 
   // --------------------------------------------------------------------------
@@ -60,11 +65,11 @@ export class TaskProvider implements vscode.TaskProvider {
       }
     )
 
-    const taskProvider = vscode.tasks.registerTaskProvider('xPack', this)
-    console.log('task provider registered')
-
     const context = this._extensionManager.vscodeContext
+    const taskProvider = vscode.tasks.registerTaskProvider('xPack', this)
     context.subscriptions.push(taskProvider)
+
+    console.log('task provider registered')
   }
 
   // --------------------------------------------------------------------------
@@ -142,6 +147,11 @@ export class TaskProvider implements vscode.TaskProvider {
     // Add action tasks, created by the manager.
     tasks.push(...this._extensionManager.tasks)
     return tasks
+  }
+
+  dispose (): void {
+    console.log('TaskProvider.dispose()')
+    // Nothing to do
   }
 
   // --------------------------------------------------------------------------

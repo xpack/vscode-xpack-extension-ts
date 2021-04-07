@@ -28,16 +28,21 @@ import {
 
 // ----------------------------------------------------------------------------
 
-export class StatusBar {
+export class StatusBar implements vscode.Disposable {
   // --------------------------------------------------------------------------
   // Static members & methods.
 
-  static _statusBar: StatusBar
-
+  // Factory method pattern.
   static async register (
     extensionManager: ExtensionManager
-  ): Promise<void> {
-    StatusBar._statusBar = new StatusBar(extensionManager)
+  ): Promise<StatusBar> {
+    const _statusBar = new StatusBar(extensionManager)
+    extensionManager.subscriptions.push(_statusBar)
+
+    // Add possible async calls here.
+
+    console.log('Status object created')
+    return _statusBar
   }
 
   // --------------------------------------------------------------------------
@@ -52,15 +57,21 @@ export class StatusBar {
   constructor (extensionManager: ExtensionManager) {
     this._extensionManager = extensionManager
 
+    const context: vscode.ExtensionContext = extensionManager.vscodeContext
+    const subscriptions = context.subscriptions
+
     extensionManager.addRefreshFunction(
       async () => {
         this.refresh()
       }
     )
 
+    // https://code.visualstudio.com/api/references/vscode-api#StatusBarItem
     const statusBarItem =
       vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left)
     statusBarItem.hide()
+
+    subscriptions.push(statusBarItem)
 
     this._statusBarItem = statusBarItem
   }
@@ -91,6 +102,11 @@ export class StatusBar {
       statusBarItem.command = 'xpack.selectBuildConfiguration'
       statusBarItem.show()
     }
+  }
+
+  dispose (): void {
+    console.log('StatusBar.dispose()')
+    // Nothing to do
   }
 
   // --------------------------------------------------------------------------

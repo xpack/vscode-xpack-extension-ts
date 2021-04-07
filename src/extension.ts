@@ -45,11 +45,8 @@ export async function activate (
   // await _extensionManager.findXpackFolderPaths()
 
   await TaskProvider.register(_extensionManager)
-
   await Explorer.register(_extensionManager)
-
   await StatusBar.register(_extensionManager)
-
   await Commands.register(_extensionManager)
 
   // Refresh everything again, when all objects are created.
@@ -60,6 +57,7 @@ export async function activate (
 
 // VS Code calls this function.
 export function deactivate (): void {
+  _extensionManager.dispose()
   console.log('"ilg-vscode.xpack" deactivated')
 }
 

@@ -26,18 +26,21 @@ import {
 
 // ----------------------------------------------------------------------------
 
-export class Commands {
+export class Commands implements vscode.Disposable {
   // --------------------------------------------------------------------------
   // Static members & methods.
 
-  static _commands: Commands
-
+  // Factory method pattern.
   static async register (
     extensionManager: ExtensionManager
-  ): Promise<void> {
-    Commands._commands = new Commands(extensionManager)
+  ): Promise<Commands> {
+    const _commands = new Commands(extensionManager)
+    extensionManager.subscriptions.push(_commands)
 
     // Add possible async calls here.
+
+    console.log('Commands object created')
+    return _commands
   }
 
   // --------------------------------------------------------------------------
@@ -48,8 +51,7 @@ export class Commands {
   // --------------------------------------------------------------------------
   // Constructors.
 
-  constructor (
-    extensionManager: ExtensionManager) {
+  constructor (extensionManager: ExtensionManager) {
     this._extensionManager = extensionManager
 
     const context: vscode.ExtensionContext = extensionManager.vscodeContext
@@ -100,6 +102,11 @@ export class Commands {
     console.log('Command.selectBuildConfiguration()')
 
     // TODO: create a picker to select the desired configuration
+  }
+
+  dispose (): void {
+    console.log('Commands.dispose()')
+    // Nothing to do
   }
 
   // --------------------------------------------------------------------------
