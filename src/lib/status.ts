@@ -124,6 +124,7 @@ export class StatusBar implements vscode.Disposable {
         tooltip += `${relativePath} - `
       }
       tooltip += 'Select the build configuration for IntelliSense'
+      tooltip += ' (not yet functional)'
       statusBarItem.tooltip = tooltip
       statusBarItem.command = 'xpack.selectBuildConfiguration'
       statusBarItem.show()

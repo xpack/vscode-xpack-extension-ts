@@ -133,7 +133,8 @@ export class Commands implements vscode.Disposable {
     const pick = await vscode.window.showQuickPick<BuildConfigurationPick>(
       this._buildConfigurationPicks,
       {
-        placeHolder: 'Select the build configuration for IntelliSense'
+        placeHolder: 'Select the build configuration for IntelliSense ' +
+          '(not yet functional)'
       }
     )
 
