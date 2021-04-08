@@ -226,8 +226,12 @@ export class TreeItemAction extends TreeItem {
     this.contextValue = 'action'
     let packageJsonPath: string = ''
     if (parent instanceof TreeItemBuildConfiguration) {
-      this.description =
-        `(${parent.getName()} - ${parent.getParent().getName()})`
+      const relativePath = parent.getParent().getName()
+      if (relativePath !== '') {
+        this.description = `(${parent.getName()} - ${relativePath})`
+      } else {
+        this.description = `(${parent.getName()})`
+      }
       packageJsonPath = parent.getParent().getPath()
     } else if (parent instanceof TreeItemPackageJson) {
       this.description = `(${parent.getName()})`
