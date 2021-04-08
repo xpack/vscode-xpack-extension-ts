@@ -22,6 +22,10 @@ git clone https://github.com/xpack/vscode-xpack-extension-ts.git vscode-xpack-ex
 
 Before making the release, perform some checks and tweaks.
 
+### Update npm packages
+
+- `npm update`
+
 ### Check Git
 
 In this Git repo:
