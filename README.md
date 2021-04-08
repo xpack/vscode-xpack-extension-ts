@@ -23,18 +23,21 @@ For details please follow the instructions in the
 
 ## How it works
 
-The xPack Project does not introduce a new package format, but uses
-exactly the same format as **npm**; xPacks are npm packages that
-can be stored in usual Git repositories, and
-even published on
-[npmjs.com](https://www.npmjs.com/search?q=xpack)
-or compatible servers.
-
 The xPack Managed Build is neutral to the build system, and basically
 can invoke any tools, old and new, but favours modern tools
 (like CMake and meson) which can
 generate a `compile_commands.json` file, since this
 greatly simplifies/automates the project IntelliSense configuration.
+
+## Disclaimer
+
+The xPack Project does not introduce a new package format, but
+inherits the simplicity of **npm**; it adds a few more definitions
+to `package.json`, but otherwise it uses exactly the same project
+format as **npm**; xPacks are actually npm packages, and can be
+stored in usual Git repositories, or even published on
+[npmjs.com](https://www.npmjs.com/search?q=xpack)
+or compatible servers.
 
 ## Concepts
 
@@ -44,7 +47,8 @@ by design defined as a collection of named **build configurations**,
 each built in a separate folder, and each with its own set of
 named **actions**, defined as array of strings holding commands.
 
-The actions can use generic templates, with substitutions performed by the
+To avoid redundant definitions between configurations,
+the actions can use generic templates, with substitutions performed by the
 [LiquidJS](https://liquidjs.com) template engine, based on
 user defined string **properties**.
 
@@ -72,23 +76,23 @@ using CMake, may look like:
   },
   "xpack": {
     "properties": {
-      "buildFolderRelativePath": "build/{{ configuration.name }}",
+      "buildFolderRelativePath": "build/{{ configuration.name | downcase }}",
       "commandCmakeGenerate": "cmake -S . -B {{ properties.buildFolderRelativePath }} -G Ninja -D CMAKE_BUILD_TYPE={{ properties.buildType }}",
       "commandCmakeBuild": "cmake --build {{ properties.buildFolderRelativePath }}",
       "commandCmakeClean": "cmake --build {{ properties.buildFolderRelativePath }} --target clean"
     },
     "actions": {
-      "build": [
-        "xpm run build --config debug",
-        "xpm run build --config release"
+      "build-all": [
+        "xpm run build --config Debug",
+        "xpm run build --config Release"
       ],
-      "clean": [
-        "xpm run clean --config debug",
-        "xpm run clean --config release"
+      "clean-all": [
+        "xpm run clean --config Debug",
+        "xpm run clean --config Release"
       ]
     },
     "buildConfigurations": {
-      "debug": {
+      "Debug": {
         "properties": {
           "buildType": "Debug"
         },
@@ -101,7 +105,7 @@ using CMake, may look like:
           "execute": "{{ properties.buildFolderRelativePath }}/hello-world"
         }
       },
-      "release": {
+      "Release": {
         "properties": {
           "buildType": "Release"
         },
@@ -122,8 +126,9 @@ using CMake, may look like:
 Using xpm, the build can be invoked with:
 
 ```console
+$ cp <project>
 $ xpm install
-$ xpm run build
+$ xpm run build-all
 ```
 
 Note: this example assumes the presence of a toolchain, like GCC or clang.
@@ -136,6 +141,22 @@ Note: this example assumes the presence of a toolchain, like GCC or clang.
 
 The list is kept in reverse chronological order, with the most recent
 release on the top.
+
+### 0.1.0
+
+An early preview release, which adds the following:
+
+- an **xPacks Actions** explorer, implemented as a tree view, which allows
+  a convenient way to navigate between multiple build configurations and
+  actions; to make it visible, open a `package.json`
+  created via `xpm init` and add the `xpack` proeprty
+  (for example from the above code)
+- actions are integrated into the usual VS Code workflow by associating
+  internal tasks with each action; separate tasks are added for common
+  commands like `xpm install`
+- a status bar entry used to select the active build configuration
+  to be used by IntelliSense
+  (integration with IntelliSence is not yet implemented)
 
 ### 0.0.1
 
