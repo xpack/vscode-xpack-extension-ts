@@ -169,7 +169,7 @@ export class ExtensionManager implements vscode.Disposable {
     this.xpackFolderPaths =
       xpackFolderPaths.sort((a, b) => a.path.localeCompare(b.path))
 
-    // Make the exprlorer visible if there are any xPacks.
+    // Make the explorer visible if there are any xPacks.
     await vscode.commands.executeCommand(
       'setContext',
       'xpack:showScriptExplorer',
