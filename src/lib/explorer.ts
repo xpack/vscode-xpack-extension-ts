@@ -225,17 +225,29 @@ export class TreeItemAction extends TreeItem {
     this.tooltip = this._actionValue.join('\n')
     this.contextValue = 'action'
     let packageJsonPath: string = ''
-    if (parent instanceof TreeItemBuildConfiguration) {
-      const relativePath = parent.getParent().getName()
-      if (relativePath !== '') {
-        this.description = `(${parent.getName()} - ${relativePath})`
-      } else {
+    if (parent.getName() !== '') {
+      if (parent instanceof TreeItemBuildConfiguration) {
+        const relativePath = parent.getParent().getName()
+        if (relativePath !== '') {
+          this.description = `(${parent.getName()} - ${relativePath})`
+        } else {
+          this.description = `(${parent.getName()})`
+        }
+        packageJsonPath = parent.getParent().getPath()
+      } else if (parent instanceof TreeItemPackageJson) {
         this.description = `(${parent.getName()})`
+        packageJsonPath = parent.getPath()
       }
-      packageJsonPath = parent.getParent().getPath()
-    } else if (parent instanceof TreeItemPackageJson) {
-      this.description = `(${parent.getName()})`
-      packageJsonPath = parent.getPath()
+    } else {
+      if (parent instanceof TreeItemBuildConfiguration) {
+        const relativePath = parent.getParent().getName()
+        if (relativePath !== '') {
+          this.description = `(${relativePath})`
+        }
+        packageJsonPath = parent.getParent().getPath()
+      } else if (parent instanceof TreeItemPackageJson) {
+        packageJsonPath = parent.getPath()
+      }
     }
 
     // The command to run when clicking the action item in the tree.
