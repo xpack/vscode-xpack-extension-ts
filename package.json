@@ -168,8 +168,7 @@
           "id": "xPackActions",
           "name": "%view.name%",
           "when": "xpack:showScriptExplorer",
-          "icon": "$(json)",
-          "visibility": "hidden"
+          "icon": "$(json)"
         }
       ]
     },
