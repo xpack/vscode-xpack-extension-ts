@@ -167,9 +167,9 @@
         {
           "id": "xPackActions",
           "name": "%view.name%",
-          "when": "npm:showScriptExplorer",
+          "when": "xpack:showScriptExplorer",
           "icon": "$(json)",
-          "visibility--": "hidden"
+          "visibility": "hidden"
         }
       ]
     },
