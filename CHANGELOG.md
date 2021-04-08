@@ -8,7 +8,7 @@ and close existing issues and pull requests.
 
 ## 2021-04-08
 
-- v0.1.0 published
+- v0.1.2 published
 - add status bar and picker for the IntelliSense configuration
 - add tasks for xpm install
 - add tasks for action
