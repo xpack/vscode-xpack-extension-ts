@@ -12,4 +12,7 @@ vsc-extension-quickstart.md
 README-*.md
 **/xpacks/**
 tests/**
-node_modules/
+
+
+# DO NOT add node_modules!
+
