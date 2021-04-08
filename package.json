@@ -45,7 +45,8 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "ts-standard src",
-    "test": "node ./out/test/runTest.js",
+    "test": "echo \"Not yet implemented\"",
+    "test-": "node ./out/test/runTest.js",
     "git-log": "git log --pretty='%cd * %h %s' --date=short",
     "package": "vsce ls && vsce package",
     "publish": "vsce publish"
