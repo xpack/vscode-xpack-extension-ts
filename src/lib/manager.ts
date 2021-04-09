@@ -28,7 +28,7 @@ import { Xpack } from './xpack'
 // TODO: make the depth configurable.
 const _maxSearchDepth: number = 3
 
-export type AyncVoidFunction = (() => Promise<void>)
+export type AsyncVoidFunction = (() => Promise<void>)
 
 export interface XpackFolderPath {
   path: string
@@ -57,7 +57,7 @@ export class ExtensionManager implements vscode.Disposable {
   vscodeContext: vscode.ExtensionContext
   log: Logger
 
-  refreshFunctions: AyncVoidFunction[] = []
+  refreshFunctions: AsyncVoidFunction[] = []
   xpackFolderPaths: XpackFolderPath[] = []
 
   tasksTree: TreeNodePackage[] = []
@@ -86,7 +86,7 @@ export class ExtensionManager implements vscode.Disposable {
     return false
   }
 
-  addRefreshFunction (func: AyncVoidFunction): void {
+  addRefreshFunction (func: AsyncVoidFunction): void {
     this.refreshFunctions.push(func)
   }
 
