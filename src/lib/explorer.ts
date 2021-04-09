@@ -285,7 +285,7 @@ class TreeItemBuildConfiguration extends TreeItem {
     buildConfigurationName: string,
     parent: TreeItemPackageJson
   ) {
-    super(buildConfigurationName, vscode.TreeItemCollapsibleState.Expanded)
+    super(buildConfigurationName, vscode.TreeItemCollapsibleState.Collapsed)
 
     this._name = buildConfigurationName
     this.iconPath = vscode.ThemeIcon.Folder
