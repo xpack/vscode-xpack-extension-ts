@@ -45,7 +45,7 @@ export class StatusBar implements vscode.Disposable {
 
     // Add possible async calls here.
 
-    log.trace('Status object created')
+    log.trace('StatusBar object created')
     return _statusBar
   }
 
