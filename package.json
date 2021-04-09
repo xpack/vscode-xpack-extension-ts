@@ -52,6 +52,12 @@
     "publish": "vsce publish",
     "vsce": "vsce"
   },
+  "dependencies": {
+    "@xpack/logger": "^3.0.0",
+    "make-dir": "^3.1.0",
+    "vscode-cpptools": "^5.0.0",
+    "vscode-extension-telemetry": "^0.1.7"
+  },
   "devDependencies": {
     "@types/node": "^12.11.7",
     "@types/vscode": "^1.54.0",
@@ -197,8 +203,5 @@
         "when": "shellExecutionSupported"
       }
     ]
-  },
-  "dependencies": {
-    "@xpack/logger": "^3.0.0"
   }
 }

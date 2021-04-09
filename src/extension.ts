@@ -24,7 +24,8 @@ import { ExtensionManager } from './lib/manager'
 import { Commands } from './lib/commands'
 import { TaskProvider } from './lib/tasks'
 import { Explorer } from './lib/explorer'
-import { StatusBar } from './lib/status'
+// import { StatusBar } from './lib/status-bar'
+import { IntelliSense } from './lib/intellisense'
 
 // ----------------------------------------------------------------------------
 
@@ -52,8 +53,11 @@ export async function activate (
 
   await TaskProvider.register(_extensionManager)
   await Explorer.register(_extensionManager)
-  await StatusBar.register(_extensionManager)
   await Commands.register(_extensionManager)
+
+  // For now use the C/C++ status bar to select the configuration.
+  // await StatusBar.register(_extensionManager)
+  await IntelliSense.register(_extensionManager)
 
   // Refresh everything again, when all objects are created.
   await _extensionManager.runRefreshFunctions()
