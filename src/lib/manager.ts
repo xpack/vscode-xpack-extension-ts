@@ -133,7 +133,8 @@ export class ExtensionManager implements vscode.Disposable {
     const files = await fsPromises.readdir(folderPath, { withFileTypes: true })
     const promises = []
     for (const file of files) {
-      if (file.isDirectory() && !file.name.startsWith('.')) {
+      if (file.isDirectory() && !file.name.startsWith('.') &&
+        file.name !== 'node_modules' && file.name !== 'xpacks') {
         promises.push(this._findPackageJsonFilesRecursive(
           path.join(folderPath, file.name),
           workspaceFolder,
