@@ -52,3 +52,9 @@ $ npm run fix
 > xpack@0.0.1 fix
 > ts-standard --fix src
 ```
+
+## TSDoc (TypeScript documentation)
+
+- <https://tsdoc.org>
+- <https://typedoc.org/guides/doccomments/>
+- <https://jsdoc.app/index.html>
