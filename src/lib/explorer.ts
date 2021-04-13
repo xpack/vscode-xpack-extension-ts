@@ -19,22 +19,24 @@ import * as vscode from 'vscode'
 
 import { Logger } from '@xpack/logger'
 
+import { ExtensionManager } from './manager'
+
 import {
-  ExtensionManager,
-  XpackFolderPath,
-  TreeNodeAction,
-  TreeNodeBuildConfiguration,
-  // TreeNodePackage,
-  JsonActionValue
-} from './manager'
+  DataNodeAction,
+  DataNodeConfiguration,
+  DataNodePackage
+} from './data-model'
+
+import {
+  PackageJson,
+  packageJsonFileName
+} from './definitions'
 
 // ----------------------------------------------------------------------------
 
-const _packageJson: string = 'package.json'
-
-type ActionsTree = TreeItemPackageJson[] | TreeItemEmpty[]
-type TreeItemParent = TreeItemPackageJson | TreeItemBuildConfiguration
-type TreeItemChild = TreeItemAction | TreeItemBuildConfiguration
+type ActionsTree = TreeItemPackage[] | TreeItemEmpty[]
+type TreeItemActionParent = TreeItemPackage | TreeItemConfiguration
+type TreeItemPackageChild = TreeItemAction | TreeItemConfiguration
 
 // ----------------------------------------------------------------------------
 
@@ -43,18 +45,21 @@ export class Explorer implements vscode.Disposable {
   // Static members & methods.
 
   static async register (
-    extensionManager: ExtensionManager
+    manager: ExtensionManager
   ): Promise<Explorer> {
-    const _explorer = new Explorer(extensionManager)
-    extensionManager.subscriptions.push(_explorer)
+    const _explorer = new Explorer(manager)
+    manager.subscriptions.push(_explorer)
 
-    const log = extensionManager.log
+    const log = manager.log
 
     // Add possible async calls here.
 
     log.trace('Explorer object created')
     return _explorer
   }
+
+  // --------------------------------------------------------------------------
+  // Members.
 
   readonly log: Logger
 
@@ -64,17 +69,17 @@ export class Explorer implements vscode.Disposable {
   // --------------------------------------------------------------------------
   // Constructors.
 
-  constructor (readonly extensionManager: ExtensionManager) {
-    this.log = extensionManager.log
+  constructor (readonly manager: ExtensionManager) {
+    this.log = manager.log
 
     const log = this.log
 
     this._treeDataProvider =
-      new XpackActionsTreeDataProvider(extensionManager)
+      new XpackActionsTreeDataProvider(manager)
 
-    const context: vscode.ExtensionContext = extensionManager.vscodeContext
+    const context: vscode.ExtensionContext = manager.vscodeContext
 
-    extensionManager.addRefreshFunction(
+    manager.addCallbackRefresh(
       async () => {
         this._treeDataProvider.refresh()
       }
@@ -107,146 +112,153 @@ export class Explorer implements vscode.Disposable {
 // ----------------------------------------------------------------------------
 
 /**
- * @summary Base class for all tree items.
+ * Base class for all tree items.
  *
  * @description
- * Makes sure that all classes implement getParent() and getChildren(),
+ * Makes sure that all classes have a parent and implement get children(),
  * to simplify the data provider.
  */
 export class TreeItem extends vscode.TreeItem {
-  getParent (): TreeItem | null {
-    return null
+  // --------------------------------------------------------------------------
+  // Members.
+
+  name: string
+  parent: TreeItem | null = null
+
+  // --------------------------------------------------------------------------
+  // Constructors.
+
+  constructor (
+    label: string,
+    collapsibleState: vscode.TreeItemCollapsibleState,
+    name: string
+  ) {
+    super(label, collapsibleState)
+
+    this.name = name
   }
 
-  getChildren (): TreeItem[] {
+  // --------------------------------------------------------------------------
+  // Getters & Setters.
+
+  get children (): TreeItem[] {
     return []
   }
 }
 
 // ----------------------------------------------------------------------------
 
-class TreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
-  refresh (): void { }
+class TreeItemPackage extends TreeItem {
+  // --------------------------------------------------------------------------
+  // Members.
 
-  getTreeItem (element: TreeItem): TreeItem {
-    return element
-  }
+  // Inherit the null parent and name.
+  readonly packageJsonPath: string
 
-  async getChildren (_element?: TreeItem): Promise<TreeItem[]> {
-    return []
-  }
-}
+  readonly actions: TreeItemAction[] = []
+  readonly configurations: TreeItemConfiguration[] = []
 
-// ----------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+  // Constructors.
 
-class TreeItemPackageJson extends TreeItem {
-  private readonly _actions: TreeItemAction[] = []
-  private readonly _buildConfigurations: TreeItemBuildConfiguration[] = []
-  private readonly _name: string
-  private readonly _path: string
+  constructor (dataNode: DataNodePackage) {
+    super(path.join(dataNode.folderRelativePath, packageJsonFileName),
+      vscode.TreeItemCollapsibleState.Expanded,
+      dataNode.name)
 
-  constructor (xpackFolderPath: XpackFolderPath) {
-    super(path.join(xpackFolderPath.relativePath, _packageJson),
-      vscode.TreeItemCollapsibleState.Expanded)
+    this.packageJsonPath = path.join(dataNode.folderPath, packageJsonFileName)
 
-    this._name = xpackFolderPath.relativePath
-    this._path = path.join(xpackFolderPath.path, _packageJson)
     this.iconPath = new vscode.ThemeIcon('symbol-package')
     // this.description = 'Package actions'
     this.resourceUri =
-      vscode.Uri.file(path.join(xpackFolderPath.path, _packageJson))
+      vscode.Uri.file(path.join(dataNode.folderPath, packageJsonFileName))
     this.tooltip = 'xPack'
     this.contextValue = 'packageJson'
 
-    const packageJson: any = xpackFolderPath.packageJson
+    const packageJson: PackageJson = dataNode.packageJson
     const packageName: string = packageJson.name
     const packageVersion: string = packageJson.version
     this.description = `(${packageName}@${packageVersion})`
   }
 
+  // --------------------------------------------------------------------------
+  // Methods.
+
   addAction (
     actionName: string,
-    actionValue: JsonActionValue,
+    actionValue: string[],
     task: vscode.Task
   ): TreeItemAction {
     const treeItem = new TreeItemAction(actionName, actionValue, task, this)
-    this._actions.push(treeItem)
+    this.actions.push(treeItem)
     return treeItem
   }
 
-  addBuildConfiguration (
-    buildConfigurationName: string
-  ): TreeItemBuildConfiguration {
-    const treeItem =
-      new TreeItemBuildConfiguration(buildConfigurationName, this)
-    this._buildConfigurations.push(treeItem)
+  addConfiguration (
+    configurationName: string
+  ): TreeItemConfiguration {
+    const treeItem = new TreeItemConfiguration(configurationName, this)
+    this.configurations.push(treeItem)
     return treeItem
   }
 
-  getChildren (): TreeItemChild[] {
-    return [...this._actions, ...this._buildConfigurations]
-  }
-
-  getName (): string {
-    return this._name
-  }
-
-  getPath (): string {
-    return this._path
+  get children (): TreeItemPackageChild[] {
+    return [...this.actions, ...this.configurations]
   }
 }
 
 // ----------------------------------------------------------------------------
 
 export class TreeItemAction extends TreeItem {
-  private readonly _parent: TreeItemParent
-  private readonly _actionValue: string[]
-  private readonly _task: vscode.Task
-  private readonly _name: string
+  // --------------------------------------------------------------------------
+  // Members.
+
+  readonly parent: TreeItemActionParent
+  readonly actionValue: string[]
+  readonly task: vscode.Task
+
+  // --------------------------------------------------------------------------
+  // Constructors.
 
   constructor (
     actionName: string,
-    actionValue: JsonActionValue,
+    actionValue: string[],
     task: vscode.Task,
-    parent: TreeItemParent
+    parent: TreeItemActionParent
   ) {
-    super(actionName, vscode.TreeItemCollapsibleState.None)
+    super(actionName, vscode.TreeItemCollapsibleState.None, actionName)
 
-    this._name = actionName
-    this._task = task
-    this._parent = parent
-    if (Array.isArray(actionValue)) {
-      this._actionValue = actionValue
-    } else {
-      this._actionValue = [actionValue]
-    }
+    this.parent = parent
+    this.task = task
+
+    this.actionValue = actionValue
 
     this.iconPath = new vscode.ThemeIcon('wrench')
-    this.tooltip = this._actionValue.join('\n')
+    this.tooltip = this.actionValue.join('\n')
     this.contextValue = 'action'
     let packageJsonPath: string = ''
-    if (parent.getName() !== '') {
-      if (parent instanceof TreeItemBuildConfiguration) {
-        const relativePath = parent.getParent().getName()
+    if (parent.name !== '') {
+      if (parent instanceof TreeItemConfiguration) {
+        const relativePath = parent.parent.name
         if (relativePath !== '') {
-          this.description = `(${parent.getName()} - ${relativePath})`
+          this.description = `(${parent.name} - ${relativePath})`
         } else {
-          this.description = `(${parent.getName()})`
+          this.description = `(${parent.name})`
         }
-        packageJsonPath = parent.getParent().getPath()
-      } else if (parent instanceof TreeItemPackageJson) {
-        this.description = `(${parent.getName()})`
-        packageJsonPath = parent.getPath()
+        packageJsonPath = parent.parent.packageJsonPath
+      } else if (parent instanceof TreeItemPackage) {
+        this.description = `(${parent.name})`
+        packageJsonPath = parent.packageJsonPath
       }
     } else {
-      if (parent instanceof TreeItemBuildConfiguration) {
-        const relativePath = parent.getParent().getName()
+      if (parent instanceof TreeItemConfiguration) {
+        const relativePath = parent.parent.name
         if (relativePath !== '') {
           this.description = `(${relativePath})`
         }
-        packageJsonPath = parent.getParent().getPath()
-      } else if (parent instanceof TreeItemPackageJson) {
-        packageJsonPath = parent.getPath()
+        packageJsonPath = parent.parent.packageJsonPath
+      } else if (parent instanceof TreeItemPackage) {
+        packageJsonPath = parent.packageJsonPath
       }
     }
 
@@ -261,84 +273,89 @@ export class TreeItemAction extends TreeItem {
     }
   }
 
-  getParent (): TreeItemParent {
-    return this._parent
-  }
+  // --------------------------------------------------------------------------
+  // Methods.
 
   async runTask (): Promise<vscode.TaskExecution> {
-    return await vscode.tasks.executeTask(this._task)
-  }
-
-  getName (): string {
-    return this._name
+    return await vscode.tasks.executeTask(this.task)
   }
 }
 
 // ----------------------------------------------------------------------------
 
-class TreeItemBuildConfiguration extends TreeItem {
-  private readonly _parent: TreeItemPackageJson
-  private readonly _actions: TreeItemAction[] = []
-  private readonly _name: string
+class TreeItemConfiguration extends TreeItem {
+  // --------------------------------------------------------------------------
+  // Members.
+
+  readonly parent: TreeItemPackage
+  readonly actions: TreeItemAction[] = []
+
+  // --------------------------------------------------------------------------
+  // Constructors.
 
   constructor (
-    buildConfigurationName: string,
-    parent: TreeItemPackageJson
+    configurationName: string,
+    parent: TreeItemPackage
   ) {
-    super(buildConfigurationName, vscode.TreeItemCollapsibleState.Collapsed)
+    super(
+      configurationName,
+      vscode.TreeItemCollapsibleState.Collapsed,
+      configurationName
+    )
 
-    this._name = buildConfigurationName
+    this.parent = parent
+
     this.iconPath = vscode.ThemeIcon.Folder
     this.tooltip = 'xPack build configuration'
     this.contextValue = 'folder'
     this.description = '(configuration)'
-
-    this._parent = parent
   }
+
+  // --------------------------------------------------------------------------
+  // Methods.
 
   addAction (
     actionName: string,
-    actionValue: JsonActionValue,
+    actionValue: string[],
     task: vscode.Task
   ): TreeItemAction {
     const treeItem = new TreeItemAction(actionName, actionValue, task, this)
-    this._actions.push(treeItem)
+    this.actions.push(treeItem)
     return treeItem
   }
 
-  getChildren (): TreeItemAction[] {
-    return this._actions
-  }
-
-  getName (): string {
-    return this._name
-  }
-
-  getParent (): TreeItemPackageJson {
-    return this._parent
+  get children (): TreeItemAction[] {
+    return this.actions
   }
 }
 
 // ----------------------------------------------------------------------------
 
-// An empty tree when there are no xPacks/action.
+// An empty tree when there are no xPacks.
 class TreeItemEmpty extends TreeItem {
+  // --------------------------------------------------------------------------
+  // Constructors.
+
   constructor (message: string) {
-    super(message, vscode.TreeItemCollapsibleState.None)
+    super(message, vscode.TreeItemCollapsibleState.None, '')
+
     this.contextValue = 'empty'
-    this.tooltip =
-      'xPack actions can be defined as xpack.actions.* in package.json.'
+    this.tooltip = 'xPacks need the xpack property in package.json.'
   }
 }
 
 // ----------------------------------------------------------------------------
 
 /**
- * @summary The data provider for the xPack Actions tree view.
+ * The data provider for the xPack Actions tree view.
  */
-export class XpackActionsTreeDataProvider extends TreeDataProvider {
+export class XpackActionsTreeDataProvider implements
+  vscode.TreeDataProvider<TreeItem> {
+  // --------------------------------------------------------------------------
+  // Members.
+
   readonly log: Logger
-  readonly extensionManager: ExtensionManager
+  readonly manager: ExtensionManager
 
   // Lazy creation at first use and after Refresh.
   private _tree: ActionsTree | null = null
@@ -350,70 +367,65 @@ export class XpackActionsTreeDataProvider extends TreeDataProvider {
   this._onDidChangeTreeData.event
 
   // --------------------------------------------------------------------------
+  // Constructors.
 
   constructor (
-    extensionManager: ExtensionManager
+    manager: ExtensionManager
   ) {
-    super()
-
-    this.extensionManager = extensionManager
-    this.log = extensionManager.log
+    this.manager = manager
+    this.log = manager.log
   }
 
   // --------------------------------------------------------------------------
+  // Methods.
 
   private async _createTree (): Promise<ActionsTree> {
     const log = this.log
 
-    const tree: TreeItemPackageJson[] = []
+    const tree: TreeItemPackage[] = []
 
-    // Basically replicate the tree built by the manager.
+    // Basically replicate the data model tree created by the manager.
 
-    if (this.extensionManager.tasksTree.length === 0) {
-      return [new TreeItemEmpty('No xPack actions identified.')]
+    if (this.manager.data.packages.length === 0) {
+      return [new TreeItemEmpty('No xPacks identified.')]
     }
 
-    this.extensionManager.tasksTree.forEach(
-      (treeNodePackage) => {
-        const xpackFolderPath = treeNodePackage.xpackFolderPath
-
-        const treeItemPackage = new TreeItemPackageJson(xpackFolderPath)
+    this.manager.data.packages.forEach(
+      (dataNodePackage) => {
+        const treeItemPackage = new TreeItemPackage(dataNodePackage)
         tree.push(treeItemPackage)
 
-        this._addActions(treeNodePackage.actions, treeItemPackage)
-
-        this._addBuildConfigurations(
-          treeNodePackage.buildConfigurations,
-          treeItemPackage
-        )
+        this._addActions(dataNodePackage.actions, treeItemPackage)
+        this._addConfigurations(dataNodePackage.configurations, treeItemPackage)
       }
     )
 
-    log.trace('tree created')
+    log.trace('items tree created')
     return tree
   }
 
   private _addActions (
-    nodeActions: TreeNodeAction[],
-    toTreeItem: TreeItemPackageJson | TreeItemBuildConfiguration
+    dataNodeActions: DataNodeAction[],
+    parentTreeItem: TreeItemPackage | TreeItemConfiguration
   ): void {
-    nodeActions.forEach(
-      (node) => {
-        toTreeItem.addAction(node.name, node.value, node.task)
+    dataNodeActions.forEach(
+      (dataNodeAction) => {
+        parentTreeItem.addAction(
+          dataNodeAction.name, dataNodeAction.value, dataNodeAction.task)
       }
     )
   }
 
-  private _addBuildConfigurations (
-    nodeBuildConfiguration: TreeNodeBuildConfiguration[],
-    toTreeItem: TreeItemPackageJson
+  private _addConfigurations (
+    dataNodeConfigurations: DataNodeConfiguration[],
+    parentTreeItem: TreeItemPackage
   ): void {
-    nodeBuildConfiguration.forEach(
-      (node) => {
+    dataNodeConfigurations.forEach(
+      (dataNodeConfiguration) => {
         const treeItemConfiguration =
-          toTreeItem.addBuildConfiguration(node.name)
+          parentTreeItem.addConfiguration(dataNodeConfiguration.name)
 
-        this._addActions(node.actions, treeItemConfiguration)
+        this._addActions(dataNodeConfiguration.actions, treeItemConfiguration)
       }
     )
   }
@@ -448,19 +460,19 @@ export class XpackActionsTreeDataProvider extends TreeDataProvider {
     }
 
     if (element instanceof TreeItem) {
-      return element.getChildren()
+      return element.children
     } else {
       return []
     }
   }
 
   getParent (
-    element: vscode.TreeItem
-  ): vscode.TreeItem | null {
+    element: TreeItem
+  ): TreeItem | null {
     // log.trace('getParent', element)
 
     if (element instanceof TreeItem) {
-      return element.getParent()
+      return element.parent
     } else {
       return null
     }

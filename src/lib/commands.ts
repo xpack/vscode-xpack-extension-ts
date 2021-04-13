@@ -29,6 +29,9 @@ import {
 
 // ----------------------------------------------------------------------------
 
+/**
+ * A class to manage commands.
+ */
 export class Commands implements vscode.Disposable {
   // --------------------------------------------------------------------------
   // Static members & methods.
@@ -53,28 +56,28 @@ export class Commands implements vscode.Disposable {
 
   readonly log: Logger
 
-  readonly extensionManager: ExtensionManager
+  readonly manager: ExtensionManager
   private _buildConfigurationPicks: BuildConfigurationPick[] | undefined
 
   // --------------------------------------------------------------------------
   // Constructors.
 
-  constructor (extensionManager: ExtensionManager) {
-    this.extensionManager = extensionManager
-    this.log = extensionManager.log
+  constructor (manager: ExtensionManager) {
+    this.manager = manager
+    this.log = manager.log
 
-    extensionManager.addRefreshFunction(
+    manager.addCallbackRefresh(
       async () => {
         this.refresh()
       }
     )
 
-    const context: vscode.ExtensionContext = extensionManager.vscodeContext
+    const context: vscode.ExtensionContext = manager.vscodeContext
 
     context.subscriptions.push(
       vscode.commands.registerCommand(
         'xpack.treeViewRefresh',
-        this.treeViewRefresh,
+        this.refreshTreeView,
         this
       )
     )
@@ -97,14 +100,22 @@ export class Commands implements vscode.Disposable {
   // --------------------------------------------------------------------------
   // Methods.
 
-  async treeViewRefresh (): Promise<void> {
+  /**
+   * Refresh the explorer tree view.
+   */
+  async refreshTreeView (): Promise<void> {
     const log = this.log
 
-    log.trace('Command.treeViewRefresh()')
-    await this.extensionManager.runRefreshFunctions()
+    log.trace('Command.refreshTreeView()')
+    await this.manager.refresh()
   }
 
-  // When invoked by the tree viewer it get the tree item where it occured.
+  /**
+   * Run an action.
+   *
+   * @param treeItem - When invoked by the tree viewer it gets the
+   * TreeItem where the invocation occured.
+   */
   async runAction (treeItem: TreeItem): Promise<void> {
     const log = this.log
 
@@ -117,6 +128,9 @@ export class Commands implements vscode.Disposable {
     }
   }
 
+  /**
+   * Select the build configuration.
+   */
   async selectBuildConfiguration (): Promise<void> {
     const log = this.log
 
@@ -124,9 +138,9 @@ export class Commands implements vscode.Disposable {
 
     if (this._buildConfigurationPicks === undefined) {
       this._buildConfigurationPicks =
-        this.extensionManager.buildConfigurations.map(
-          (treeNode) => {
-            return new BuildConfigurationPick(treeNode)
+        this.manager.data.configurations.map(
+          (dataNode) => {
+            return new BuildConfigurationPick(dataNode)
           }
         )
     }
@@ -140,7 +154,7 @@ export class Commands implements vscode.Disposable {
 
     log.trace(pick)
     if (pick !== undefined) {
-      this.extensionManager.setBuildConfiguration(pick.treeNode)
+      this.manager.setBuildConfiguration(pick.dataNode)
     }
   }
 

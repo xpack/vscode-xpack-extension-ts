@@ -31,9 +31,15 @@ import { IntelliSense } from './lib/intellisense'
 
 // The extension manager is the glue that keeps things together
 // and refreshes everything when needed.
-let _extensionManager: ExtensionManager
+let _manager: ExtensionManager
 
-// VS Code calls this function.
+/**
+ * Activate the extension.
+ *
+ * @description
+ * VS Code calls this function according to the `activationEvents`
+ * property in `package.json`.
+ */
 export async function activate (
   context: vscode.ExtensionContext
 ): Promise<void> {
@@ -43,33 +49,39 @@ export async function activate (
 
   log.debug('"ilg-vscode.xpack" activated')
 
-  _extensionManager = new ExtensionManager(context, log)
+  _manager = new ExtensionManager(context, log)
 
-  if (!_extensionManager.hasLocalWorkspace()) {
-    log.debug('"ilg-vscode.xpack" requires local workspaces')
+  if (!_manager.hasLocalWorkspace()) {
+    log.info('"ilg-vscode.xpack" requires local workspaces')
   }
 
   // await _extensionManager.findXpackFolderPaths()
 
-  await TaskProvider.register(_extensionManager)
-  await Explorer.register(_extensionManager)
-  await Commands.register(_extensionManager)
+  await TaskProvider.register(_manager)
+  await Explorer.register(_manager)
+  await Commands.register(_manager)
 
   // For now use the C/C++ status bar to select the configuration.
   // await StatusBar.register(_extensionManager)
-  await IntelliSense.register(_extensionManager)
+  await IntelliSense.register(_manager)
 
   // Refresh everything again, when all objects are created.
-  await _extensionManager.runRefreshFunctions()
+  await _manager.refresh()
 
   log.debug('"ilg-vscode.xpack" activation completed')
 }
 
-// VS Code calls this function.
+/**
+ * Deactivate the extension.
+ *
+ * @description
+ * VS Code calls this function, usualy when shutting down, but also
+ * when the extension in disabled or uninstalled.
+ */
 export function deactivate (): void {
-  _extensionManager.dispose()
+  _manager.dispose()
 
-  const log = _extensionManager.log
+  const log = _manager.log
 
   log.debug('"ilg-vscode.xpack" deactivated')
 }

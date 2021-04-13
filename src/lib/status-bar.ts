@@ -13,6 +13,8 @@
 
 // ----------------------------------------------------------------------------
 
+// NOT YET USED! (the C/C++ status item is used for now)
+
 // This extension uses the status bar to display the current build
 // configuration, in use by IntelliSense.
 // It also allows to select a different configuration.
@@ -23,10 +25,8 @@ import * as vscode from 'vscode'
 
 import { Logger } from '@xpack/logger'
 
-import {
-  ExtensionManager,
-  TreeNodeBuildConfiguration
-} from './manager'
+import { ExtensionManager } from './manager'
+import { DataNodeConfiguration } from './data-model'
 
 // ----------------------------------------------------------------------------
 
@@ -36,12 +36,12 @@ export class StatusBar implements vscode.Disposable {
 
   // Factory method pattern.
   static async register (
-    extensionManager: ExtensionManager
+    manager: ExtensionManager
   ): Promise<StatusBar> {
-    const _statusBar = new StatusBar(extensionManager)
-    extensionManager.subscriptions.push(_statusBar)
+    const _statusBar = new StatusBar(manager)
+    manager.subscriptions.push(_statusBar)
 
-    const log = extensionManager.log
+    const log = manager.log
 
     // Add possible async calls here.
 
@@ -53,23 +53,23 @@ export class StatusBar implements vscode.Disposable {
   // Members.
 
   log: Logger
-  readonly extensionManager: ExtensionManager
+  readonly manager: ExtensionManager
 
   private readonly _statusBarItem: vscode.StatusBarItem
 
   // --------------------------------------------------------------------------
   // Constructors.
 
-  constructor (extensionManager: ExtensionManager) {
-    this.extensionManager = extensionManager
-    this.log = extensionManager.log
+  constructor (manager: ExtensionManager) {
+    this.manager = manager
+    this.log = manager.log
 
     const log = this.log
 
-    const context: vscode.ExtensionContext = extensionManager.vscodeContext
+    const context: vscode.ExtensionContext = manager.vscodeContext
     const subscriptions = context.subscriptions
 
-    extensionManager.addRefreshFunction(
+    manager.addCallbackRefresh(
       async () => {
         this.refresh()
       }
@@ -84,42 +84,42 @@ export class StatusBar implements vscode.Disposable {
 
     this._statusBarItem = statusBarItem
 
-    extensionManager.onSelectBuildConfiguration.event(
-      (treeNode) => {
-        log.trace(treeNode, 'received')
+    manager.onSelectBuildConfiguration.event(
+      (dataNode) => {
+        log.trace(dataNode, 'received')
 
-        this.refresh(treeNode)
+        this.refresh(dataNode)
       }
     )
   }
 
   // --------------------------------------------------------------------------
+  // Methods.
 
-  refresh (treeNode?: TreeNodeBuildConfiguration): void {
+  refresh (dataNode?: DataNodeConfiguration): void {
     const log = this.log
 
     log.trace('StatusBar.refresh()')
 
-    let buildConfiguration: TreeNodeBuildConfiguration | undefined = treeNode
-    if (treeNode === undefined) {
-      const extensionManager: ExtensionManager = this.extensionManager
+    let configuration: DataNodeConfiguration | undefined = dataNode
+    if (dataNode === undefined) {
+      const extensionManager: ExtensionManager = this.manager
 
-      const buildConfigurations: TreeNodeBuildConfiguration[] =
-        extensionManager.buildConfigurations
+      const buildConfigurations: DataNodeConfiguration[] =
+        extensionManager.data.configurations
       if (buildConfigurations.length > 0) {
-        buildConfiguration = buildConfigurations[0]
+        configuration = buildConfigurations[0]
       }
     }
 
     const statusBarItem = this._statusBarItem
     statusBarItem.hide()
 
-    if (buildConfiguration !== undefined) {
-      const name: string = buildConfiguration.name
+    if (configuration !== undefined) {
+      const name: string = configuration.name
       statusBarItem.text = `$(tools) ${name}`
       let tooltip = ''
-      const relativePath =
-        buildConfiguration.parent.xpackFolderPath.relativePath
+      const relativePath = configuration.package.folderRelativePath
       if (relativePath !== '') {
         tooltip += `${relativePath} - `
       }

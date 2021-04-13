@@ -22,12 +22,21 @@ import * as path from 'path'
 // Helper class for processing xPacks.
 
 export class Xpack {
+  // --------------------------------------------------------------------------
+  // Members.
+
   folderPath?: string
   packageJson?: any
+
+  // --------------------------------------------------------------------------
+  // Constructors.
 
   constructor (folderPath: string | undefined = undefined) {
     this.folderPath = folderPath
   }
+
+  // --------------------------------------------------------------------------
+  // Methods.
 
   async checkIfFolderHasPackageJson (
     folderPath?: string
@@ -92,18 +101,23 @@ export class Xpack {
     if (!this.isXpack(json)) {
       return false
     }
-    if (json.xpack.actions !== undefined) {
-      return true
-    }
-    if (json.xpack.buildConfigurations !== undefined) {
-      // Don't use a lambda, to return directly from the loop.
-      for (const name of Object.keys(json.xpack.buildConfigurations)) {
-        const buildConfiguration: any = json.xpack.buildConfigurations[name]
-        if (buildConfiguration.actions !== undefined) {
-          return true
+    try {
+      if (json.xpack.actions !== undefined) {
+        return true
+      }
+      if (json.xpack.buildConfigurations !== undefined) {
+        // Don't use a lambda, to return directly from the loop.
+        for (const name of Object.keys(json.xpack.buildConfigurations)) {
+          const buildConfiguration: any = json.xpack.buildConfigurations[name]
+          if (buildConfiguration.actions !== undefined) {
+            return true
+          }
         }
       }
+    } catch (err) {
+      // In case xpack is not an option to get its properties.
     }
+
     return false
   }
 }

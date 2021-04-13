@@ -25,10 +25,9 @@ import * as vscode from 'vscode'
 
 import { Logger } from '@xpack/logger'
 
-import {
-  ExtensionManager,
-  XpackTaskDefinition
-} from './manager'
+import { ExtensionManager } from './manager'
+import * as utils from './utils'
+import { XpackTaskDefinition } from './definitions'
 
 // ----------------------------------------------------------------------------
 
@@ -38,12 +37,12 @@ export class TaskProvider implements vscode.TaskProvider, vscode.Disposable {
 
   // Factory method pattern.
   static async register (
-    extensionManager: ExtensionManager
+    manager: ExtensionManager
   ): Promise<TaskProvider> {
-    const _taskProvider = new TaskProvider(extensionManager)
-    extensionManager.subscriptions.push(_taskProvider)
+    const _taskProvider = new TaskProvider(manager)
+    manager.subscriptions.push(_taskProvider)
 
-    const log = extensionManager.log
+    const log = manager.log
 
     // Add possible async calls here.
 
@@ -62,13 +61,13 @@ export class TaskProvider implements vscode.TaskProvider, vscode.Disposable {
   // --------------------------------------------------------------------------
   // Constructors.
 
-  constructor (extensionManager: ExtensionManager) {
-    this.extensionManager = extensionManager
-    this.log = extensionManager.log
+  constructor (manager: ExtensionManager) {
+    this.extensionManager = manager
+    this.log = manager.log
 
     const log = this.log
 
-    extensionManager.addRefreshFunction(
+    manager.addCallbackRefresh(
       async () => {
         this.refresh()
       }
@@ -126,7 +125,7 @@ export class TaskProvider implements vscode.TaskProvider, vscode.Disposable {
     const tasks: vscode.Task[] = []
 
     // Add install tasks.
-    for (const xpackFolderPath of this.extensionManager.xpackFolderPaths) {
+    for (const dataNodePackage of this.extensionManager.data.packages) {
       if (token.isCancellationRequested) {
         break
       }
@@ -135,20 +134,21 @@ export class TaskProvider implements vscode.TaskProvider, vscode.Disposable {
         type: 'xPack',
         xpmCommand: 'install'
       }
-      if (xpackFolderPath.relativePath !== '') {
+      if (dataNodePackage.folderRelativePath !== '') {
         taskDefinitionInstall.packageFolderRelativePath =
-          xpackFolderPath.relativePath
+          dataNodePackage.folderRelativePath
       }
 
       let taskLabel = 'install dependencies'
-      if (xpackFolderPath.relativePath !== '') {
-        taskLabel += ` (${xpackFolderPath.relativePath})`
+      if (dataNodePackage.folderRelativePath !== '') {
+        taskLabel += ` (${dataNodePackage.folderRelativePath})`
       }
 
-      const task = await this.extensionManager.createTask(
+      const task = await utils.createTask(
         'xpm',
         ['install'],
-        xpackFolderPath,
+        dataNodePackage.parent.workspaceFolder,
+        dataNodePackage.folderPath,
         taskLabel,
         taskDefinitionInstall
       )

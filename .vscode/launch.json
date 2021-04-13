@@ -40,7 +40,24 @@
       "preLaunchTask": "${defaultBuildTask}"
     },
     {
-      "name": "Run Extension RTOS",
+      "name": "Run Extension RTOS all",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "${env:HOME}/Work/xpack-study-projects.git"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/out/**/*.js"
+      ],
+      "skipFiles": [
+        "async_hooks.js",
+        "inspector_async_hook.js"
+      ],
+      "preLaunchTask": "${defaultBuildTask}"
+    },
+    {
+      "name": "Run Extension blinky-rtos",
       "type": "extensionHost",
       "request": "launch",
       "args": [

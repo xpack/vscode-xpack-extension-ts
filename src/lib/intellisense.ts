@@ -13,11 +13,11 @@
 
 // ----------------------------------------------------------------------------
 
-/**
+/*
  * Module for vscode-cpptools integration.
  *
  * This module uses the [vscode-cpptools API](https://www.npmjs.com/package/vscode-cpptools)
- * to provide that extension with per-file configuration information,
+ * to provide the C/C++ extension with per-file configuration information,
  * similar to vscode-cmake-tools integration.
  */
 
@@ -33,9 +33,21 @@ import * as cpt from 'vscode-cpptools'
 
 import { Logger } from '@xpack/logger'
 
-import {
-  ExtensionManager
-} from './manager'
+import { ExtensionManager } from './manager'
+import { DataNodeWorkspace } from './data-model'
+
+// ----------------------------------------------------------------------------
+
+interface JsonCCppProperties {
+  configurations: JsonCCppPropertiesConfiguration[]
+  version: number
+}
+
+interface JsonCCppPropertiesConfiguration {
+  name: string
+  configurationProvider?: string
+  compileCommands?: string
+}
 
 // ----------------------------------------------------------------------------
 
@@ -44,12 +56,12 @@ export class IntelliSense implements vscode.Disposable {
   // Static members & methods.
 
   static async register (
-    extensionManager: ExtensionManager
+    manager: ExtensionManager
   ): Promise<IntelliSense> {
-    const _intellisense = new IntelliSense(extensionManager)
-    extensionManager.subscriptions.push(_intellisense)
+    const _intellisense = new IntelliSense(manager)
+    manager.subscriptions.push(_intellisense)
 
-    const log = extensionManager.log
+    const log = manager.log
 
     await _intellisense._initialize()
 
@@ -57,9 +69,12 @@ export class IntelliSense implements vscode.Disposable {
     return _intellisense
   }
 
+  // --------------------------------------------------------------------------
+  // Members.
+
   readonly log: Logger
 
-  readonly extensionManager: ExtensionManager
+  readonly manager: ExtensionManager
 
   private readonly _configProvider: CppConfigurationProvider
   private _cppToolsAPI?: cpt.CppToolsApi
@@ -67,21 +82,21 @@ export class IntelliSense implements vscode.Disposable {
   // --------------------------------------------------------------------------
   // Constructors.
 
-  constructor (extensionManager: ExtensionManager) {
-    this.extensionManager = extensionManager
-    this.log = extensionManager.log
+  constructor (manager: ExtensionManager) {
+    this.manager = manager
+    this.log = manager.log
 
     // const log = this.log
 
-    extensionManager.addRefreshFunction(
+    manager.addCallbackRefresh(
       async () => {
         await this.refresh()
       }
     )
 
-    const context = this.extensionManager.vscodeContext
+    const context = this.manager.vscodeContext
 
-    this._configProvider = new CppConfigurationProvider(extensionManager)
+    this._configProvider = new CppConfigurationProvider(manager)
     context.subscriptions.push(this._configProvider)
   }
 
@@ -115,69 +130,128 @@ export class IntelliSense implements vscode.Disposable {
 
     log.trace('IntelliSense.updateCppPropertiesJson()')
 
-    for (const nodePackage of this.extensionManager.tasksTree) {
-      log.trace(nodePackage.xpackFolderPath.path)
-      const jsonFilePath: string = path.join(nodePackage.xpackFolderPath.path,
-        '.vscode', 'c_cpp_properties.json')
+    const promises = this.manager.data.workspaces.map(
+      async workspace => await this.updateWorkspaceCCppProperties(workspace)
+    )
 
-      let json
-      try {
-        const fileContent = await fsPromises.readFile(jsonFilePath)
-        assert(fileContent !== null)
-        json = JSON.parse(fileContent.toString())
-      } catch (err) {
-        // Ensure that the folder is there.
-        await makeDir(path.join(nodePackage.xpackFolderPath.path, '.vscode'))
-        json = {
-          configurations: [],
-          version: 4
-        }
+    await Promise.all(promises)
+  }
+
+  async updateWorkspaceCCppProperties (
+    workspace: DataNodeWorkspace
+  ): Promise<void> {
+    const log = this.log
+
+    log.trace(workspace.workspaceFolder.uri.fsPath)
+
+    const vscodeFolderPath: string = path.join(
+      workspace.workspaceFolder.uri.fsPath, '.vscode')
+
+    const jsonFilePath: string = path.join(
+      vscodeFolderPath, 'c_cpp_properties.json')
+
+    let json: JsonCCppProperties
+    try {
+      const fileContent = await fsPromises.readFile(jsonFilePath)
+      assert(fileContent !== null)
+      json = JSON.parse(fileContent.toString())
+    } catch (err) {
+      // Ensure that the folder is there.
+      await makeDir(vscodeFolderPath)
+      json = {
+        configurations: [],
+        version: 4
       }
+    }
 
-      if (json.configurations === undefined) {
-        json.configurations = []
-      }
+    if (json.configurations === undefined) {
+      // If it does not exist, add an empty array.
+      json.configurations = []
+    }
 
-      for (const nodeConfiguration of nodePackage.buildConfigurations) {
-        interface JsonConfiguration {
-          name: string
-          configurationProvider?: string
-          compileCommands?: string
+    await this.updateWorkspaceCompileCommands(workspace, json.configurations)
+
+    const fileNewContent = JSON.stringify(json, null, 2) + '\n'
+    await fsPromises.writeFile(jsonFilePath, fileNewContent)
+    log.trace(`${jsonFilePath} written back`)
+  }
+
+  async updateWorkspaceCompileCommands (
+    dataNodeWorkspace: DataNodeWorkspace,
+    jsonConfigurations: JsonCCppPropertiesConfiguration[]
+  ): Promise<void> {
+    const log = this.log
+
+    for (const dataNodePackage of dataNodeWorkspace.packages) {
+      for (const dataNodeConfiguration of dataNodePackage.configurations) {
+        let globalConfigurationName = dataNodeConfiguration.name
+        if (dataNodePackage.folderRelativePath !== '') {
+          globalConfigurationName += ' - '
+          globalConfigurationName += dataNodePackage.folderRelativePath
         }
+        log.trace(`c/c++ configuration name: ${globalConfigurationName}`)
 
-        let existing: JsonConfiguration | undefined
-        // If it exists, use it.
-        for (const jsonConfiguration of json.configurations) {
-          if (jsonConfiguration.name === nodeConfiguration.name) {
-            existing = jsonConfiguration
-            break
-          }
-        }
+        // First try to identify an existing configuration;
+        // if not found, create a new empty one.
+        const currentJsonConfiguration =
+          this.prepareCCppPropertiesConfiguration(
+            globalConfigurationName, jsonConfigurations)
 
-        if (existing === undefined) {
-          existing = {
-            name: nodeConfiguration.name
-          }
-          json.configurations.push(existing)
-        }
-
-        // And always override two properties.
-        existing.configurationProvider = 'ms-vscode.cmake-tools'
+        // Then set/override two properties, one being the provider.
+        currentJsonConfiguration.configurationProvider = 'ms-vscode.cmake-tools'
 
         // TODO: use the variable (via substitutions)
+        const buildConfigurationRelativeFolderPath =
+          path.join('build', dataNodeConfiguration.name)
+
+        const newBaseFolderPath =
+          (dataNodeWorkspace.packages.length > 1)
+            ? dataNodePackage.folderPath
+            : '$' + '{workspaceFolder}'
+
         const newPath = path.join(
-          '$' + '{workspaceFolder}',
-          'build',
-          nodeConfiguration.name,
-          'compile_commands.json')
+          newBaseFolderPath,
+          buildConfigurationRelativeFolderPath,
+          'compile_commands.json'
+        )
 
-        existing.compileCommands = newPath
+        // Also set/override the path to compile_commands.json.
+        currentJsonConfiguration.compileCommands = newPath
+
+        log.trace(`c/c++ compileCommands: ${newPath}`)
       }
-
-      const fileNewContent = JSON.stringify(json, null, 2) + '\n'
-      await fsPromises.writeFile(jsonFilePath, fileNewContent)
-      log.trace(`${jsonFilePath} written back`)
     }
+  }
+
+  /**
+   * First try to identify an existing configuration in the given array;
+   * if not found, create a new empty one and add it to the array.
+   *
+   * @param configurationName - The configuration name as it
+   * is expected to appear in the compile_commands.json file.
+   * @param jsonConfigurations - An array of configurations.
+   *
+   * @returns Either an exisiting configuration or a new empty one.
+   */
+  prepareCCppPropertiesConfiguration (
+    configurationName: string,
+    jsonConfigurations: JsonCCppPropertiesConfiguration[]
+  ): JsonCCppPropertiesConfiguration {
+    // If a configuration with the same name exists, return it.
+    for (const jsonConfiguration of jsonConfigurations) {
+      if (jsonConfiguration.name === configurationName) {
+        return jsonConfiguration
+      }
+    }
+
+    // If it does not exist, create a minimal named object...
+    const currentJsonConfiguration: JsonCCppPropertiesConfiguration = {
+      name: configurationName
+    }
+    // ... and add it to the array.
+    jsonConfigurations.push(currentJsonConfiguration)
+
+    return currentJsonConfiguration
   }
 
   // --------------------------------------------------------------------------
@@ -213,6 +287,9 @@ export class IntelliSense implements vscode.Disposable {
 
 export class CppConfigurationProvider
 implements cpt.CustomConfigurationProvider {
+  // --------------------------------------------------------------------------
+  // Members.
+
   // Name and ID, as visible to cpptools.
   readonly name: string = 'xPack Tools'
   extensionId: string = 'ilg-vscode.xpack'
@@ -228,9 +305,15 @@ implements cpt.CustomConfigurationProvider {
 
   readonly log: Logger
 
+  // --------------------------------------------------------------------------
+  // Constructors.
+
   constructor (extensionManager: ExtensionManager) {
     this.log = extensionManager.log
   }
+
+  // --------------------------------------------------------------------------
+  // Methods.
 
   async canProvideConfiguration (
     _uri: vscode.Uri,
@@ -240,6 +323,7 @@ implements cpt.CustomConfigurationProvider {
 
     log.error(`canProvideConfiguration(${_uri.fsPath}) not implemented`)
     throw new Error('Method not implemented.')
+    // return false
   }
 
   async provideConfigurations (
@@ -290,7 +374,7 @@ implements cpt.CustomConfigurationProvider {
   // --------------------------------------------------------------------------
 
   refresh (): void {
-
+    // Nothing yet.
   }
 }
 
