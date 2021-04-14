@@ -121,7 +121,7 @@ export class Commands implements vscode.Disposable {
 
     log.trace('Command.runAction()')
     if (treeItem instanceof TreeItemAction) {
-      log.trace(treeItem)
+      log.trace(treeItem.task.execution)
       await treeItem.runTask()
     } else {
       throw new Error('treeItem not yet implemented')
