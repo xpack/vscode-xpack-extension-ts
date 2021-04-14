@@ -13,6 +13,7 @@
 
 // ----------------------------------------------------------------------------
 
+import * as os from 'os'
 import * as path from 'path'
 
 import * as vscode from 'vscode'
@@ -23,6 +24,7 @@ import { XpackTaskDefinition } from './definitions'
 
 /**
  * Completely normalize/canonicalize a path.
+ *
  * Using `path.normalize` isn't sufficient. We want to convert all paths to use
  * POSIX separators, remove redundant separators, and sometimes normalize the
  * case of the path.
@@ -112,6 +114,17 @@ export function isPrimitive (value: any): boolean {
 
 export function isJsonObject (value: any): boolean {
   return value !== undefined && !isPrimitive(value) && !Array.isArray(value)
+}
+
+// ----------------------------------------------------------------------------
+
+export function filterPath (input: string): string {
+  const lower = input.toLowerCase()
+  const fixed = (os.platform() === 'win32')
+    ? lower.replace(/[^a-z0-9\\]+/g, '-')
+    : lower.replace(/[^a-z0-9/]+/g, '-')
+
+  return fixed.replace(/--/g, '-')
 }
 
 // ----------------------------------------------------------------------------
