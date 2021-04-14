@@ -4,7 +4,9 @@ out/test/**
 src/**
 .gitignore
 .yarnrc
+.codacy.yml
 vsc-extension-quickstart.md
+webpack.config.js
 **/tsconfig.json
 **/.eslintrc.json
 **/*.map
@@ -12,7 +14,8 @@ vsc-extension-quickstart.md
 README-*.md
 **/xpacks/**
 tests/**
+node_modules/**
+out/**
 
-
-# DO NOT add node_modules!
+# DO NOT add node_modules with plain vsce! (with webpack you can add it)
 
