@@ -60,3 +60,7 @@ $ npm run fix
 - <https://tsdoc.org>
 - <https://typedoc.org/guides/doccomments/>
 - <https://jsdoc.app/index.html>
+
+## Bundling extensions
+
+- <https://code.visualstudio.com/api/working-with-extensions/bundling-extension>

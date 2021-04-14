@@ -142,6 +142,13 @@ Note: this example assumes the presence of a toolchain, like GCC or clang.
 The list is kept in reverse chronological order, with the most recent
 release on the top.
 
+### 0.2.0
+
+- migrate to webpack
+- add intellisense, via `c_cpp_properties.json`
+- perform Liquid substitution to compute `buildFolderRelativePath` and to
+show actions tooltips
+
 ### 0.1.5
 
 An early preview release, which adds the following:

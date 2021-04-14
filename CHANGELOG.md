@@ -6,6 +6,18 @@ Please check
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 and close existing issues and pull requests.
 
+## 2021-04-14
+
+- v0.2.0 published
+- migrate to webpack
+- perform Liquid substitution to compute `buildFolderRelativePath`
+- perform Liquid substitution to show actions tooltips
+
+## 2021-04-09
+
+- add intellisense, via `c_cpp_properties.json`
+- explorer: configurations start as collapsed
+
 ## 2021-04-08
 
 - v0.1.5 published
