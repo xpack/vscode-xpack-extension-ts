@@ -110,4 +110,8 @@ export function isPrimitive (value: any): boolean {
     value === null
 }
 
+export function isJsonObject (value: any): boolean {
+  return value !== undefined && !isPrimitive(value) && !Array.isArray(value)
+}
+
 // ----------------------------------------------------------------------------
