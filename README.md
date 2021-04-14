@@ -142,7 +142,7 @@ Note: this example assumes the presence of a toolchain, like GCC or clang.
 The list is kept in reverse chronological order, with the most recent
 release on the top.
 
-### 0.2.1
+### 0.2.2
 
 - migrate to webpack
 - add intellisense, via `c_cpp_properties.json`

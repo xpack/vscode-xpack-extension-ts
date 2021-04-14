@@ -8,7 +8,7 @@ and close existing issues and pull requests.
 
 ## 2021-04-14
 
-- v0.2.0 published
+- v0.2.2 published
 - migrate to webpack
 - perform Liquid substitution to compute `buildFolderRelativePath`
 - perform Liquid substitution to show actions tooltips
