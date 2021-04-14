@@ -28,7 +28,7 @@
 #ifndef HELLO_WORLD_H_
 #define HELLO_WORLD_H_
 
-// Nothing yet.
+#define HELLO_WORLD_MESSAGE "Hello World! "
 
 #endif // HELLO_WORLD_H_
 

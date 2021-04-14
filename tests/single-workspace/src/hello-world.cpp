@@ -34,7 +34,7 @@
 int
 main(int argc, char* argv[])
 {
-  std::cout << "Hello World! " << std::endl;
+  std::cout << HELLO_WORLD_MESSAGE << std::endl;
 
 #if defined(DEBUG)
   std::cout << "(in debug mode)";
