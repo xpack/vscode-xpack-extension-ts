@@ -28,7 +28,7 @@ import {
 } from './data-model'
 
 import {
-  PackageJson,
+  XpackPackageJson,
   packageJsonFileName
 } from './definitions'
 
@@ -175,7 +175,7 @@ class TreeItemPackage extends TreeItem {
     this.tooltip = 'xPack'
     this.contextValue = 'packageJson'
 
-    const packageJson: PackageJson = dataNode.packageJson
+    const packageJson: XpackPackageJson = dataNode.packageJson
     const packageName: string = packageJson.name
     const packageVersion: string = packageJson.version
     this.description = `(${packageName}@${packageVersion})`

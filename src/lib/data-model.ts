@@ -15,6 +15,7 @@
 
 import * as assert from 'assert'
 import { Dirent, promises as fsPromises } from 'fs'
+import * as os from 'os'
 import * as path from 'path'
 
 import * as vscode from 'vscode'
@@ -25,11 +26,15 @@ import {
   JsonActions,
   JsonBuildConfigurations,
   XpackTaskDefinition,
-  PackageJson,
-  JsonActionValue
+  XpackPackageJson,
+  // JsonActionValue,
+  JsonProperties,
+  buildFolderRelativePathPropertyName
+  // JsonBuildConfiguration
 } from './definitions'
 
 import * as utils from './utils'
+import { XpmLiquid, filterPath } from './xpm-liquid'
 
 // ----------------------------------------------------------------------------
 
@@ -73,10 +78,10 @@ export class DataModel {
   async _addWorkspaces (): Promise<void> {
     if (vscode.workspace.workspaceFolders != null) {
       const filteredWorkspaces = vscode.workspace.workspaceFolders.filter(
-        workspaceFolder => workspaceFolder.uri.scheme === 'file'
+        (workspaceFolder) => workspaceFolder.uri.scheme === 'file'
       )
       this.workspaces = filteredWorkspaces.map(
-        workspaceFolder => new DataNodeWorkspace(workspaceFolder)
+        (workspaceFolder) => new DataNodeWorkspace(workspaceFolder, this.log)
       )
 
       const promises: Array<Promise<void>> = []
@@ -109,15 +114,20 @@ export class DataModel {
     const packageJson = await xpack.checkIfFolderHasPackageJson()
     if (xpack.isPackage()) {
       if (xpack.isXpack()) {
-        if (utils.isPrimitive(packageJson.xpack) ||
-          Array.isArray(packageJson.xpack)) {
+        let isPackageJsonDirty = false
+        if (!utils.isJsonObject(packageJson.xpack)) {
+          const saved = packageJson.xpack
           // If not an object, enforce it, to avoid exceptions.
-          packageJson.xpack = {}
+          packageJson.xpack = {
+            _saved: saved
+          }
+          isPackageJsonDirty = true
         }
 
-        const xpackPackageJson: PackageJson = packageJson
+        const xpackPackageJson: XpackPackageJson = packageJson
 
         const nodePackage = parentWorkspace.addPackage(folderPath, packageJson)
+        nodePackage.package.isPackageJsonDirty = isPackageJsonDirty
         this.packages.push(nodePackage)
 
         await this.addActions(xpackPackageJson.xpack.actions, nodePackage)
@@ -155,13 +165,13 @@ export class DataModel {
   }
 
   async addActions (
-    fromJson: JsonActions,
+    fromJson: JsonActions | undefined,
     parent: DataNodeConfiguration | DataNodePackage
   ): Promise<void> {
+    const log = this.log
+
     if (fromJson !== undefined) {
       for (const actionName of Object.keys(fromJson)) {
-        const actionValue = fromJson[actionName]
-
         const configurationName =
           (parent instanceof DataNodeConfiguration)
             ? parent.name
@@ -171,7 +181,21 @@ export class DataModel {
           configurationName,
           parent.package
         )
-        const nodeAction = parent.addAction(actionName, actionValue, task)
+
+        const actionJsonValue: string = Array.isArray(fromJson[actionName])
+          ? (fromJson[actionName] as string[]).join(os.EOL)
+          : (fromJson[actionName] as string)
+
+        let actionValue: string
+        try {
+          actionValue = await parent.xpmLiquidEngine.performSubstitutions(
+            actionJsonValue, parent.xpmLiquidMap)
+        } catch (err) {
+          log.trace(err)
+          actionValue = actionJsonValue
+        }
+        const nodeAction = parent.addAction(actionName,
+          actionValue.split(os.EOL), task)
 
         // Also collect an array of actions
         this.actions.push(nodeAction)
@@ -180,15 +204,14 @@ export class DataModel {
   }
 
   async addConfigurations (
-    fromJson: JsonBuildConfigurations,
+    fromJson: JsonBuildConfigurations | undefined,
     parent: DataNodePackage
   ): Promise<void> {
     if (fromJson !== undefined) {
       for (const configurationName of Object.keys(fromJson)) {
         const jsonBuildConfiguration = fromJson[configurationName]
 
-        const dataNodeConfiguration =
-          parent.addConfiguration(configurationName)
+        const dataNodeConfiguration = parent.addConfiguration(configurationName)
 
         await this.addActions(
           jsonBuildConfiguration.actions,
@@ -256,12 +279,14 @@ export class DataNode implements vscode.Disposable {
   // Members.
 
   name: string
+  log: Logger
 
   // --------------------------------------------------------------------------
   // Constructors.
 
-  constructor (name: string) {
+  constructor (name: string, log: Logger) {
     this.name = name
+    this.log = log
   }
 
   // --------------------------------------------------------------------------
@@ -286,10 +311,11 @@ export class DataNodeWorkspace extends DataNode {
   // Constructors.
 
   constructor (
-    workspaceFolder: vscode.WorkspaceFolder
+    workspaceFolder: vscode.WorkspaceFolder,
+    log: Logger
   ) {
     // Use the index to generate unique names.
-    super(workspaceFolder.index.toString())
+    super(workspaceFolder.index.toString(), log)
     this.workspaceFolder = workspaceFolder
   }
 
@@ -301,15 +327,18 @@ export class DataNodeWorkspace extends DataNode {
   // --------------------------------------------------------------------------
   // Methods.
 
-  addPackage (folderPath: string, packageJson: PackageJson): DataNodePackage {
-    const node = new DataNodePackage(folderPath, packageJson, this)
+  addPackage (
+    folderPath: string,
+    packageJson: XpackPackageJson
+  ): DataNodePackage {
+    const node = new DataNodePackage(folderPath, packageJson, this, this.log)
     this.packages.push(node)
 
     return node
   }
 
   dispose (): void {
-    this.packages.forEach(node => node.dispose())
+    this.packages.forEach((node) => node.dispose())
     this.packages = []
   }
 }
@@ -333,7 +362,9 @@ export class DataNodePackage extends DataNode {
   /**
    * The parsed package.json
    */
-  packageJson: PackageJson
+  packageJson: XpackPackageJson
+
+  isPackageJsonDirty: boolean = false
 
   /**
    * xPack wide actions.
@@ -345,20 +376,32 @@ export class DataNodePackage extends DataNode {
    */
   configurations: DataNodeConfiguration[] = []
 
+  properties: JsonProperties = {}
+
+  xpmLiquidEngine: XpmLiquid
+  xpmLiquidMap: any
+
   // --------------------------------------------------------------------------
   // Constructors.
 
   constructor (
     folderPath: string,
-    packageJson: PackageJson,
-    parent: DataNodeWorkspace
+    packageJson: XpackPackageJson,
+    parent: DataNodeWorkspace,
+    log: Logger
   ) {
     // Pass the relative path as name.
-    super(path.relative(parent.workspaceFolder.uri.path, folderPath))
+    super(path.relative(parent.workspaceFolder.uri.path, folderPath), log)
     this.parent = parent
 
     this.folderPath = folderPath
     this.packageJson = packageJson
+
+    this.xpmLiquidEngine = new XpmLiquid(this.log)
+    this.xpmLiquidMap = this.xpmLiquidEngine.prepareMap(
+      packageJson)
+
+    this.properties = this.xpmLiquidMap.properties
   }
 
   // --------------------------------------------------------------------------
@@ -378,10 +421,10 @@ export class DataNodePackage extends DataNode {
 
   addAction (
     name: string,
-    value: JsonActionValue,
+    value: string[],
     task: vscode.Task
   ): DataNodeAction {
-    const nodeAction = new DataNodeAction(name, value, task, this)
+    const nodeAction = new DataNodeAction(name, value, task, this, this.log)
     this.actions.push(nodeAction)
 
     return nodeAction
@@ -390,16 +433,18 @@ export class DataNodePackage extends DataNode {
   addConfiguration (
     name: string
   ): DataNodeConfiguration {
-    const nodeBuildConfiguration = new DataNodeConfiguration(name, this)
+    const nodeBuildConfiguration =
+      new DataNodeConfiguration(name, this, this.log)
+
     this.configurations.push(nodeBuildConfiguration)
 
     return nodeBuildConfiguration
   }
 
   dispose (): void {
-    this.actions.forEach(node => node.dispose())
+    this.actions.forEach((node) => node.dispose())
     this.actions = []
-    this.configurations.forEach(node => node.dispose())
+    this.configurations.forEach((node) => node.dispose())
     this.configurations = []
   }
 }
@@ -414,12 +459,27 @@ export class DataNodeConfiguration extends DataNode {
   parent: DataNodePackage
   actions: DataNodeAction[] = []
 
+  properties: JsonProperties = {}
+
+  xpmLiquidEngine: XpmLiquid
+  xpmLiquidMap: any
+
   // --------------------------------------------------------------------------
   // Constructors.
 
-  constructor (name: string, parent: DataNodePackage) {
-    super(name)
+  constructor (
+    name: string,
+    parent: DataNodePackage,
+    log: Logger
+  ) {
+    super(name, log)
     this.parent = parent
+
+    this.xpmLiquidEngine = new XpmLiquid(this.log)
+    this.xpmLiquidMap = this.xpmLiquidEngine.prepareMap(
+      parent.packageJson, name)
+
+    this.properties = this.xpmLiquidMap.properties
   }
 
   // --------------------------------------------------------------------------
@@ -429,23 +489,41 @@ export class DataNodeConfiguration extends DataNode {
     return (this.parent)
   }
 
+  async getBuildFolderRelativePath (): Promise<string> {
+    const log = this.log
+
+    const folderPath = this.properties[buildFolderRelativePathPropertyName]
+    if (folderPath !== undefined && folderPath !== '') {
+      try {
+        return await this.xpmLiquidEngine.performSubstitutions(
+          folderPath, this.xpmLiquidMap)
+      } catch (err) {
+        log.trace(err)
+      }
+    }
+    return path.join('build', filterPath(this.name))
+  }
+
   // --------------------------------------------------------------------------
   // Methods.
 
   addAction (
     name: string,
-    value: JsonActionValue,
+    value: string[],
     task: vscode.Task
   ): DataNodeAction {
-    const nodeAction = new DataNodeAction(name, value, task, this)
+    const nodeAction = new DataNodeAction(name, value, task, this, this.log)
     this.actions.push(nodeAction)
 
     return nodeAction
   }
 
   dispose (): void {
-    this.actions.forEach(node => node.dispose())
+    this.actions.forEach((node) => node.dispose())
     this.actions = []
+
+    this.xpmLiquidEngine = undefined as unknown as XpmLiquid
+    this.xpmLiquidMap = undefined
   }
 }
 
@@ -459,7 +537,8 @@ export class DataNodeAction extends DataNode {
   parent: DataNodeConfiguration | DataNodePackage
 
   /**
-   * The action value is always normalised to an array of commands.
+   * The action value is always normalised to an array of commands,
+   * and has all substitutions performed.
    */
   value: string[]
 
@@ -473,20 +552,15 @@ export class DataNodeAction extends DataNode {
 
   constructor (
     name: string,
-    value: JsonActionValue,
+    value: string[],
     task: vscode.Task,
-    parent: DataNodeConfiguration | DataNodePackage
+    parent: DataNodeConfiguration | DataNodePackage,
+    log: Logger
   ) {
-    super(name)
+    super(name, log)
     this.parent = parent
 
-    // Ensure always array of strings.
-    if (Array.isArray(value)) {
-      this.value = value
-    } else {
-      this.value = [value]
-    }
-
+    this.value = value
     this.task = task
   }
 

@@ -68,5 +68,7 @@ export interface XpackTaskDefinition extends vscode.TaskDefinition {
 // Constants.
 
 export const packageJsonFileName: string = 'package.json'
+export const buildFolderRelativePathPropertyName: string =
+  'buildFolderRelativePath'
 
 // ----------------------------------------------------------------------------

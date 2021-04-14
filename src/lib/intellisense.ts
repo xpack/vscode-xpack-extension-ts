@@ -22,6 +22,7 @@
  */
 
 import * as assert from 'assert'
+import * as os from 'os'
 import * as path from 'path'
 import { promises as fsPromises } from 'fs'
 
@@ -130,8 +131,10 @@ export class IntelliSense implements vscode.Disposable {
 
     log.trace('IntelliSense.updateCppPropertiesJson()')
 
-    const promises = this.manager.data.workspaces.map(
-      async workspace => await this.updateWorkspaceCCppProperties(workspace)
+    const promises: Array<Promise<void>> = []
+    this.manager.data.workspaces.forEach(
+      (workspace) =>
+        promises.push(this.updateWorkspaceCCppProperties(workspace))
     )
 
     await Promise.all(promises)
@@ -171,7 +174,7 @@ export class IntelliSense implements vscode.Disposable {
 
     await this.updateWorkspaceCompileCommands(workspace, json.configurations)
 
-    const fileNewContent = JSON.stringify(json, null, 2) + '\n'
+    const fileNewContent = JSON.stringify(json, null, 2) + os.EOL
     await fsPromises.writeFile(jsonFilePath, fileNewContent)
     log.trace(`${jsonFilePath} written back`)
   }
@@ -201,8 +204,8 @@ export class IntelliSense implements vscode.Disposable {
         currentJsonConfiguration.configurationProvider = 'ms-vscode.cmake-tools'
 
         // TODO: use the variable (via substitutions)
-        const buildConfigurationRelativeFolderPath =
-          path.join('build', dataNodeConfiguration.name)
+        const buildFolderRelativePath =
+          await dataNodeConfiguration.getBuildFolderRelativePath()
 
         const newBaseFolderPath =
           (dataNodeWorkspace.packages.length > 1)
@@ -211,7 +214,7 @@ export class IntelliSense implements vscode.Disposable {
 
         const newPath = path.join(
           newBaseFolderPath,
-          buildConfigurationRelativeFolderPath,
+          buildFolderRelativePath,
           'compile_commands.json'
         )
 
