@@ -1,0 +1,20 @@
+---
+exclude_paths:
+  - ".vscode*/**"
+  - "assets/**"
+  - "node_modules/**"
+  - "out/**"
+  - "tests/**"
+  - "README*"
+  - "CHANGELOG*"
+  - "package*"
+  - "tsconfig.json"
+  - ".*"
+
+languages:
+  ts:
+    extensions:
+      - ".ts"
+
+engines:
+  tslint
