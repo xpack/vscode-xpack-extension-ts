@@ -54,7 +54,7 @@ export class TaskProvider implements vscode.TaskProvider, vscode.Disposable {
   // Members.
 
   readonly log: Logger
-  readonly extensionManager: ExtensionManager
+  readonly manager: ExtensionManager
 
   private _tasks: vscode.Task[] | undefined
 
@@ -62,7 +62,7 @@ export class TaskProvider implements vscode.TaskProvider, vscode.Disposable {
   // Constructors.
 
   constructor (manager: ExtensionManager) {
-    this.extensionManager = manager
+    this.manager = manager
     this.log = manager.log
 
     const log = this.log
@@ -73,7 +73,7 @@ export class TaskProvider implements vscode.TaskProvider, vscode.Disposable {
       }
     )
 
-    const context = this.extensionManager.vscodeContext
+    const context = this.manager.vscodeContext
     const taskProvider = vscode.tasks.registerTaskProvider('xPack', this)
     context.subscriptions.push(taskProvider)
 
@@ -125,7 +125,7 @@ export class TaskProvider implements vscode.TaskProvider, vscode.Disposable {
     const tasks: vscode.Task[] = []
 
     // Add install tasks.
-    for (const dataNodePackage of this.extensionManager.data.packages) {
+    for (const dataNodePackage of this.manager.data.packages) {
       if (token.isCancellationRequested) {
         break
       }
@@ -156,7 +156,7 @@ export class TaskProvider implements vscode.TaskProvider, vscode.Disposable {
     }
 
     // Add action tasks, created by the manager.
-    tasks.push(...this.extensionManager.tasks)
+    tasks.push(...this.manager.data.tasks)
     return tasks
   }
 

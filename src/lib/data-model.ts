@@ -46,6 +46,8 @@ export class DataModel {
   packages: DataNodePackage[] = []
   configurations: DataNodeConfiguration[] = []
   actions: DataNodeAction[] = []
+  tasks: vscode.Task[] = []
+
   _maxSearchDepth: number
 
   log: Logger
@@ -71,6 +73,7 @@ export class DataModel {
     this.packages = []
     this.configurations = []
     this.actions = []
+    this.tasks = []
 
     await this._addWorkspaces()
   }
@@ -199,6 +202,8 @@ export class DataModel {
 
         // Also collect an array of actions
         this.actions.push(nodeAction)
+
+        this.tasks.push(task)
       }
     }
   }

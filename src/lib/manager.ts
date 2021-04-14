@@ -47,7 +47,6 @@ export class ExtensionManager implements vscode.Disposable {
   callbacksRefresh: AsyncVoidFunction[] = []
 
   data: DataModel
-  tasks: vscode.Task[] = []
 
   selectedBuildConfiguration: DataNodeConfiguration | undefined
 
