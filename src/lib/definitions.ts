@@ -22,26 +22,30 @@ export type AsyncVoidFunction = (() => Promise<void>)
 
 export type JsonActionValue = string | string[]
 
+export interface JsonProperties {
+  [actionName: string]: string
+}
+
 export interface JsonActions {
   [actionName: string]: JsonActionValue
 }
 
 export interface JsonBuildConfiguration {
-  properties: string[]
-  actions: JsonActions
+  properties?: JsonProperties
+  actions?: JsonActions
 }
 
 export interface JsonBuildConfigurations {
   [buildConfigurationName: string]: JsonBuildConfiguration
 }
 
-export interface PackageJson {
+export interface XpackPackageJson {
   name: string
   version: string
   xpack: {
-    properties: string[]
-    actions: JsonActions
-    buildConfigurations: JsonBuildConfigurations
+    properties?: JsonProperties
+    actions?: JsonActions
+    buildConfigurations?: JsonBuildConfigurations
   }
 }
 
