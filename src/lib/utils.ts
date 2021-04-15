@@ -115,4 +115,7 @@ export function isJsonObject (value: any): boolean {
   return value !== undefined && !isPrimitive(value) && !Array.isArray(value)
 }
 
+export function isNonEmptyJsonObject (value: any): boolean {
+  return isJsonObject(value) && (Object.keys(value).length > 0)
+}
 // ----------------------------------------------------------------------------
