@@ -4,11 +4,11 @@ Manage and build C/C++ projects with CMake, meson, etc, using the xPack tools.
 
 ## Features
 
-Manage typical multi-configuration projects (like debug/release), but also
-complex,  multi-platform, multi-architecture, multi-toolchain projects,
-with an emphasis on modern C/C++ and embedded applications.
+Manage typical **multi-configuration projects** (like _Debug/Release_), but
+also complex, **multi-platform**, **multi-architecture**, **multi-toolchain**
+projects, with an emphasis on **modern C/C++** and **embedded** applications.
 
-This project is part of the [xPack Project](https://github.com/xpack).
+This sub-project is part of [The xPack Project](https://github.com/xpack).
 
 It is intended as a replacement for the managed build system available
 in [Eclipse Embedded CDT](https://projects.eclipse.org/projects/iot.embed-cdt/).
@@ -44,15 +44,16 @@ or compatible servers.
 Compared to typical CMake/meson projects, which in most cases use a
 single build folder, an xPack Managed Build project is
 by design defined as a collection of named **build configurations**,
-each built in a separate folder, and each with its own set of
-named **actions**, defined as array of strings holding commands.
+each using a separate build folder, and each with its own set of
+named **actions**, defined as sequences of commands (stored in
+arrays of string).
 
 To avoid redundant definitions between configurations,
 the actions can use generic templates, with substitutions performed by the
 [LiquidJS](https://liquidjs.com) template engine, based on
 user defined string **properties**.
 
-An typical example of a project with two build configurations,
+A typical example of a project with two build configurations,
 using CMake, may look like:
 
 ```json
@@ -76,12 +77,17 @@ using CMake, may look like:
   },
   "xpack": {
     "properties": {
-      "buildFolderRelativePath": "build/{{ configuration.name | downcase }}",
-      "commandCmakeGenerate": "cmake -S . -B {{ properties.buildFolderRelativePath }} -G Ninja -D CMAKE_BUILD_TYPE={{ properties.buildType }}",
+      "buildFolderRelativePath": "build{% if os.platform == 'win32' %}\\{% else %}/{% endif %}{{ configuration.name | downcase }}",
+      "commandCmakeGenerate": "cmake -S . -B {{ properties.buildFolderRelativePath }} -G Ninja -D CMAKE_BUILD_TYPE={{ properties.buildType }} -D CMAKE_EXPORT_COMPILE_COMMANDS=ON",
       "commandCmakeBuild": "cmake --build {{ properties.buildFolderRelativePath }}",
-      "commandCmakeClean": "cmake --build {{ properties.buildFolderRelativePath }} --target clean"
+      "commandCmakeClean": "cmake --build {{ properties.buildFolderRelativePath }} --target clean",
+      "commandExecuteHello": "{{ properties.buildFolderRelativePath }}{% if os.platform == 'win32' %}\\{% else %}/{% endif %}hello-world"
     },
     "actions": {
+      "generate-all": [
+        "xpm run generate --config Debug",
+        "xpm run generate --config Release"
+      ],
       "build-all": [
         "xpm run build --config Debug",
         "xpm run build --config Release"
@@ -89,20 +95,28 @@ using CMake, may look like:
       "clean-all": [
         "xpm run clean --config Debug",
         "xpm run clean --config Release"
-      ]
-    },
+      ],
+      "execute-all": [
+        "xpm run execute --config Debug",
+        "xpm run execute --config Release"
+      ],
+      "test": [
+        "xpm run build-all",
+        "xpm run execute-all"
+      ]    },
     "buildConfigurations": {
       "Debug": {
         "properties": {
           "buildType": "Debug"
         },
         "actions": {
+          "generate": "{{ properties.commandCmakeGenerate }}",
           "build": [
             "{{ properties.commandCmakeGenerate }}",
             "{{ properties.commandCmakeBuild }}"
           ],
           "clean": "{{ properties.commandCmakeClean }}",
-          "execute": "{{ properties.buildFolderRelativePath }}/hello-world"
+          "execute": "{{ properties.commandExecuteHello }}"
         }
       },
       "Release": {
@@ -110,12 +124,13 @@ using CMake, may look like:
           "buildType": "Release"
         },
         "actions": {
+          "generate": "{{ properties.commandCmakeGenerate }}",
           "build": [
             "{{ properties.commandCmakeGenerate }}",
             "{{ properties.commandCmakeBuild }}"
           ],
           "clean": "{{ properties.commandCmakeClean }}",
-          "execute": "{{ properties.buildFolderRelativePath }}/hello-world"
+          "execute": "{{ properties.commandExecuteHello }}"
         }
       }
     }
@@ -123,19 +138,19 @@ using CMake, may look like:
 }
 ```
 
-Using xpm, the build can be invoked with:
+Using xpm, the complete test of build/test can be invoked with:
 
 ```console
 $ cp <project>
 $ xpm install
-$ xpm run build-all
+$ xpm run test
 ```
 
 Note: this example assumes the presence of a toolchain, like GCC or clang.
 
 ## Known Issues
 
-- none so far
+- too early to call
 
 ## Release Notes
 
@@ -144,10 +159,16 @@ release on the top.
 
 ### 0.2.2
 
-- migrate to webpack
-- add intellisense, via `c_cpp_properties.json`
-- perform Liquid substitution to compute `buildFolderRelativePath` and to
-show actions tooltips
+A new development release which adds the following:
+
+- since the project grew, as recommended, webpack was used to pack all code
+  into a single compact file;
+- IntelliSense support was added via `c_cpp_properties.json` (making
+  use of the `ms-vscode.cmake-tools` configuration provider); the new
+  status bae entry is no longer needed and was disabled;
+- generic template support was added by performing Liquid substitution,
+  mainly to compute `buildFolderRelativePath` but also to show
+  actions tooltips.
 
 ### 0.1.5
 
@@ -156,18 +177,18 @@ An early preview release, which adds the following:
 - an **xPacks Actions** explorer, implemented as a tree view, which allows
   a convenient way to navigate between multiple build configurations and
   actions; to make it visible, open a `package.json`
-  created via `xpm init` and add the `xpack` proeprty
-  (for example from the above code)
+  created via `xpm init` and add the `xpack` property
+  (for example from the above code);
 - actions are integrated into the usual VS Code workflow by associating
   internal tasks with each action; separate tasks are added for common
-  commands like `xpm install`
-- a status bar entry used to select the active build configuration
+  commands like `xpm install`;
+- ~~a status bar entry used to select the active build configuration
   to be used by IntelliSense
-  (integration with IntelliSence is not yet implemented)
+  (integration with IntelliSence is not yet implemented)~~.
 
 ### 0.0.1
 
 Initial release with minimal content, intended to validate the workflow.
 
-There is only one simple action defined, `xPack: Greeting`,
+There is only one simple action defined, _xPack: Greeting_,
 which prints a short message.

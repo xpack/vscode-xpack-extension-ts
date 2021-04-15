@@ -4,7 +4,7 @@
 
 The project is hosted on GitHub:
 
-- https://github.com/xpack/vscode-xpack-extension-ts.git
+- <https://github.com/xpack/vscode-xpack-extension-ts.git>
 
 To clone it:
 
@@ -24,7 +24,10 @@ Before making the release, perform some checks and tweaks.
 
 ### Update npm packages
 
+- `npm outdated`
 - `npm update`
+- repeat and possibly manually edit `package.json` until everything is
+  up to date
 
 ### Check Git
 
@@ -42,7 +45,7 @@ Use the semantic versioning semantics.
 
 Check GitHub issues and pull requests:
 
-- https://github.com/xpack/vscode-xpack-extension-ts/issues/
+- <https://github.com/xpack/vscode-xpack-extension-ts/issues/>
 
 ### Update Release Notes in `README.md`
 
@@ -72,7 +75,7 @@ If any, refer to closed
 [issues](https://github.com/xpack/vscode-xpack-extension-ts.git/issues/)
 as:
 
-```
+```markdown
 - [#1] ...
 ```
 
@@ -82,7 +85,7 @@ as:
 
 Check if the page shows at:
 
-- https://xpack.github.io/web-preview/news/
+- <https://xpack.github.io/web-preview/news/>
 
 ## Publish to Marketplace
 
@@ -98,7 +101,7 @@ Check if the page shows at:
 - push all changes to GitHub; this should trigger CI
 - **wait for CI tests to complete**
 - `npm run publish`
-- after a few minutes, check https://marketplace.visualstudio.com/items?itemName=ilg-vscode.xpack
+- after a few minutes, check <https://marketplace.visualstudio.com/items?itemName=ilg-vscode.xpack>
 
 ### Test
 
@@ -127,7 +130,7 @@ In the `xpack/web-jekyll` GitHub repo:
 
 Check if the page shows at:
 
-- https://xpack.github.io/news/
+- <https://xpack.github.io/news/>
 
 ## Share on Twitter
 
