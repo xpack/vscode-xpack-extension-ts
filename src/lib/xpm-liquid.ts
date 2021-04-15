@@ -311,7 +311,7 @@ export class XpmLiquid {
         tmpdir: os.tmpdir(),
         type: os.type(),
         // Workaround for the missing type definition.
-        version: (os as any).version() as string
+        version: os.version()
       },
       path: {
         delimiter: path.delimiter,
