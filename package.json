@@ -83,6 +83,11 @@
         "icon": "$(refresh)"
       },
       {
+        "command": "xpack.runCommand",
+        "title": "%command.runCommand%",
+        "icon": "$(run)"
+      },
+      {
         "command": "xpack.runAction",
         "title": "%command.runAction%",
         "icon": "$(run)"
@@ -101,6 +106,10 @@
         },
         {
           "command": "xpack.runAction",
+          "when": "false"
+        },
+        {
+          "command": "xpack.runCommand",
           "when": "false"
         },
         {
@@ -124,6 +133,16 @@
         {
           "command": "xpack.runAction",
           "when": "view == xPackActions && viewItem == action",
+          "group": "inline"
+        },
+        {
+          "command": "xpack.runCommand",
+          "when": "view == xPackActions && viewItem == command",
+          "group": "navigation@2"
+        },
+        {
+          "command": "xpack.runCommand",
+          "when": "view == xPackActions && viewItem == command",
           "group": "inline"
         }
       ]

@@ -33,6 +33,8 @@ export interface JsonActions {
 export interface JsonBuildConfiguration {
   properties?: JsonProperties
   actions?: JsonActions
+  dependencies?: any
+  devDependencies?: any
 }
 
 export interface JsonBuildConfigurations {
@@ -42,6 +44,8 @@ export interface JsonBuildConfigurations {
 export interface XpackPackageJson {
   name: string
   version: string
+  dependencies?: any
+  devDependencies?: any
   xpack: {
     properties?: JsonProperties
     actions?: JsonActions
@@ -59,9 +63,9 @@ export interface XpackPackageJson {
  */
 export interface XpackTaskDefinition extends vscode.TaskDefinition {
   actionName?: string
+  xpmCommand?: string
   buildConfigurationName?: string
   packageFolderRelativePath?: string
-  xpmCommand?: string
 }
 
 // ----------------------------------------------------------------------------

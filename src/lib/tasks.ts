@@ -26,8 +26,6 @@ import * as vscode from 'vscode'
 import { Logger } from '@xpack/logger'
 
 import { ExtensionManager } from './manager'
-import * as utils from './utils'
-import { XpackTaskDefinition } from './definitions'
 
 // ----------------------------------------------------------------------------
 
@@ -124,38 +122,12 @@ export class TaskProvider implements vscode.TaskProvider, vscode.Disposable {
   ): Promise<vscode.Task[]> {
     const tasks: vscode.Task[] = []
 
-    // Add install tasks.
-    for (const dataNodePackage of this.manager.data.packages) {
-      if (token.isCancellationRequested) {
-        break
-      }
-
-      const taskDefinitionInstall: XpackTaskDefinition = {
-        type: 'xPack',
-        xpmCommand: 'install'
-      }
-      if (dataNodePackage.folderRelativePath !== '') {
-        taskDefinitionInstall.packageFolderRelativePath =
-          dataNodePackage.folderRelativePath
-      }
-
-      let taskLabel = 'install dependencies'
-      if (dataNodePackage.folderRelativePath !== '') {
-        taskLabel += ` (${dataNodePackage.folderRelativePath})`
-      }
-
-      const task = await utils.createTask(
-        'xpm',
-        ['install'],
-        dataNodePackage.parent.workspaceFolder,
-        dataNodePackage.folderPath,
-        taskLabel,
-        taskDefinitionInstall
-      )
-      tasks.push(task)
+    if (token.isCancellationRequested) {
+      return tasks
     }
 
-    // Add action tasks, created by the manager.
+    // Currently there are no additional tasks to create here,
+    // all tasks were created by the manager, copy them here.
     tasks.push(...this.manager.data.tasks)
     return tasks
   }
