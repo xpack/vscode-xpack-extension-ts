@@ -4,19 +4,12 @@
         "out": false // set this to true to hide the "out" folder with the compiled JS files
     },
     "search.exclude": {
-        "out": true // set this to false to include "out" folder in search results
+        "out": true, // set this to false to include "out" folder in search results
+        "dist": true
     },
     // Turn off tsc task auto detection since we have the necessary tasks as npm scripts
     "typescript.tsc.autoDetect": "off",
-    "editor.minimap.enabled": false,
     "editor.tabSize": 2,
-    "editor.renderWhitespace": "all",
     "standard.engine": "ts-standard",
-    "standard.workingDirectories": [
-    ],
-    "standard.options": {
-      "ignore": [
-      ]
-    },
     "standard.autoFixOnSave": true
   }
