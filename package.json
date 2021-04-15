@@ -40,20 +40,15 @@
   "scripts": {
     "fix": "ts-standard --fix src",
     "compile": "tsc -p ./",
-    "vscode:prepublish-": "npm run compile",
-    "vscode:prepublish": "webpack --mode production",
     "webpack": "webpack --mode development",
     "webpack-dev": "webpack --mode development --watch",
-    "tsc": "tsc -h",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "ts-standard src",
-    "test": "echo \"Not yet implemented\"",
-    "test-": "node ./out/test/runTest.js",
-    "git-log": "git log --pretty='%cd * %h %s' --date=short",
     "package": "vsce ls && vsce package",
     "publish": "vsce publish",
-    "vsce": "vsce"
+    "git-log": "git log --pretty='%cd * %h %s' --date=short",
+    "watch": "tsc -watch -p ./",
+    "vscode:prepublish": "webpack --mode production",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "ts-standard src"
   },
   "dependencies": {
     "@xpack/logger": "^3.0.0",
