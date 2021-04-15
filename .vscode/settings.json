@@ -11,5 +11,6 @@
     "typescript.tsc.autoDetect": "off",
     "editor.tabSize": 2,
     "standard.engine": "ts-standard",
-    "standard.autoFixOnSave": true
+    "standard.autoFixOnSave": true,
+    "npm.exclude": "**/tests/**"
   }
