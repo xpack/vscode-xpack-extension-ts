@@ -174,9 +174,11 @@ export class IntelliSense implements vscode.Disposable {
 
     await this.updateWorkspaceCompileCommands(workspace, json.configurations)
 
-    const fileNewContent = JSON.stringify(json, null, 2) + os.EOL
-    await fsPromises.writeFile(jsonFilePath, fileNewContent)
-    log.trace(`${jsonFilePath} written back`)
+    if (json.configurations.length > 0) {
+      const fileNewContent = JSON.stringify(json, null, 2) + os.EOL
+      await fsPromises.writeFile(jsonFilePath, fileNewContent)
+      log.trace(`${jsonFilePath} written back`)
+    }
   }
 
   async updateWorkspaceCompileCommands (
