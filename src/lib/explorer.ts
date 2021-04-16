@@ -13,6 +13,13 @@
 
 // ----------------------------------------------------------------------------
 
+/**
+ * To locate commands use:
+ * - `view == xPackActions` (set via createTreeView())
+ * - `viewItem == action | command | configuration | package
+ * (set via treeItem.contextValue)
+ */
+
 import * as path from 'path'
 
 import * as vscode from 'vscode'
@@ -161,7 +168,7 @@ export class TreeItem extends vscode.TreeItem implements vscode.Disposable {
 
 // ----------------------------------------------------------------------------
 
-class TreeItemPackage extends TreeItem {
+export class TreeItemPackage extends TreeItem {
   // --------------------------------------------------------------------------
   // Members.
 
@@ -172,6 +179,8 @@ class TreeItemPackage extends TreeItem {
   actions: TreeItemAction[] = []
   configurations: TreeItemConfiguration[] = []
 
+  dataNode: DataNodePackage
+
   // --------------------------------------------------------------------------
   // Constructors.
 
@@ -181,13 +190,14 @@ class TreeItemPackage extends TreeItem {
       dataNode.name)
 
     this.packageJsonPath = path.join(dataNode.folderPath, packageJsonFileName)
+    this.dataNode = dataNode
 
     this.iconPath = new vscode.ThemeIcon('symbol-package')
     // this.description = 'Package actions'
     this.resourceUri =
       vscode.Uri.file(path.join(dataNode.folderPath, packageJsonFileName))
     this.tooltip = 'xPack'
-    this.contextValue = 'packageJson'
+    this.contextValue = 'package'
 
     const packageJson: XpackPackageJson = dataNode.packageJson
     const packageName: string = packageJson.name
@@ -410,7 +420,7 @@ export class TreeItemAction extends TreeItem {
 
 // ----------------------------------------------------------------------------
 
-class TreeItemConfiguration extends TreeItem {
+export class TreeItemConfiguration extends TreeItem {
   // --------------------------------------------------------------------------
   // Members.
 
@@ -435,7 +445,7 @@ class TreeItemConfiguration extends TreeItem {
 
     this.iconPath = vscode.ThemeIcon.Folder
     this.tooltip = 'xPack build configuration'
-    this.contextValue = 'folder'
+    this.contextValue = 'configuration'
     this.description = '(configuration)'
   }
 

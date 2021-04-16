@@ -13,6 +13,21 @@
 
 // ----------------------------------------------------------------------------
 
+/**
+ *
+ * Commands are defined in package.json as
+ * - `contributes.commands` - global definitions
+ * - `contributes.menus.commandPalette` - what is shown in the palette
+ * - `contributes.menus.'view/title'` - appear in the view title
+ * - `contributes.menus.'view/item/context'` - icons associated with tree items
+ *
+ * For details see:
+ * https://code.visualstudio.com/api/references/contribution-points#contributes.menus
+ */
+
+import { promises as fsPromises } from 'fs'
+import * as os from 'os'
+
 import * as vscode from 'vscode'
 
 import { Logger } from '@xpack/logger'
@@ -24,8 +39,13 @@ import {
 
 import {
   TreeItem,
-  TreeItemAction
+  TreeItemAction,
+  TreeItemConfiguration,
+  TreeItemPackage
 } from './explorer'
+import { JsonBuildConfigurations, XpackPackageJson } from './definitions'
+
+// import * as utils from './utils'
 
 // ----------------------------------------------------------------------------
 
@@ -88,10 +108,24 @@ export class Commands implements vscode.Disposable {
         this
       )
     )
+    // context.subscriptions.push(
+    //   vscode.commands.registerCommand(
+    //     'xpack.selectBuildConfiguration',
+    //     this.selectBuildConfiguration,
+    //     this
+    //   )
+    // )
     context.subscriptions.push(
       vscode.commands.registerCommand(
-        'xpack.selectBuildConfiguration',
-        this.selectBuildConfiguration,
+        'xpack.addConfiguration',
+        this.addConfiguration,
+        this
+      )
+    )
+    context.subscriptions.push(
+      vscode.commands.registerCommand(
+        'xpack.addAction',
+        this.addAction,
         this
       )
     )
@@ -126,6 +160,98 @@ export class Commands implements vscode.Disposable {
     } else {
       throw new Error('treeItem not yet implemented')
     }
+  }
+
+  async addConfiguration (treeItem: TreeItem): Promise<void> {
+    const log = this.log
+
+    if (treeItem instanceof TreeItemPackage) {
+      log.trace(`addConfiguration() to package '${treeItem.name}'`)
+    } else {
+      return
+    }
+
+    const configurationName = await vscode.window.showInputBox({
+      prompt: 'New configuration name',
+      placeHolder: 'Prefer capitalised words, dash separated'
+    })
+    if (configurationName === undefined) {
+      return
+    }
+    log.trace(configurationName)
+
+    const packageJson: XpackPackageJson = treeItem.dataNode.packageJson
+    if (packageJson.xpack.buildConfigurations === undefined) {
+      packageJson.xpack.buildConfigurations = {}
+    } else {
+      if (packageJson.xpack.buildConfigurations[configurationName] !==
+        undefined) {
+        await vscode.window.showErrorMessage(
+            `Configuration '${configurationName}' ` +
+            'already present, choose a different name.')
+        return
+      }
+    }
+    packageJson.xpack.buildConfigurations[configurationName] = {
+      properties: {},
+      actions: {}
+    }
+    log.trace(packageJson)
+
+    const fileNewContent = JSON.stringify(packageJson, null, 2) + os.EOL
+    await fsPromises.writeFile(treeItem.packageJsonPath, fileNewContent)
+    log.trace(`${treeItem.packageJsonPath} written back`)
+  }
+
+  async addAction (treeItem: TreeItem): Promise<void> {
+    const log = this.log
+
+    let treeItemPackage
+    if (treeItem instanceof TreeItemPackage) {
+      log.trace(`addAction() to package '${treeItem.name}'`)
+      treeItemPackage = treeItem
+    } else if (treeItem instanceof TreeItemConfiguration) {
+      log.trace(`addAction() to configuration ${treeItem.name}`)
+      treeItemPackage = treeItem.parent
+    } else {
+      return
+    }
+
+    const actionName = await vscode.window.showInputBox({
+      prompt: 'New action name',
+      placeHolder: 'Prefer lowercase words, dash separated'
+    })
+    if (actionName === undefined) {
+      return
+    }
+    log.trace(actionName)
+
+    const packageJson: XpackPackageJson = treeItemPackage.dataNode.packageJson
+
+    let fromJson = packageJson.xpack
+    if (treeItem instanceof TreeItemConfiguration) {
+      const jsonConfigurations: JsonBuildConfigurations =
+        packageJson.xpack.buildConfigurations as JsonBuildConfigurations
+      fromJson = jsonConfigurations[treeItem.name]
+    }
+    if (fromJson.actions === undefined) {
+      fromJson.actions = {}
+    } else {
+      if (fromJson.actions[actionName] !==
+        undefined) {
+        await vscode.window.showErrorMessage(
+            `Action '${actionName}' ` +
+            'already present, choose a different name.')
+        return
+      }
+    }
+    fromJson.actions[actionName] = []
+
+    log.trace(packageJson)
+
+    const fileNewContent = JSON.stringify(packageJson, null, 2) + os.EOL
+    await fsPromises.writeFile(treeItemPackage.packageJsonPath, fileNewContent)
+    log.trace(`${treeItemPackage.packageJsonPath} written back`)
   }
 
   /**
