@@ -22,9 +22,9 @@
  */
 
 import * as assert from 'assert'
+import { promises as fsPromises } from 'fs'
 import * as os from 'os'
 import * as path from 'path'
-import { promises as fsPromises } from 'fs'
 
 // https://www.npmjs.com/package/make-dir
 import * as makeDir from 'make-dir'
