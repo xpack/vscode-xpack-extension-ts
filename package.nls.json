@@ -3,6 +3,8 @@
   "command.treeViewRefresh": "Refresh the xPack Actions explorer",
   "command.runAction": "Run Action",
   "command.runCommand": "Run Command",
+  "command.addConfiguration": "Add Configuration",
+  "command.addAction": "Add Action",
   "command.selectBuildConfiguration": "Select the build configuration to be used by IntelliSense",
   "taskdef.xpmCommand": "The xpm command to customize.",
   "taskdef.actionName": "The name of the xPack action to customize.",

@@ -79,7 +79,6 @@
       {
         "command": "xpack.treeViewRefresh",
         "title": "%command.treeViewRefresh%",
-        "category": "xPack",
         "icon": "$(refresh)"
       },
       {
@@ -96,6 +95,16 @@
         "command": "xpack.selectBuildConfiguration",
         "title": "%command.selectBuildConfiguration%",
         "category": "xPack"
+      },
+      {
+        "command": "xpack.addConfiguration",
+        "title": "%command.addConfiguration%",
+        "icon": "$(empty-window)"
+      },
+      {
+        "command": "xpack.addAction",
+        "title": "%command.addAction%",
+        "icon": "$(add)"
       }
     ],
     "menus": {
@@ -105,16 +114,24 @@
           "when": "true"
         },
         {
-          "command": "xpack.runAction",
-          "when": "false"
-        },
-        {
           "command": "xpack.runCommand",
           "when": "false"
         },
         {
+          "command": "xpack.runAction",
+          "when": "false"
+        },
+        {
+          "command": "xpack.addConfiguration",
+          "when": "false"
+        },
+        {
+          "command": "xpack.addAction",
+          "when": "false"
+        },
+        {
           "command": "xpack.selectBuildConfiguration",
-          "when": "true"
+          "when": "false"
         }
       ],
       "view/title": [
@@ -126,9 +143,19 @@
       ],
       "view/item/context": [
         {
+          "command": "xpack.runCommand",
+          "when": "view == xPackActions && viewItem == command",
+          "group": "navigation"
+        },
+        {
+          "command": "xpack.runCommand",
+          "when": "view == xPackActions && viewItem == command",
+          "group": "inline"
+        },
+        {
           "command": "xpack.runAction",
           "when": "view == xPackActions && viewItem == action",
-          "group": "navigation@2"
+          "group": "navigation"
         },
         {
           "command": "xpack.runAction",
@@ -136,13 +163,33 @@
           "group": "inline"
         },
         {
-          "command": "xpack.runCommand",
-          "when": "view == xPackActions && viewItem == command",
-          "group": "navigation@2"
+          "command": "xpack.addConfiguration",
+          "when": "view == xPackActions && viewItem == package",
+          "group": "navigation"
         },
         {
-          "command": "xpack.runCommand",
-          "when": "view == xPackActions && viewItem == command",
+          "command": "xpack.addConfiguration",
+          "when": "view == xPackActions && viewItem == package",
+          "group": "inline"
+        },
+        {
+          "command": "xpack.addAction",
+          "when": "view == xPackActions && viewItem == package",
+          "group": "navigation"
+        },
+        {
+          "command": "xpack.addAction",
+          "when": "view == xPackActions && viewItem == configuration",
+          "group": "navigation"
+        },
+        {
+          "command": "xpack.addAction",
+          "when": "view == xPackActions && viewItem == package",
+          "group": "inline"
+        },
+        {
+          "command": "xpack.addAction",
+          "when": "view == xPackActions && viewItem == configuration",
           "group": "inline"
         }
       ]
