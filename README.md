@@ -157,6 +157,12 @@ Note: this example assumes the presence of a toolchain, like GCC or clang.
 The list is kept in reverse chronological order, with the most recent
 release on the top.
 
+### 0.3.0
+
+A new development release with functional IntelliSense which adds:
+
+- commands to create configs & actions
+
 ### 0.2.2
 
 A new development release which adds the following:
