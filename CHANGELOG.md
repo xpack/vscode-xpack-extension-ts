@@ -6,6 +6,11 @@ Please check
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 and close existing issues and pull requests.
 
+## 2021-04-19
+
+- v0.3.1 published
+- fix run `xpm install` from explorer
+
 ## 2021-04-18
 
 - v0.3.0 published
