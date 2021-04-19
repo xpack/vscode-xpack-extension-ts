@@ -8,7 +8,7 @@ and close existing issues and pull requests.
 
 ## 2021-04-19
 
-- v0.3.1 published
+- v0.3.2 published
 - fix run `xpm install` from explorer
 
 ## 2021-04-18
