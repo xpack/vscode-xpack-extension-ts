@@ -78,9 +78,9 @@ using CMake, may look like:
   "xpack": {
     "properties": {
       "buildFolderRelativePath": "build{% if os.platform == 'win32' %}\\{% else %}/{% endif %}{{ configuration.name | downcase }}",
-      "commandCmakeGenerate": "cmake -S . -B {{ properties.buildFolderRelativePath }} -G Ninja -D CMAKE_BUILD_TYPE={{ properties.buildType }} -D CMAKE_EXPORT_COMPILE_COMMANDS=ON",
-      "commandCmakeBuild": "cmake --build {{ properties.buildFolderRelativePath }}",
-      "commandCmakeClean": "cmake --build {{ properties.buildFolderRelativePath }} --target clean",
+      "commandGenerate": "cmake -S . -B {{ properties.buildFolderRelativePath }} -G Ninja -D CMAKE_BUILD_TYPE={{ properties.buildType }} -D CMAKE_EXPORT_COMPILE_COMMANDS=ON",
+      "commandBuild": "cmake --build {{ properties.buildFolderRelativePath }}",
+      "commandClean": "cmake --build {{ properties.buildFolderRelativePath }} --target clean",
       "commandExecuteHello": "{{ properties.buildFolderRelativePath }}{% if os.platform == 'win32' %}\\{% else %}/{% endif %}hello-world"
     },
     "actions": {
@@ -110,12 +110,12 @@ using CMake, may look like:
           "buildType": "Debug"
         },
         "actions": {
-          "generate": "{{ properties.commandCmakeGenerate }}",
+          "generate": "{{ properties.commandGenerate }}",
           "build": [
-            "{{ properties.commandCmakeGenerate }}",
-            "{{ properties.commandCmakeBuild }}"
+            "{{ properties.commandGenerate }}",
+            "{{ properties.commandBuild }}"
           ],
-          "clean": "{{ properties.commandCmakeClean }}",
+          "clean": "{{ properties.commandClean }}",
           "execute": "{{ properties.commandExecuteHello }}"
         }
       },
@@ -124,12 +124,12 @@ using CMake, may look like:
           "buildType": "Release"
         },
         "actions": {
-          "generate": "{{ properties.commandCmakeGenerate }}",
+          "generate": "{{ properties.commandGenerate }}",
           "build": [
-            "{{ properties.commandCmakeGenerate }}",
-            "{{ properties.commandCmakeBuild }}"
+            "{{ properties.commandGenerate }}",
+            "{{ properties.commandBuild }}"
           ],
-          "clean": "{{ properties.commandCmakeClean }}",
+          "clean": "{{ properties.commandClean }}",
           "execute": "{{ properties.commandExecuteHello }}"
         }
       }
