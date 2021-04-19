@@ -38,15 +38,17 @@
     "vscode": "^1.54.0"
   },
   "scripts": {
+    "webpack-dev": "webpack --mode development --watch",
     "fix": "ts-standard --fix src",
     "compile": "tsc -p ./",
     "webpack": "webpack --mode development",
-    "webpack-dev": "webpack --mode development --watch",
+    "version-patch": "npm version patch",
+    "version-minor": "npm version minor",
     "package": "vsce ls && vsce package",
     "publish": "vsce publish",
     "git-log": "git log --pretty='%cd * %h %s' --date=short",
     "watch": "tsc -watch -p ./",
-    "vscode:prepublish": "webpack --mode production",
+    "vscode:prepublish": "xpm run fix && xpm run compile && webpack --mode production",
     "pretest": "npm run compile && npm run lint",
     "lint": "ts-standard src"
   },
