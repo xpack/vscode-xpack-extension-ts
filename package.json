@@ -48,7 +48,7 @@
     "publish": "vsce publish",
     "git-log": "git log --pretty='%cd * %h %s' --date=short",
     "watch": "tsc -watch -p ./",
-    "vscode:prepublish": "xpm run fix && xpm run compile && webpack --mode production",
+    "vscode:prepublish": "npm run fix && npm run compile && webpack --mode production",
     "pretest": "npm run compile && npm run lint",
     "lint": "ts-standard src"
   },
