@@ -40,6 +40,7 @@ import {
 import {
   TreeItem,
   TreeItemAction,
+  TreeItemCommand,
   TreeItemConfiguration,
   TreeItemPackage
 } from './explorer'
@@ -103,6 +104,13 @@ export class Commands implements vscode.Disposable {
     )
     context.subscriptions.push(
       vscode.commands.registerCommand(
+        'xpack.runCommand',
+        this.runCommand,
+        this
+      )
+    )
+    context.subscriptions.push(
+      vscode.commands.registerCommand(
         'xpack.runAction',
         this.runAction,
         this
@@ -142,6 +150,24 @@ export class Commands implements vscode.Disposable {
 
     log.trace('Command.refreshTreeView()')
     await this.manager.refresh()
+  }
+
+  /**
+   * Run a command.
+   *
+   * @param treeItem - When invoked by the tree viewer it gets the
+   * TreeItem where the invocation occured.
+   */
+  async runCommand (treeItem: TreeItem): Promise<void> {
+    const log = this.log
+
+    log.trace('Command.runCommand()')
+    if (treeItem instanceof TreeItemCommand) {
+      log.trace(treeItem.task.execution)
+      await treeItem.runTask()
+    } else {
+      throw new Error('treeItem not yet implemented')
+    }
   }
 
   /**
