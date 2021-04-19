@@ -15,5 +15,9 @@
   "npm.exclude": "**/tests/**",
   "markdownlint.config": {
     "MD041": false
-  }
+  },
+  "spellright.language": [
+    "en_GB"
+  ],
+  "spellright.notificationClass": "warning"
 }
