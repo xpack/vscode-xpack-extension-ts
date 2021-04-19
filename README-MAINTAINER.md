@@ -98,6 +98,7 @@ Check if the page shows at:
   update `.vscodeignore`
 - `npm version patch` (bug fixes), `npm version minor` (compatible API
   additions), `npm version major` (incompatible API changes)
+- `npm run package`; again, to have an up-to-date .vsix
 - push all changes to GitHub; this should trigger CI
 - **wait for CI tests to complete**
 - `npm run publish`

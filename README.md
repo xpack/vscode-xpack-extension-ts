@@ -140,10 +140,10 @@ using CMake, may look like:
 
 Using xpm, the complete test of build/test can be invoked with:
 
-```console
-$ cp <project>
-$ xpm install
-$ xpm run test
+```bash
+cp <project>
+xpm install
+xpm run test
 ```
 
 Note: this example assumes the presence of a toolchain, like GCC or clang.
