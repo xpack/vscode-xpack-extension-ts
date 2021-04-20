@@ -22,6 +22,40 @@ The API used to implement VSCode extensions:
 The VSCode extensions require some definitions stored in the
 `contributes` property of `package.json`.
 
+#### `contributes.commands`
+
+All commands are listed here, but not all commands are equal,
+those that must be shown in Command Palette better have the `category`
+defined, while those that go in menus probably better have the icons.
+
+- <https://code.visualstudio.com/api/references/contribution-points#contributes.commands>
+
+#### `contributes.menus.commandPalette`
+
+The Command Palette is the way extensions contribute commands that can
+be invoked manually.
+
+The picker prefixes commands with their category, allowing for easy grouping.
+
+#### `contributes.menus.view/title`
+
+These are the commands associated with the view title.
+
+The `navigation` group is special as it will always be sorted to the
+top/beginning of a menu.
+
+#### `contributes.menus.view/item/context`
+
+These are the commands associated with the items in the view tree.
+
+Node: the `when` expressions do not accept parenthesis, so to enable
+commands for multiple items, repeat the command with all different
+`viewItem`.
+
+The `inline` groups is inspired from other projects, no documentation found.
+
+#### Documentation
+
 - [contribution points](https://code.visualstudio.com/api/references/contribution-points)
 - [activation events](https://code.visualstudio.com/api/references/activation-events)
 - [extension manifest](https://code.visualstudio.com/api/references/extension-manifest)
