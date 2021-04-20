@@ -281,7 +281,7 @@ export class Commands implements vscode.Disposable {
   }
 
   /**
-   * Select the build configuration.
+   * Select the build configuration. Currently Not used.
    */
   async selectBuildConfiguration (): Promise<void> {
     const log = this.log
