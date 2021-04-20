@@ -70,6 +70,10 @@ export class DataModel {
   // Methods.
 
   async refresh (): Promise<void> {
+    const log = this.log
+
+    log.trace('DataModel.refresh()')
+
     // Dispose the current hierarchy, recursively.
     this.workspaces.forEach(
       node => node.dispose())
