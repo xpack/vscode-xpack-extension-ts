@@ -55,6 +55,11 @@ export async function activate (
     log.info('"ilg-vscode.xpack" requires local workspaces')
   }
 
+  // Register listeners to refresh the explorer when packages change.
+  _manager.registerPackageJsonWatchers()
+
+  _manager.registerWorkspaceWatcher()
+
   // await _extensionManager.findXpackFolderPaths()
 
   await TaskProvider.register(_manager)

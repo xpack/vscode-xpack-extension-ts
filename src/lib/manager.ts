@@ -48,6 +48,8 @@ export class ExtensionManager implements vscode.Disposable {
 
   data: DataModel
 
+  watcherPackageJson: vscode.FileSystemWatcher | undefined
+
   selectedBuildConfiguration: DataNodeConfiguration | undefined
 
   subscriptions: vscode.Disposable[] = []
@@ -86,6 +88,8 @@ export class ExtensionManager implements vscode.Disposable {
   async refresh (): Promise<void> {
     const log = this.log
 
+    log.trace('ExtensionManager.refresh()')
+
     // Always run the data model refresh first.
     await this.data.refresh()
 
@@ -109,10 +113,67 @@ export class ExtensionManager implements vscode.Disposable {
 
   // --------------------------------------------------------------------------
 
+  // Currently not used.
   setBuildConfiguration (treeNode: DataNodeConfiguration): void {
     this.selectedBuildConfiguration = treeNode
 
     this.onSelectBuildConfiguration.fire(treeNode)
+  }
+
+  /**
+   * Register listeners to refresh the explorer when packages change.
+   */
+  registerPackageJsonWatchers (): void {
+    const log = this.log
+
+    // Register only once.
+    if (this.watcherPackageJson === undefined &&
+      vscode.workspace.workspaceFolders !== undefined) {
+      log.trace('registerPackageJsonWatchers()')
+      const watcherPackageJson =
+      vscode.workspace.createFileSystemWatcher('**/package.json')
+      watcherPackageJson.onDidChange(
+        async (e): Promise<void> => {
+          log.trace(`onDidChange() ${e.fsPath}`)
+          await this.refresh()
+        }
+      )
+      watcherPackageJson.onDidDelete(
+        async (e): Promise<void> => {
+          log.trace(`onDidDelete() ${e.fsPath}`)
+          await this.refresh()
+        }
+      )
+      watcherPackageJson.onDidCreate(
+        async (e): Promise<void> => {
+          log.trace(`onDidCreate() ${e.fsPath}`)
+          await this.refresh()
+        }
+      )
+      this.vscodeContext.subscriptions.push(watcherPackageJson)
+
+      this.watcherPackageJson = watcherPackageJson
+    }
+  }
+
+  /**
+   * Register a watcher to detect when the workspace folders change.
+   */
+  registerWorkspaceWatcher (): void {
+    const log = this.log
+
+    log.trace('registerWorkspaceWatcher()')
+    const watcherWorkspace =
+    vscode.workspace.onDidChangeWorkspaceFolders(
+      async (e) => {
+        log.trace('onDidChangeWorkspaceFolders() ' +
+          `+${e.added.length} -${e.removed.length}`)
+
+        this.registerPackageJsonWatchers()
+        await this.refresh()
+      }
+    )
+    this.vscodeContext.subscriptions.push(watcherWorkspace)
   }
 
   // --------------------------------------------------------------------------
