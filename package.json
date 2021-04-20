@@ -81,7 +81,8 @@
       {
         "command": "xpack.treeViewRefresh",
         "title": "%command.treeViewRefresh%",
-        "icon": "$(refresh)"
+        "icon": "$(refresh)",
+        "category": "xPack"
       },
       {
         "command": "xpack.runCommand",
@@ -92,11 +93,6 @@
         "command": "xpack.runAction",
         "title": "%command.runAction%",
         "icon": "$(run)"
-      },
-      {
-        "command": "xpack.selectBuildConfiguration",
-        "title": "%command.selectBuildConfiguration%",
-        "category": "xPack"
       },
       {
         "command": "xpack.addConfiguration",
@@ -116,24 +112,8 @@
           "when": "true"
         },
         {
-          "command": "xpack.runCommand",
-          "when": "false"
-        },
-        {
-          "command": "xpack.runAction",
-          "when": "false"
-        },
-        {
-          "command": "xpack.addConfiguration",
-          "when": "false"
-        },
-        {
-          "command": "xpack.addAction",
-          "when": "false"
-        },
-        {
-          "command": "xpack.selectBuildConfiguration",
-          "when": "false"
+          "command": "xpack.createProjectEmpty",
+          "when": "true"
         }
       ],
       "view/title": [
@@ -147,17 +127,7 @@
         {
           "command": "xpack.runCommand",
           "when": "view == xPackActions && viewItem == command",
-          "group": "navigation"
-        },
-        {
-          "command": "xpack.runCommand",
-          "when": "view == xPackActions && viewItem == command",
           "group": "inline"
-        },
-        {
-          "command": "xpack.runAction",
-          "when": "view == xPackActions && viewItem == action",
-          "group": "navigation"
         },
         {
           "command": "xpack.runAction",
@@ -167,22 +137,7 @@
         {
           "command": "xpack.addConfiguration",
           "when": "view == xPackActions && viewItem == package",
-          "group": "navigation"
-        },
-        {
-          "command": "xpack.addConfiguration",
-          "when": "view == xPackActions && viewItem == package",
           "group": "inline"
-        },
-        {
-          "command": "xpack.addAction",
-          "when": "view == xPackActions && viewItem == package",
-          "group": "navigation"
-        },
-        {
-          "command": "xpack.addAction",
-          "when": "view == xPackActions && viewItem == configuration",
-          "group": "navigation"
         },
         {
           "command": "xpack.addAction",
