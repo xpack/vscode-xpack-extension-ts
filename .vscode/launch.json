@@ -6,7 +6,23 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Run Extension Single",
+      "name": "Run Extension No Folder",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/out/**/*.js"
+      ],
+      "skipFiles": [
+        "async_hooks.js",
+        "inspector_async_hook.js"
+      ],
+      "preLaunchTask": "${defaultBuildTask}"
+    },
+    {
+      "name": "Run Extension Single Folder",
       "type": "extensionHost",
       "request": "launch",
       "args": [
@@ -23,7 +39,7 @@
       "preLaunchTask": "${defaultBuildTask}"
     },
     {
-      "name": "Run Extension Multi",
+      "name": "Run Extension Multi Folders",
       "type": "extensionHost",
       "request": "launch",
       "args": [
