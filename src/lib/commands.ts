@@ -348,7 +348,7 @@ export class Commands implements vscode.Disposable {
     await this._createXpmProject(
       [
         'init',
-        '--template', '@xpack/hello-world-template',
+        '--template', '@xpack/hello-world-template@latest',
         '--property', 'language=cpp'
       ]
     )
@@ -360,7 +360,11 @@ export class Commands implements vscode.Disposable {
     log.trace('Command.createProjectHello()')
 
     await this._createXpmProject(
-      ['init', '--template', '@xpack/hello-world-template'])
+      [
+        'init',
+        '--template', '@xpack/hello-world-template@latest'
+      ]
+    )
   }
 
   async _createXpmProject (commandArguments: string[]): Promise<void> {
