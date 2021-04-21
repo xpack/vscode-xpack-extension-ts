@@ -192,17 +192,17 @@ export class TreeItemPackage extends TreeItem {
     this.packageJsonPath = path.join(dataNode.folderPath, packageJsonFileName)
     this.dataNode = dataNode
 
-    this.iconPath = new vscode.ThemeIcon('symbol-package')
-    // this.description = 'Package actions'
-    this.resourceUri =
-      vscode.Uri.file(path.join(dataNode.folderPath, packageJsonFileName))
-    this.tooltip = 'xPack'
-    this.contextValue = 'package'
-
     const packageJson: XpackPackageJson = dataNode.packageJson
     const packageName: string = packageJson.name
     const packageVersion: string = packageJson.version
-    this.description = `(${packageName}@${packageVersion})`
+
+    // Tree item properties.
+    this.iconPath = new vscode.ThemeIcon('symbol-package')
+    this.resourceUri = vscode.Uri.file(this.packageJsonPath)
+    this.tooltip = `The '${packageName}@${packageVersion}' xPack at ` +
+      `'${this.packageJsonPath}'`
+    this.contextValue = 'package'
+    this.description = `(${packageName})`
   }
 
   // --------------------------------------------------------------------------
@@ -443,10 +443,16 @@ export class TreeItemConfiguration extends TreeItem {
 
     this.parent = parent
 
+    const packageJson: XpackPackageJson = parent.dataNode.packageJson
+    const packageName: string = packageJson.name
+    const packageVersion: string = packageJson.version
+
+    // Tree item properties.
     this.iconPath = vscode.ThemeIcon.Folder
-    this.tooltip = 'xPack build configuration'
+    this.tooltip = `The ${configurationName} build configuration ` +
+      `of the '${packageName}@${packageVersion}' xPack`
     this.contextValue = 'configuration'
-    this.description = '(configuration)'
+    this.description = `(${packageName})`
   }
 
   // --------------------------------------------------------------------------
