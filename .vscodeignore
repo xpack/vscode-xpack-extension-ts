@@ -16,6 +16,7 @@ README-*.md
 tests/**
 node_modules/**
 out/**
+assets/docs-images/**
 
 # DO NOT add node_modules with plain vsce! (with webpack you can add it)
 
