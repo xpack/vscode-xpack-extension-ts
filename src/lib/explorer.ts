@@ -43,8 +43,7 @@ import {
 // ----------------------------------------------------------------------------
 
 type ActionsTree = TreeItemPackage[] | TreeItemEmpty[]
-type TreeItemActionParent = TreeItemPackage | TreeItemConfiguration
-type TreeItemCommandParent = TreeItemPackage | TreeItemConfiguration
+type TreeItemRunableParent = TreeItemPackage | TreeItemConfiguration
 type TreeItemPackageChild = TreeItemCommand | TreeItemAction |
 TreeItemConfiguration
 type TreeItemConfigurationChild = TreeItemCommand | TreeItemAction
@@ -261,29 +260,27 @@ export class TreeItemPackage extends TreeItem {
 
 // ----------------------------------------------------------------------------
 
-export class TreeItemCommand extends TreeItem {
+// Internal, not exported.
+class TreeItemRunnable extends TreeItem {
   // --------------------------------------------------------------------------
   // Members.
 
-  parent: TreeItemCommandParent
   task: vscode.Task
+  parent: TreeItemRunableParent
 
   // --------------------------------------------------------------------------
   // Constructors.
 
   constructor (
-    commandName: string,
+    name: string,
     task: vscode.Task,
-    parent: TreeItemActionParent
+    parent: TreeItemRunableParent
   ) {
-    super(commandName, vscode.TreeItemCollapsibleState.None, commandName)
+    super(name, vscode.TreeItemCollapsibleState.None, name)
 
     this.parent = parent
     this.task = task
 
-    this.iconPath = new vscode.ThemeIcon('wrench-subaction')
-    this.tooltip = `xpm ${commandName}`
-    this.contextValue = 'command'
     let packageJsonPath: string = ''
     if (parent.name !== '') {
       if (parent instanceof TreeItemConfiguration) {
@@ -329,7 +326,7 @@ export class TreeItemCommand extends TreeItem {
   }
 
   dispose (): void {
-    this.parent = undefined as unknown as TreeItemCommandParent
+    this.parent = undefined as unknown as TreeItemRunableParent
     this.task = undefined as unknown as vscode.Task
 
     super.dispose()
@@ -338,13 +335,40 @@ export class TreeItemCommand extends TreeItem {
 
 // ----------------------------------------------------------------------------
 
-export class TreeItemAction extends TreeItem {
+export class TreeItemCommand extends TreeItemRunnable {
   // --------------------------------------------------------------------------
   // Members.
 
-  parent: TreeItemActionParent
+  // --------------------------------------------------------------------------
+  // Constructors.
+
+  constructor (
+    commandName: string,
+    task: vscode.Task,
+    parent: TreeItemRunableParent
+  ) {
+    super(commandName, task, parent)
+
+    this.iconPath = new vscode.ThemeIcon('wrench-subaction')
+    this.tooltip = `xpm ${commandName}`
+    this.contextValue = 'command'
+  }
+
+  // --------------------------------------------------------------------------
+  // Methods.
+
+  dispose (): void {
+    super.dispose()
+  }
+}
+
+// ----------------------------------------------------------------------------
+
+export class TreeItemAction extends TreeItemRunnable {
+  // --------------------------------------------------------------------------
+  // Members.
+
   actionValue: string[]
-  task: vscode.Task
 
   // --------------------------------------------------------------------------
   // Constructors.
@@ -353,66 +377,22 @@ export class TreeItemAction extends TreeItem {
     actionName: string,
     actionValue: string[],
     task: vscode.Task,
-    parent: TreeItemActionParent
+    parent: TreeItemRunableParent
   ) {
-    super(actionName, vscode.TreeItemCollapsibleState.None, actionName)
-
-    this.parent = parent
-    this.task = task
+    super(actionName, task, parent)
 
     this.actionValue = actionValue
 
     this.iconPath = new vscode.ThemeIcon('wrench')
     this.tooltip = this.actionValue.join('\n')
     this.contextValue = 'action'
-    let packageJsonPath: string = ''
-    if (parent.name !== '') {
-      if (parent instanceof TreeItemConfiguration) {
-        const relativePath = parent.parent.name
-        if (relativePath !== '') {
-          this.description = `(${parent.name} - ${relativePath})`
-        } else {
-          this.description = `(${parent.name})`
-        }
-        packageJsonPath = parent.parent.packageJsonPath
-      } else if (parent instanceof TreeItemPackage) {
-        this.description = `(${parent.name})`
-        packageJsonPath = parent.packageJsonPath
-      }
-    } else {
-      if (parent instanceof TreeItemConfiguration) {
-        const relativePath = parent.parent.name
-        if (relativePath !== '') {
-          this.description = `(${relativePath})`
-        }
-        packageJsonPath = parent.parent.packageJsonPath
-      } else if (parent instanceof TreeItemPackage) {
-        packageJsonPath = parent.packageJsonPath
-      }
-    }
-
-    // The command to run when clicking the action item in the tree.
-    this.command = {
-      title: 'Edit Script',
-      command: 'vscode.open',
-      arguments: [
-        vscode.Uri.file(packageJsonPath)
-        // TODO: add location (range of lines).
-      ]
-    }
   }
 
   // --------------------------------------------------------------------------
   // Methods.
 
-  async runTask (): Promise<vscode.TaskExecution> {
-    return await vscode.tasks.executeTask(this.task)
-  }
-
   dispose (): void {
-    this.parent = undefined as unknown as TreeItemActionParent
     this.actionValue = undefined as unknown as string[]
-    this.task = undefined as unknown as vscode.Task
 
     super.dispose()
   }
