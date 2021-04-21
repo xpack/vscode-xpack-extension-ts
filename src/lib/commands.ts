@@ -46,7 +46,7 @@ import {
 } from './explorer'
 import { JsonBuildConfigurations, XpackPackageJson } from './definitions'
 
-// import * as utils from './utils'
+import * as utils from './utils'
 
 // ----------------------------------------------------------------------------
 
@@ -137,6 +137,28 @@ export class Commands implements vscode.Disposable {
         this
       )
     )
+
+    context.subscriptions.push(
+      vscode.commands.registerCommand(
+        'xpack.createProjectEmpty',
+        this.createProjectEmpty,
+        this
+      )
+    )
+    context.subscriptions.push(
+      vscode.commands.registerCommand(
+        'xpack.createProjectHelloQuick',
+        this.createProjectHelloQuick,
+        this
+      )
+    )
+    context.subscriptions.push(
+      vscode.commands.registerCommand(
+        'xpack.createProjectHello',
+        this.createProjectHello,
+        this
+      )
+    )
   }
 
   // --------------------------------------------------------------------------
@@ -213,8 +235,8 @@ export class Commands implements vscode.Disposable {
       if (packageJson.xpack.buildConfigurations[configurationName] !==
         undefined) {
         await vscode.window.showErrorMessage(
-            `Configuration '${configurationName}' ` +
-            'already present, choose a different name.')
+          `Configuration '${configurationName}' ` +
+          'already present, choose a different name.')
         return
       }
     }
@@ -266,8 +288,8 @@ export class Commands implements vscode.Disposable {
       if (fromJson.actions[actionName] !==
         undefined) {
         await vscode.window.showErrorMessage(
-            `Action '${actionName}' ` +
-            'already present, choose a different name.')
+          `Action '${actionName}' ` +
+          'already present, choose a different name.')
         return
       }
     }
@@ -308,6 +330,87 @@ export class Commands implements vscode.Disposable {
     if (pick !== undefined) {
       this.manager.setBuildConfiguration(pick.dataNode)
     }
+  }
+
+  async createProjectEmpty (): Promise<void> {
+    const log = this.log
+
+    log.trace('Command.createProjectEmpty()')
+
+    await this._createXpmProject(['init'])
+  }
+
+  async createProjectHelloQuick (): Promise<void> {
+    const log = this.log
+
+    log.trace('Command.createProjectHelloQuick()')
+
+    await this._createXpmProject(
+      [
+        'init',
+        '--template', '@xpack/hello-world-template',
+        '--property', 'language=cpp'
+      ]
+    )
+  }
+
+  async createProjectHello (): Promise<void> {
+    const log = this.log
+
+    log.trace('Command.createProjectHello()')
+
+    await this._createXpmProject(
+      ['init', '--template', '@xpack/hello-world-template'])
+  }
+
+  async _createXpmProject (commandArguments: string[]): Promise<void> {
+    const log = this.log
+
+    log.trace('Command._createProject()')
+
+    const homeUri = vscode.Uri.file(os.homedir())
+    const defaultUri =
+      (vscode.workspace.workspaceFolders != null) &&
+        vscode.workspace.workspaceFolders.length > 0
+        ? vscode.Uri.file(vscode.workspace.workspaceFolders[0].uri.fsPath)
+        : homeUri
+
+    const uris = await vscode.window.showOpenDialog({
+      title: 'Choose Folder', // Not used on macOS
+      canSelectFiles: false,
+      canSelectFolders: true,
+      canSelectMany: false,
+      defaultUri: defaultUri
+    })
+
+    if (uris === undefined) {
+      return
+    }
+
+    log.trace(uris[0].fsPath)
+
+    const xpmProgramName = 'xpm'
+    const taskLabel = [xpmProgramName, ...commandArguments].join(' ')
+
+    const task = await utils.createTask(
+      xpmProgramName,
+      commandArguments,
+      vscode.TaskScope.Workspace,
+      uris[0].fsPath,
+      taskLabel,
+      { type: 'xPack' }
+    )
+    const code = await vscode.tasks.executeTask(task)
+    // Does not wait for the process to terminate.
+
+    // https://code.visualstudio.com/api/references/vscode-api#tasks
+    // onDidEndTaskProcess: Event<TaskProcessEndEvent>
+
+    const start = (vscode.workspace.workspaceFolders !== undefined)
+      ? vscode.workspace.workspaceFolders.length : 0
+    vscode.workspace.updateWorkspaceFolders(start, 0, { uri: uris[0] })
+
+    log.trace(code)
   }
 
   // --------------------------------------------------------------------------

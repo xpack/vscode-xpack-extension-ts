@@ -79,6 +79,21 @@
   "contributes": {
     "commands": [
       {
+        "command": "xpack.createProjectEmpty",
+        "title": "%command.createProjectEmpty%",
+        "category": "xPack"
+      },
+      {
+        "command": "xpack.createProjectHelloQuick",
+        "title": "%command.createProjectHelloQuick%",
+        "category": "xPack"
+      },
+      {
+        "command": "xpack.createProjectHello",
+        "title": "%command.createProjectHello%",
+        "category": "xPack"
+      },
+      {
         "command": "xpack.treeViewRefresh",
         "title": "%command.treeViewRefresh%",
         "icon": "$(refresh)",
@@ -113,6 +128,14 @@
         },
         {
           "command": "xpack.createProjectEmpty",
+          "when": "true"
+        },
+        {
+          "command": "xpack.createProjectHelloQuick",
+          "when": "true"
+        },
+        {
+          "command": "xpack.createProjectHello",
           "when": "true"
         }
       ],
