@@ -6,6 +6,13 @@ Please check
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 and close existing issues and pull requests.
 
+## 2021-04-21
+
+- v0.4.0 published
+- support to create new projects from templates
+- internal watchers to automate refresh on package.json changes
+- explorer: rework descriptions & tooltips
+
 ## 2021-04-19
 
 - v0.3.2 published

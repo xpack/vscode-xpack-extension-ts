@@ -157,6 +157,13 @@ Note: this example assumes the presence of a toolchain, like GCC or clang.
 The list is kept in reverse chronological order, with the most recent
 release on the top.
 
+### 0.4.0
+
+A new development release which adds:
+
+- support to create new projects from templates
+- internal watchers to automate refresh on package.json changes
+
 ### 0.3.2
 
 A new development release with functional IntelliSense which adds:
