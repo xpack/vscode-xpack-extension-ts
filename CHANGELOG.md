@@ -8,7 +8,7 @@ and close existing issues and pull requests.
 
 ## 2021-04-21
 
-- v0.4.1 published
+- v0.4.2 published
 - add Quick Start with images to README
 - v0.4.0 published
 - support to create new projects from templates
