@@ -89,7 +89,7 @@ Check if the page shows at:
 
 ## Publish to Marketplace
 
-- terminate all running tasks
+- terminate all running tasks (**Terminal** → **Terminate Task...**)
 - select the `develop` branch
 - commit everything
 - `npm run fix`
