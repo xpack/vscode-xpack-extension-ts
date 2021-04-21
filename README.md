@@ -1,4 +1,4 @@
-# xPack C/C++ Managed Build (early evaluation!)
+# xPack C/C++ Managed Build (evaluation!)
 
 Manage and build C/C++ projects with CMake, meson, etc, using the xPack tools.
 
@@ -23,25 +23,28 @@ For details please follow the instructions in the
 
 ## Quick Start
 
-The simplest way to get used with the xPack C/C++ Managed Build extension
-is to create a simple Hello World project.
+The simplest way to start with the **xPack C/C++ Managed Build** extension
+is to create a simple _Hello World_ project.
 
-### Create a Hello World project
+### Create a Hello World C++ project
 
-For this open the **Command Palette** (in the **View** menu, or with the
-keyboard shortcut), and filter the selection by typing `xpack`;
-select the **Quick Start a Hello World project (C++, CMAke)**.
+The easiest way to create a _Hello World_ project is:
+
+- open the **Command Palette** (in the **View** menu, or with the
+platform specific keyboard shortcut)
+- type `xpack` to filter the list of available commands
+- select the **Quick Start a Hello World project (C++, CMAke)**.
 
 ![Command Quick Start](assets/docs-images/command-quick-start.png)
 
-The project creation requires an empty folder. The extension requests the
-location of this folder from the user.
+The project creation requires an empty folder. The xPack extension asks
+the user for the location of this folder.
 
-For this test, a folder called `hello` was created in the user home `tmp`.
+For this test, a folder called `tmp/hello` was created in the user home folder.
 
 ![Create Hello folder](assets/docs-images/create-folder.png)
 
-Once the folder is selected, the extension invokes `xpm init` to
+Once the folder is selected, the xPack extension invokes `xpm init` to
 create a new project based on the
 [@xpack/hello-world-template](https://github.com/xpack/hello-world-template-xpack)
 which is a separate source xPack.
@@ -51,14 +54,19 @@ looks like this:
 
 ![xpm init hello quick](assets/docs-images/xpm-init-quick.png)
 
-The result is a simple project, with a `src` folder, an `include` folder,
-and a `meta` where the additional metadata for performing the build
-(in this case a CMake configuration file) is located.
+The result is a simple project, with:
 
-The same result can be obtained by running the following command in an
-empty folder:
+- a `src` folder with the source file `hello-world.cpp`
+- an `include` folder with the header file `hello-world.h`,
+- a `meta` folder with the additional metadata for performing the build
+(in this case a CMake `CMakeLists.txt` configuration file).
+
+The same result can be obtained by running the following commands in a
+terminal:
 
 ```sh
+mkdir ~/tmp/hello
+cd ~/tmp/hello
 xpm init --template @xpack/hello-world-template@latest
 ```
 
@@ -69,16 +77,26 @@ visible in the bottom left part of the screen:
 
 ![xPack Actions](assets/docs-images/xpack-actions.png)
 
-The explorer shows two build configurations,
-**Debug** and **Release**,
-which will create two separate build folders,
-below the `build` folder.
+Note: If this does not happen automatically, at first use it might
+be necessary to enable this explorer by running the command
+**Explorer: Focus on xPack Actions View**, or by Right Clicking on any
+of the explorers on the bottom left corner, and enabling
+**xPack Actions**.
+
+Once enabled, the explorer shows two build configurations,
+**Debug** and **Release**.
 
 The explorer also shows multiple actions, which have
 associated custom sequences of commands (shown as tooltips).
 There are global
 actions, and actions specific to each build configuration.
 Actions can be executed by clicking the **Run** triangular icon.
+
+#### Tooltips
+
+As most of other graphical objects, the xPacks Actions explorer shown
+additional information as tooltips, visible after hovering with the
+mouse for a few moments on the visible items.
 
 ### Satisfy dependencies
 
@@ -142,7 +160,7 @@ invokes the `hello-world` executable:
 ### IntelliSense
 
 For build system generators which create the `compile_commands.json` file
-(like CMake and meson), the xPack C/C++ Managed Build extension automatically
+(like CMake and meson), the xPack extension automatically
 adds the paths to these files in the `.vscode/c_cpp_properties.json` file,
 and the VSCode automatically processes them.
 
@@ -153,7 +171,8 @@ that the project was configured correctly.
 
 ### Switching build configurations
 
-The xPack C/C++ Managed Build extension uses the Microsoft C/C++ extension,
+The **xPack C/C++ Managed Build** extension uses the
+**Microsoft C/C++** extension,
 which is able to handle multiple configurations.
 
 To test this, also build the release binaries (by clicking the `build`
@@ -168,7 +187,7 @@ and show the debug dead code as grey:
 
 ![IntelliSense Release](assets/docs-images/intellisense-release.png)
 
-### Closing the woorkspace
+### Closing the workspace
 
 When closing the workspace, either by closing VSCode, or via the **File** menu,
 VSCode asks the user permission to save the workspace configuration
@@ -316,7 +335,7 @@ using CMake, may look like:
 Using xpm, the complete test of build/test can be invoked with:
 
 ```bash
-cp <project>
+cd <project>
 xpm install
 xpm run test
 ```
@@ -332,7 +351,7 @@ Note: this example assumes the presence of a toolchain, like GCC or clang.
 The list is kept in reverse chronological order, with the most recent
 release on the top.
 
-### 0.4.2
+### 0.4.3
 
 A new development release which adds:
 
