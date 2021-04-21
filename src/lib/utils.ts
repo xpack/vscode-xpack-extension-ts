@@ -75,12 +75,12 @@ export function escapeStringForRegex (str: string): string {
 export async function createTask (
   xpmProgramName: string,
   commandArguments: string[],
-  workspaceFolder: vscode.WorkspaceFolder,
+  scope: vscode.WorkspaceFolder | vscode.TaskScope.Global |
+  vscode.TaskScope.Workspace,
   folderPath: string,
   taskLabel: string,
   taskDefinition: XpackTaskDefinition
 ): Promise<vscode.Task> {
-  const scope: vscode.WorkspaceFolder = workspaceFolder
   const execution: vscode.ShellExecution = new vscode.ShellExecution(
     xpmProgramName,
     commandArguments,
