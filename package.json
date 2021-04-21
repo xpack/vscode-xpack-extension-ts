@@ -77,7 +77,10 @@
   "activationEvents": [
     "onLanguage:json",
     "workspaceContains:**/package.json",
-    "onView:xPackActions"
+    "onView:xPackActions",
+    "onCommand:xpack.createProjectEmpty",
+    "onCommand:xpack.createProjectHelloQuick",
+    "onCommand:xpack.createProjectHello"
   ],
   "contributes": {
     "commands": [
