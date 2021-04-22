@@ -351,12 +351,13 @@ Note: this example assumes the presence of a toolchain, like GCC or clang.
 The list is kept in reverse chronological order, with the most recent
 release on the top.
 
-### 0.4.3
+### 0.4.4
 
 A new development release which adds:
 
 - support to create new projects from templates
 - internal watchers to automate refresh on package.json changes
+- dependencies to ms-vscode.cpptools & ms-vscode.cmake-tools
 
 ### 0.3.2
 

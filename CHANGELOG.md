@@ -6,6 +6,12 @@ Please check
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 and close existing issues and pull requests.
 
+## 2021-04-22
+
+- v0.4.4 published
+- package.json: add dependencies to cpptools & cmake
+- data-model: fix uri.fsPath
+
 ## 2021-04-21
 
 - v0.4.3 published
