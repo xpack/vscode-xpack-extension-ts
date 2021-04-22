@@ -105,7 +105,7 @@ export class DataModel {
       this.workspaces.forEach(
         (dataNodeWorkspace) => {
           const promise = this._findPackageJsonFilesRecursive(
-            dataNodeWorkspace.workspaceFolder.uri.path,
+            dataNodeWorkspace.workspaceFolder.uri.fsPath,
             this._maxSearchDepth,
             dataNodeWorkspace
           )
@@ -499,7 +499,7 @@ export class DataNodePackage extends DataNode {
     log: Logger
   ) {
     // Pass the relative path as name.
-    super(path.relative(parent.workspaceFolder.uri.path, folderPath), log)
+    super(path.relative(parent.workspaceFolder.uri.fsPath, folderPath), log)
     this.parent = parent
 
     this.folderPath = folderPath
