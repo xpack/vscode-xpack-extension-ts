@@ -7,32 +7,102 @@ development of the **xPack C/C++ Managed Build** VSCode extension.
 
 This project is written in TypeScript, as recommended for VSCode extensions.
 
-## Project repository
+## Prerequisites
+
+Briefly, the prerequisites are:
+
+- npm
+- a recent [xpm](https://xpack.github.io/xpm/), which is a portable
+[Node.js](https://nodejs.org/) command line application
+- an instance of Visual Studio Code with a specific set of extensions
+- a marketplace publisher access token; `vsce login ilg-vscode`
+
+### Install xpm
+
+```sh
+npm install --global xpm@latest
+```
+
+### Prepare a separate instance of VSCode
+
+To avoid interferences with other extensions in the regular VSCode
+configuration, it is recommended to use a custom folder and a separate
+set of extensions:
+
+```sh
+mkdir ${HOME}/Work/vscode-extensions/code-portable-data-develop
+cd ${HOME}/Work/vscode-extensions
+
+code --extensions-dir ${HOME}/Work/vscode-extensions/code-portable-data-develop \
+--install-extension ms-vscode.cpptools  \
+--install-extension ms-vscode.cmake-tools \
+--install-extension twxs.cmake \
+--install-extension mhutchie.git-graph \
+--install-extension github.vscode-pull-request-github \
+--install-extension DavidAnson.vscode-markdownlint \
+--install-extension christian-kohler.npm-intellisense \
+--install-extension ban.spellright \
+--install-extension standard.vscode-standard \
+
+code --extensions-dir ${HOME}/Work/vscode-extensions/code-portable-data-develop \
+--list-extensions --show-versions
+```
+
+On Windows, use the Git console, which is more or less a regular shell.
+
+### Clone the project repository
 
 The project is hosted on GitHub:
 
 - <https://github.com/xpack/vscode-xpack-extension-ts.git>
 
-To clone the `master` branch:
+To clone the `master` branch, use:
 
 ```sh
+mkdir ${HOME}/Work/vscode-extensions
+cd ${HOME}/Work/vscode-extensions
 git clone \
 https://github.com/xpack/vscode-xpack-extension-ts.git vscode-xpack-extension-ts.git
 ```
 
-For development, to clone the `develop` branch:
+For development, to clone the `develop` branch, use:
 
 ```sh
 git clone --branch develop \
 https://github.com/xpack/vscode-xpack-extension-ts.git vscode-xpack-extension-ts.git
 ```
 
-## Prerequisites
+### Start VSCode
 
-- a recent [xpm](https://xpack.github.io/xpm/), which is a portable
-[Node.js](https://nodejs.org/) command line application.
-- a marketplace publisher access token; `vsce login ilg-vscode`
+```sh
+code --extensions-dir ${HOME}/Work/vscode-extensions/code-portable-data-develop \
+${HOME}/Work/vscode-extensions/vscode-xpack-extension-ts.git
+```
 
+### Update VSCode settings
+
+TBD
+
+### Satisfy dependencies
+
+```sh
+npm install
+```
+
+### Start the webpack-dev background task
+
+The extension uses webpack to make the distribution more compact.
+
+To automate the workflow, webpack can be started as a background
+task to convert the `out` folder into the `dist` folder:
+
+```sh
+npm run webpack-dev
+```
+
+### Start debug sessions
+
+Use the existing launchers.
 
 ## Language standard compliance
 
