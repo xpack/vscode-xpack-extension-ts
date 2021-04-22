@@ -2,7 +2,7 @@
   "name": "xpack",
   "displayName": "xPack C/C++ Managed Build Tools",
   "description": "Manage and build C/C++ projects with CMake, meson, etc using the xPack tools.",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "publisher": "ilg-vscode",
   "license": "MIT",
   "categories": [
