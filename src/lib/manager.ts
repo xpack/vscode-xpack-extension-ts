@@ -17,6 +17,8 @@
 
 // ----------------------------------------------------------------------------
 
+import * as os from 'os'
+
 import * as vscode from 'vscode'
 
 import { Logger } from '@xpack/logger'
@@ -64,6 +66,8 @@ export class ExtensionManager implements vscode.Disposable {
     this.vscodeContext = context
     this.log = log
 
+    log.debug(`node: ${process.version}`)
+    log.debug(`home: '${os.homedir()}'`)
     this.data = new DataModel(this.log, _maxSearchDepth)
   }
 
