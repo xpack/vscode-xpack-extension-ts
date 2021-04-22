@@ -1,22 +1,8 @@
 # Maintainer info
 
-## Project repository
-
-The project is hosted on GitHub:
-
-- <https://github.com/xpack/vscode-xpack-extension-ts.git>
-
-To clone it:
-
-```sh
-git clone https://github.com/xpack/vscode-xpack-extension-ts.git vscode-xpack-extension-ts.git
-```
-
-## Prerequisites
-
-- a recent [xpm](https://xpack.github.io/xpm/), which is a portable
-[Node.js](https://nodejs.org/) command line application.
-- a marketplace publisher access token; `vsce login ilg-vscode`
+This page complements the developer page and documents the
+maintenance procedures related to making release for the
+**xPack C/C++ Managed Build** VSCode extension.
 
 ## Prepare the release
 

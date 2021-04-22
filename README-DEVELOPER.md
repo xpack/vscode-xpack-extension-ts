@@ -2,7 +2,37 @@
 
 # Developer info
 
+This page documents the prerequisites and procedures used during the
+development of the **xPack C/C++ Managed Build** VSCode extension.
+
 This project is written in TypeScript, as recommended for VSCode extensions.
+
+## Project repository
+
+The project is hosted on GitHub:
+
+- <https://github.com/xpack/vscode-xpack-extension-ts.git>
+
+To clone the `master` branch:
+
+```sh
+git clone \
+https://github.com/xpack/vscode-xpack-extension-ts.git vscode-xpack-extension-ts.git
+```
+
+For development, to clone the `develop` branch:
+
+```sh
+git clone --branch develop \
+https://github.com/xpack/vscode-xpack-extension-ts.git vscode-xpack-extension-ts.git
+```
+
+## Prerequisites
+
+- a recent [xpm](https://xpack.github.io/xpm/), which is a portable
+[Node.js](https://nodejs.org/) command line application.
+- a marketplace publisher access token; `vsce login ilg-vscode`
+
 
 ## Language standard compliance
 
