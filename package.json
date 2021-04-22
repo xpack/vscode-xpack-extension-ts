@@ -257,5 +257,9 @@
         "when": "shellExecutionSupported"
       }
     ]
-  }
+  },
+  "extensionPack": [
+    "ms-vscode.cpptools",
+    "ms-vscode.cmake-tools"
+  ]
 }
