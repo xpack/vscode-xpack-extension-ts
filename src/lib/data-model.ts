@@ -39,7 +39,7 @@ import { XpmLiquid, filterPath } from './xpm-liquid'
 
 // ----------------------------------------------------------------------------
 
-export class DataModel {
+export class DataModel implements vscode.Disposable {
   // --------------------------------------------------------------------------
   // Members.
 
@@ -55,6 +55,9 @@ export class DataModel {
 
   log: Logger
 
+  cancellation: vscode.CancellationTokenSource =
+  new vscode.CancellationTokenSource()
+
   // --------------------------------------------------------------------------
   // Constructors.
 
@@ -69,29 +72,13 @@ export class DataModel {
   // --------------------------------------------------------------------------
   // Methods.
 
-  async refresh (): Promise<void> {
-    const log = this.log
-
-    log.trace('DataModel.refresh()')
-
+  dispose (): void {
     // Dispose the current hierarchy, recursively.
     this.workspaceFolders.forEach(
       node => node.dispose())
-
-    // Restart with empty arrays.
-    this.workspaceFolders = []
-    this.packages = []
-    this.configurations = []
-    this.commands = []
-    this.actions = []
-    this.tasks = []
-
-    // Recreate the entire hierarchy, by appending objects to all
-    // arrays, starting from the top workspace folders.
-    await this._addWorkspaceFolders()
   }
 
-  async _addWorkspaceFolders (): Promise<void> {
+  async createTree (): Promise<void> {
     if (vscode.workspace.workspaceFolders != null) {
       const filteredWorkspaces = vscode.workspace.workspaceFolders.filter(
         (workspaceFolder) => workspaceFolder.uri.scheme === 'file'
@@ -113,7 +100,9 @@ export class DataModel {
           promises.push(promise)
         }
       )
-      await Promise.all(promises)
+      if (!this.cancellation.token.isCancellationRequested) {
+        await Promise.all(promises)
+      }
     }
   }
 
@@ -127,6 +116,11 @@ export class DataModel {
 
     // May be null.
     log.trace(`check folder ${folderPath} `)
+
+    if (this.cancellation.token.isCancellationRequested) {
+      return
+    }
+
     const xpack = new Xpack(folderPath)
     const packageJson = await xpack.checkIfFolderHasPackageJson()
     if (xpack.isPackage()) {
@@ -161,6 +155,10 @@ export class DataModel {
       return
     }
 
+    if (this.cancellation.token.isCancellationRequested) {
+      return
+    }
+
     // Recurse on children folders.
     const entries =
       await fsPromises.readdir(folderPath, { withFileTypes: true })
@@ -169,6 +167,10 @@ export class DataModel {
       entry.isDirectory() && !entry.name.startsWith('.') &&
       entry.name !== 'node_modules' && entry.name !== 'xpacks'
     )
+
+    if (this.cancellation.token.isCancellationRequested) {
+      return
+    }
 
     // .map() confuses the linter, which enforces await.
     const promises: Array<Promise<void>> = []
@@ -179,6 +181,7 @@ export class DataModel {
             path.join(folderPath, entry.name), depth - 1, parentWorkspaceFolder)
         )
       })
+
     await Promise.all(promises)
   }
 
@@ -192,6 +195,10 @@ export class DataModel {
       (parent instanceof DataNodeConfiguration)
         ? parent.name
         : ''
+
+      if (this.cancellation.token.isCancellationRequested) {
+        return
+      }
 
       const task = await this.createTaskForCommand(
         'install',
@@ -223,6 +230,10 @@ export class DataModel {
           configurationName,
           parent.package
         )
+
+        if (this.cancellation.token.isCancellationRequested) {
+          return
+        }
 
         const actionJsonValue: string = Array.isArray(fromJson[actionName])
           ? (fromJson[actionName] as string[]).join(os.EOL)
@@ -262,6 +273,10 @@ export class DataModel {
           jsonBuildConfiguration, dataNodeConfiguration)
         await this.addActions(
           jsonBuildConfiguration.actions, dataNodeConfiguration)
+
+        if (this.cancellation.token.isCancellationRequested) {
+          return
+        }
 
         // Keep a separate array with all build configurations.
         this.configurations.push(dataNodeConfiguration)
@@ -726,8 +741,6 @@ class DataNodeRunable extends DataNode {
 
     this.parent = parent
     this.task = task
-
-    log.trace(`DataNodeRunable ${this.name}`)
   }
 
   // --------------------------------------------------------------------------

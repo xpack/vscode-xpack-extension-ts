@@ -49,6 +49,7 @@ export class ExtensionManager implements vscode.Disposable {
   callbacksRefresh: AsyncVoidFunction[] = []
 
   data: DataModel
+  dataCandidates: Set<DataModel> = new Set()
 
   watcherPackageJson: vscode.FileSystemWatcher | undefined
 
@@ -94,8 +95,32 @@ export class ExtensionManager implements vscode.Disposable {
 
     log.trace('ExtensionManager.refresh()')
 
-    // Always run the data model refresh first.
-    await this.data.refresh()
+    // Mark all existing candidates as obsolete, such that
+    // only the last one will survive.
+    this.dataCandidates.forEach(
+      (data) => {
+        log.debug('ExtensionManager.refresh() cancel previous')
+        data.cancellation.cancel()
+      }
+    )
+    const data = new DataModel(this.log, _maxSearchDepth)
+    this.dataCandidates.add(data)
+
+    // Start the tree creation process; it might not be ready
+    // before another request comes.
+    await data.createTree()
+
+    this.dataCandidates.delete(data)
+
+    if (data.cancellation.token.isCancellationRequested) {
+      log.debug('ExtensionManager.refresh() cancelled')
+      return
+    }
+
+    // If no one requested this token cancellation, it is the winner.
+    const oldData = this.data
+    this.data = data
+    oldData.dispose()
 
     // Enable the explorer only if there were xPacks identified.
     await vscode.commands.executeCommand(
@@ -113,6 +138,8 @@ export class ExtensionManager implements vscode.Disposable {
     for (const func of this.callbacksRefresh) {
       await func()
     }
+
+    log.trace('ExtensionManager.refresh() completed')
   }
 
   // --------------------------------------------------------------------------
