@@ -35,7 +35,7 @@ import * as cpt from 'vscode-cpptools'
 import { Logger } from '@xpack/logger'
 
 import { ExtensionManager } from './manager'
-import { DataNodeWorkspace } from './data-model'
+import { DataNodeWorkspaceFolder } from './data-model'
 
 // ----------------------------------------------------------------------------
 
@@ -132,23 +132,23 @@ export class IntelliSense implements vscode.Disposable {
     log.trace('IntelliSense.updateCppPropertiesJson()')
 
     const promises: Array<Promise<void>> = []
-    this.manager.data.workspaces.forEach(
-      (workspace) =>
-        promises.push(this.updateWorkspaceCCppProperties(workspace))
+    this.manager.data.workspaceFolders.forEach(
+      (workspaceFolder) =>
+        promises.push(this.updateWorkspaceCCppProperties(workspaceFolder))
     )
 
     await Promise.all(promises)
   }
 
   async updateWorkspaceCCppProperties (
-    workspace: DataNodeWorkspace
+    workspaceFolder: DataNodeWorkspaceFolder
   ): Promise<void> {
     const log = this.log
 
-    log.trace(workspace.workspaceFolder.uri.fsPath)
+    log.trace(workspaceFolder.workspaceFolder.uri.fsPath)
 
     const vscodeFolderPath: string = path.join(
-      workspace.workspaceFolder.uri.fsPath, '.vscode')
+      workspaceFolder.workspaceFolder.uri.fsPath, '.vscode')
 
     const jsonFilePath: string = path.join(
       vscodeFolderPath, 'c_cpp_properties.json')
@@ -172,7 +172,8 @@ export class IntelliSense implements vscode.Disposable {
       json.configurations = []
     }
 
-    await this.updateWorkspaceCompileCommands(workspace, json.configurations)
+    await this.updateWorkspaceFolderCompileCommands(
+      workspaceFolder, json.configurations)
 
     if (json.configurations.length > 0) {
       const fileNewContent = JSON.stringify(json, null, 2) + os.EOL
@@ -181,13 +182,13 @@ export class IntelliSense implements vscode.Disposable {
     }
   }
 
-  async updateWorkspaceCompileCommands (
-    dataNodeWorkspace: DataNodeWorkspace,
+  async updateWorkspaceFolderCompileCommands (
+    dataNodeWorkspaceFolder: DataNodeWorkspaceFolder,
     jsonConfigurations: JsonCCppPropertiesConfiguration[]
   ): Promise<void> {
     const log = this.log
 
-    for (const dataNodePackage of dataNodeWorkspace.packages) {
+    for (const dataNodePackage of dataNodeWorkspaceFolder.packages) {
       for (const dataNodeConfiguration of dataNodePackage.configurations) {
         let globalConfigurationName = dataNodeConfiguration.name
         if (dataNodePackage.folderRelativePath !== '') {
@@ -210,7 +211,7 @@ export class IntelliSense implements vscode.Disposable {
           await dataNodeConfiguration.getBuildFolderRelativePath()
 
         const newBaseFolderPath =
-          (dataNodeWorkspace.packages.length > 1)
+          (dataNodeWorkspaceFolder.packages.length > 1)
             ? dataNodePackage.folderPath
             : '$' + '{workspaceFolder}'
 

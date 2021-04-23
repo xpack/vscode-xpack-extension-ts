@@ -609,8 +609,8 @@ export class XpackActionsTreeDataProvider implements
     log.trace('XpackActionsTreeDataProvider.refresh()')
 
     this._tree?.forEach(
-      (nodePackage: TreeItem) => {
-        nodePackage.dispose()
+      (node: TreeItem) => {
+        node.dispose()
       })
 
     this._tree = null

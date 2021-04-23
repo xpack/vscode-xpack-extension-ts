@@ -163,11 +163,11 @@ export class ExtensionManager implements vscode.Disposable {
   /**
    * Register a watcher to detect when the workspace folders change.
    */
-  registerWorkspaceWatcher (): void {
+  registerWorkspaceFoldersWatcher (): void {
     const log = this.log
 
-    log.trace('registerWorkspaceWatcher()')
-    const watcherWorkspace =
+    log.trace('registerWorkspaceFoldersWatcher()')
+    const watcherWorkspaceFolders =
     vscode.workspace.onDidChangeWorkspaceFolders(
       async (e) => {
         log.trace('onDidChangeWorkspaceFolders() ' +
@@ -177,7 +177,7 @@ export class ExtensionManager implements vscode.Disposable {
         await this.refresh()
       }
     )
-    this.vscodeContext.subscriptions.push(watcherWorkspace)
+    this.vscodeContext.subscriptions.push(watcherWorkspaceFolders)
   }
 
   // --------------------------------------------------------------------------

@@ -58,7 +58,7 @@ export async function activate (
   // Register listeners to refresh the explorer when packages change.
   _manager.registerPackageJsonWatchers()
 
-  _manager.registerWorkspaceWatcher()
+  _manager.registerWorkspaceFoldersWatcher()
 
   // await _extensionManager.findXpackFolderPaths()
 

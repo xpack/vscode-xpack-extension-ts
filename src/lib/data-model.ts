@@ -43,7 +43,7 @@ export class DataModel {
   // --------------------------------------------------------------------------
   // Members.
 
-  workspaces: DataNodeWorkspace[] = []
+  workspaceFolders: DataNodeWorkspaceFolder[] = []
   packages: DataNodePackage[] = []
   configurations: DataNodeConfiguration[] = []
   commands: DataNodeCommand[] = []
@@ -75,11 +75,11 @@ export class DataModel {
     log.trace('DataModel.refresh()')
 
     // Dispose the current hierarchy, recursively.
-    this.workspaces.forEach(
+    this.workspaceFolders.forEach(
       node => node.dispose())
 
     // Restart with empty arrays.
-    this.workspaces = []
+    this.workspaceFolders = []
     this.packages = []
     this.configurations = []
     this.commands = []
@@ -87,27 +87,28 @@ export class DataModel {
     this.tasks = []
 
     // Recreate the entire hierarchy, by appending objects to all
-    // arrays, starting from the top workspaces.
-    await this._addWorkspaces()
+    // arrays, starting from the top workspace folders.
+    await this._addWorkspaceFolders()
   }
 
-  async _addWorkspaces (): Promise<void> {
+  async _addWorkspaceFolders (): Promise<void> {
     if (vscode.workspace.workspaceFolders != null) {
       const filteredWorkspaces = vscode.workspace.workspaceFolders.filter(
         (workspaceFolder) => workspaceFolder.uri.scheme === 'file'
       )
-      this.workspaces = filteredWorkspaces.map(
-        (workspaceFolder) => new DataNodeWorkspace(workspaceFolder, this.log)
+      this.workspaceFolders = filteredWorkspaces.map(
+        (workspaceFolder) =>
+          new DataNodeWorkspaceFolder(workspaceFolder, this.log)
       )
 
       const promises: Array<Promise<void>> = []
 
-      this.workspaces.forEach(
-        (dataNodeWorkspace) => {
+      this.workspaceFolders.forEach(
+        (dataNodeWorkspaceFolder) => {
           const promise = this._findPackageJsonFilesRecursive(
-            dataNodeWorkspace.workspaceFolder.uri.fsPath,
+            dataNodeWorkspaceFolder.workspaceFolder.uri.fsPath,
             this._maxSearchDepth,
-            dataNodeWorkspace
+            dataNodeWorkspaceFolder
           )
           promises.push(promise)
         }
@@ -119,7 +120,7 @@ export class DataModel {
   async _findPackageJsonFilesRecursive (
     folderPath: string,
     depth: number,
-    parentWorkspace: DataNodeWorkspace
+    parentWorkspaceFolder: DataNodeWorkspaceFolder
   ): Promise<void> {
     assert(folderPath)
     const log = this.log
@@ -142,15 +143,16 @@ export class DataModel {
 
         const xpackPackageJson: XpackPackageJson = packageJson
 
-        const nodePackage = parentWorkspace.addPackage(folderPath, packageJson)
-        nodePackage.package.isPackageJsonDirty = isPackageJsonDirty
-        this.packages.push(nodePackage)
+        const dataNodePackage =
+          parentWorkspaceFolder.addPackage(folderPath, packageJson)
+        dataNodePackage.package.isPackageJsonDirty = isPackageJsonDirty
+        this.packages.push(dataNodePackage)
 
-        await this.addCommands(xpackPackageJson, nodePackage)
-        await this.addActions(xpackPackageJson.xpack.actions, nodePackage)
+        await this.addCommands(xpackPackageJson, dataNodePackage)
+        await this.addActions(xpackPackageJson.xpack.actions, dataNodePackage)
 
         await this.addConfigurations(
-          xpackPackageJson.xpack.buildConfigurations, nodePackage)
+          xpackPackageJson.xpack.buildConfigurations, dataNodePackage)
       }
       return
     }
@@ -174,7 +176,7 @@ export class DataModel {
       (entry) => {
         promises.push(
           this._findPackageJsonFilesRecursive(
-            path.join(folderPath, entry.name), depth - 1, parentWorkspace)
+            path.join(folderPath, entry.name), depth - 1, parentWorkspaceFolder)
         )
       })
     await Promise.all(promises)
@@ -197,9 +199,9 @@ export class DataModel {
         parent.package
       )
 
-      const nodeCommand = parent.addCommand('install', task)
+      const dataNodeCommand = parent.addCommand('install', task)
 
-      this.commands.push(nodeCommand)
+      this.commands.push(dataNodeCommand)
       this.tasks.push(task)
     }
   }
@@ -234,11 +236,11 @@ export class DataModel {
           log.trace(err)
           actionValue = actionJsonValue
         }
-        const nodeAction = parent.addAction(actionName,
+        const dataNodeAction = parent.addAction(actionName,
           actionValue.split(os.EOL), task)
 
         // Also collect an array of actions
-        this.actions.push(nodeAction)
+        this.actions.push(dataNodeAction)
 
         this.tasks.push(task)
       }
@@ -390,7 +392,7 @@ export class DataNode implements vscode.Disposable {
 /**
  * A class to store an workspace folder and an array of packages.
  */
-export class DataNodeWorkspace extends DataNode {
+export class DataNodeWorkspaceFolder extends DataNode {
   // --------------------------------------------------------------------------
   // Members.
 
@@ -424,10 +426,11 @@ export class DataNodeWorkspace extends DataNode {
     folderPath: string,
     packageJson: XpackPackageJson
   ): DataNodePackage {
-    const node = new DataNodePackage(folderPath, packageJson, this, this.log)
-    this.packages.push(node)
+    const dataNodePackage =
+      new DataNodePackage(folderPath, packageJson, this, this.log)
+    this.packages.push(dataNodePackage)
 
-    return node
+    return dataNodePackage
   }
 
   dispose (): void {
@@ -449,7 +452,7 @@ export class DataNodePackage extends DataNode {
   // --------------------------------------------------------------------------
   // Members.
 
-  parent: DataNodeWorkspace
+  parent: DataNodeWorkspaceFolder
 
   /**
    * The xPack folder absolute path.
@@ -495,7 +498,7 @@ export class DataNodePackage extends DataNode {
   constructor (
     folderPath: string,
     packageJson: XpackPackageJson,
-    parent: DataNodeWorkspace,
+    parent: DataNodeWorkspaceFolder,
     log: Logger
   ) {
     // Pass the relative path as name.
@@ -506,8 +509,7 @@ export class DataNodePackage extends DataNode {
     this.packageJson = packageJson
 
     this.xpmLiquidEngine = new XpmLiquid(this.log)
-    this.xpmLiquidMap = this.xpmLiquidEngine.prepareMap(
-      packageJson)
+    this.xpmLiquidMap = this.xpmLiquidEngine.prepareMap(packageJson)
 
     log.trace(`DataNodePackage ${this.name}`)
   }
@@ -535,10 +537,10 @@ export class DataNodePackage extends DataNode {
     name: string,
     task: vscode.Task
   ): DataNodeCommand {
-    const nodeCommand = new DataNodeCommand(name, task, this, this.log)
-    this.commands.push(nodeCommand)
+    const dataNodeCommand = new DataNodeCommand(name, task, this, this.log)
+    this.commands.push(dataNodeCommand)
 
-    return nodeCommand
+    return dataNodeCommand
   }
 
   addAction (
@@ -546,21 +548,21 @@ export class DataNodePackage extends DataNode {
     value: string[],
     task: vscode.Task
   ): DataNodeAction {
-    const nodeAction = new DataNodeAction(name, value, task, this, this.log)
-    this.actions.push(nodeAction)
+    const dataNodeAction = new DataNodeAction(name, value, task, this, this.log)
+    this.actions.push(dataNodeAction)
 
-    return nodeAction
+    return dataNodeAction
   }
 
   addConfiguration (
     name: string
   ): DataNodeConfiguration {
-    const nodeBuildConfiguration =
+    const dataNodeConfiguration =
       new DataNodeConfiguration(name, this, this.log)
 
-    this.configurations.push(nodeBuildConfiguration)
+    this.configurations.push(dataNodeConfiguration)
 
-    return nodeBuildConfiguration
+    return dataNodeConfiguration
   }
 
   dispose (): void {
@@ -581,7 +583,7 @@ export class DataNodePackage extends DataNode {
     this.xpmLiquidEngine = undefined as unknown as XpmLiquid
     this.xpmLiquidMap = undefined
 
-    this.parent = undefined as unknown as DataNodeWorkspace
+    this.parent = undefined as unknown as DataNodeWorkspaceFolder
 
     super.dispose()
   }
@@ -645,10 +647,10 @@ export class DataNodeConfiguration extends DataNode {
     name: string,
     task: vscode.Task
   ): DataNodeCommand {
-    const nodeCommand = new DataNodeCommand(name, task, this, this.log)
-    this.commands.push(nodeCommand)
+    const dataNodeCommand = new DataNodeCommand(name, task, this, this.log)
+    this.commands.push(dataNodeCommand)
 
-    return nodeCommand
+    return dataNodeCommand
   }
 
   addAction (
@@ -656,10 +658,10 @@ export class DataNodeConfiguration extends DataNode {
     value: string[],
     task: vscode.Task
   ): DataNodeAction {
-    const nodeAction = new DataNodeAction(name, value, task, this, this.log)
-    this.actions.push(nodeAction)
+    const dataNodeAction = new DataNodeAction(name, value, task, this, this.log)
+    this.actions.push(dataNodeAction)
 
-    return nodeAction
+    return dataNodeAction
   }
 
   async getBuildFolderRelativePath (): Promise<string> {
@@ -695,25 +697,84 @@ export class DataNodeConfiguration extends DataNode {
   }
 }
 
+// ----------------------------------------------------------------------------
+
 /**
- * A class to store the action value and the associated task.
+ * A parent class for actions and commands to store the associated task.
  */
-export class DataNodeAction extends DataNode {
+class DataNodeRunable extends DataNode {
   // --------------------------------------------------------------------------
   // Members.
 
   parent: DataNodeConfiguration | DataNodePackage
 
   /**
+   * The VSCode task to be executed when the Run button is pressed.
+   */
+  task: vscode.Task
+
+  // --------------------------------------------------------------------------
+  // Constructors.
+
+  constructor (
+    name: string,
+    task: vscode.Task,
+    parent: DataNodeConfiguration | DataNodePackage,
+    log: Logger
+  ) {
+    super(name, log)
+
+    this.parent = parent
+    this.task = task
+
+    log.trace(`DataNodeRunable ${this.name}`)
+  }
+
+  // --------------------------------------------------------------------------
+  // Getters & setters.
+
+  get package (): DataNodePackage {
+    if (this.parent instanceof DataNodePackage) {
+      return (this.parent)
+    } else if (this.parent instanceof DataNodeConfiguration) {
+      return (this.parent.parent)
+    } else {
+      throw new Error('Unexpected hierarchy')
+    }
+  }
+
+  get configurationName (): string {
+    if (this.parent instanceof DataNodeConfiguration) {
+      return this.parent.name
+    } else {
+      return ''
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // Methods.
+
+  dispose (): void {
+    // Avoid type protection.
+    this.task = undefined as unknown as vscode.Task
+    this.parent = undefined as unknown as DataNodePackage
+
+    super.dispose()
+  }
+}
+
+/**
+ * A class to store the action value and the associated task.
+ */
+export class DataNodeAction extends DataNodeRunable {
+  // --------------------------------------------------------------------------
+  // Members.
+
+  /**
    * The action value is always normalised to an array of commands,
    * and has all substitutions performed.
    */
   value: string[]
-
-  /**
-   * The VSCode task to be executed when the Run button is pressed.
-   */
-  task: vscode.Task
 
   // --------------------------------------------------------------------------
   // Constructors.
@@ -725,11 +786,9 @@ export class DataNodeAction extends DataNode {
     parent: DataNodeConfiguration | DataNodePackage,
     log: Logger
   ) {
-    super(name, log)
-    this.parent = parent
+    super(name, task, parent, log)
 
     this.value = value
-    this.task = task
 
     log.trace(`DataNodeAction ${this.name}`)
   }
@@ -737,33 +796,11 @@ export class DataNodeAction extends DataNode {
   // --------------------------------------------------------------------------
   // Getters & setters.
 
-  get package (): DataNodePackage {
-    if (this.parent instanceof DataNodePackage) {
-      return (this.parent)
-    } else if (this.parent instanceof DataNodeConfiguration) {
-      return (this.parent.parent)
-    } else {
-      throw new Error('Unexpected hierarchy')
-    }
-  }
-
-  get configurationName (): string {
-    if (this.parent instanceof DataNodeConfiguration) {
-      return this.parent.name
-    } else {
-      return ''
-    }
-  }
-
   // --------------------------------------------------------------------------
   // Methods.
 
   dispose (): void {
     this.value = undefined as unknown as string[]
-
-    // Avoid type protection.
-    this.task = undefined as unknown as vscode.Task
-    this.parent = undefined as unknown as DataNodePackage
 
     super.dispose()
   }
@@ -774,16 +811,9 @@ export class DataNodeAction extends DataNode {
 /**
  * A class to store the command and the associated task.
  */
-export class DataNodeCommand extends DataNode {
+export class DataNodeCommand extends DataNodeRunable {
   // --------------------------------------------------------------------------
   // Members.
-
-  parent: DataNodeConfiguration | DataNodePackage
-
-  /**
-   * The VSCode task to be executed when the Run button is pressed.
-   */
-  task: vscode.Task
 
   // --------------------------------------------------------------------------
   // Constructors.
@@ -794,10 +824,7 @@ export class DataNodeCommand extends DataNode {
     parent: DataNodeConfiguration | DataNodePackage,
     log: Logger
   ) {
-    super(name, log)
-    this.parent = parent
-
-    this.task = task
+    super(name, task, parent, log)
 
     log.trace(`DataNodeCommand ${this.name}`)
   }
@@ -805,34 +832,8 @@ export class DataNodeCommand extends DataNode {
   // --------------------------------------------------------------------------
   // Getters & setters.
 
-  get package (): DataNodePackage {
-    if (this.parent instanceof DataNodePackage) {
-      return (this.parent)
-    } else if (this.parent instanceof DataNodeConfiguration) {
-      return (this.parent.parent)
-    } else {
-      throw new Error('Unexpected hierarchy')
-    }
-  }
-
-  get configurationName (): string {
-    if (this.parent instanceof DataNodeConfiguration) {
-      return this.parent.name
-    } else {
-      return ''
-    }
-  }
-
   // --------------------------------------------------------------------------
   // Methods.
-
-  dispose (): void {
-    // Avoid type protection.
-    this.task = undefined as unknown as vscode.Task
-    this.parent = undefined as unknown as DataNodePackage
-
-    super.dispose()
-  }
 }
 
 // ----------------------------------------------------------------------------
