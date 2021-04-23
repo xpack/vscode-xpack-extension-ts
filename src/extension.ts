@@ -68,7 +68,9 @@ export async function activate (
 
   // For now use the C/C++ status bar to select the configuration.
   // await StatusBar.register(_extensionManager)
-  await IntelliSense.register(_manager)
+  const intelliSense = await IntelliSense.register(_manager)
+
+  intelliSense.registerCompileCommandsJsonWatchers()
 
   // Refresh everything again, when all objects are created.
   await _manager.refresh()
