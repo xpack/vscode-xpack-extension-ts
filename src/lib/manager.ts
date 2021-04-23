@@ -221,6 +221,7 @@ export class ExtensionManager implements vscode.Disposable {
 }
 
 // ----------------------------------------------------------------------------
+// Not yet used, the C/C++ configuration picker is used instead.
 
 export class BuildConfigurationPick implements vscode.QuickPickItem {
   // --------------------------------------------------------------------------
