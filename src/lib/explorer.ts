@@ -536,7 +536,12 @@ export class XpackActionsTreeDataProvider implements
   // --------------------------------------------------------------------------
   // Methods.
 
-  private async _createTree (): Promise<ActionsTree> {
+  /**
+   * Create the view tree, based on the data tree.
+   *
+   * @returns An array of top nodes.
+   */
+  private _createTree (): ActionsTree {
     const log = this.log
 
     const tree: TreeItemPackage[] = []
@@ -621,14 +626,14 @@ export class XpackActionsTreeDataProvider implements
     return element
   }
 
-  async getChildren (
+  getChildren (
     element?: TreeItem
-  ): Promise<TreeItem[]> {
+  ): TreeItem[] {
     // log.trace('getChildren', element)
 
     // Lazy creation, delay to first use or after 'Refresh'.
     if (this._tree === null) {
-      this._tree = await this._createTree()
+      this._tree = this._createTree()
     }
 
     if (element === undefined) {
