@@ -691,6 +691,8 @@ export class DataNodeConfiguration extends DataNode {
         log.trace(err)
       }
     }
+
+    // Provide a default value, based on the name.
     return path.join('build', filterPath(this.name))
   }
 
