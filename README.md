@@ -63,7 +63,7 @@ each using a separate build folder, and
 defined as sequences of commands (stored in JSON as
 arrays of string).
 
-![xPack Actions](assets/docs-images/xpacks-actions.png)
+![xPack Actions](assets/docs-images/xpack-actions.png)
 
 To avoid redundant definitions between configurations,
 the actions can use generic templates, with substitutions performed by the
