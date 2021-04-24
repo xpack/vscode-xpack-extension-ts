@@ -178,7 +178,7 @@ Note: this example assumes the presence of a toolchain, like GCC or clang.
 
 ## Release Notes
 
-The latest release is **v0.4.5**, which,
+The latest release is **v0.4.6**, which,
 according to [semantic versioning](https://semver.org) rules,
 means it is _in initial development_ phase.
 
