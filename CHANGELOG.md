@@ -6,6 +6,17 @@ Please check
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 and close existing issues and pull requests.
 
+## 2021-04-24
+
+- v0.4.5 published
+- simplify README and refer to new web site
+
+## 2021-04-23
+
+- [#10] - add watcher to update c_cpp_properties.json
+- [#9] - fix package.json watcher concurrency
+- some refactoring for workspaceFolders
+
 ## 2021-04-22
 
 - v0.4.4 published

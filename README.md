@@ -1,4 +1,4 @@
-# xPack C/C++ Managed Build (evaluation!)
+# xPack C/C++ Managed Build (beta)
 
 Manage and build C/C++ projects with CMake, meson, etc, using the xPack tools.
 
@@ -26,198 +26,13 @@ For details please follow the instructions in the
 The simplest way to start with the **xPack C/C++ Managed Build** extension
 is to create a simple _Hello World_ project.
 
-### Create a Hello World C++ project
-
-The easiest way to create a _Hello World_ project is:
-
-- open the **Command Palette** (in the **View** menu, or with the
-platform specific keyboard shortcut)
-- type `xpack` to filter the list of available commands
-- select the **Quick Start a Hello World project (C++, CMAke)**.
-
-![Command Quick Start](assets/docs-images/command-quick-start.png)
-
-The project creation requires an empty folder. The xPack extension asks
-the user for the location of this folder.
-
-For this test, a folder called `tmp/hello` was created in the user home folder.
-
-![Create Hello folder](assets/docs-images/create-folder.png)
-
-Once the folder is selected, the xPack extension invokes `xpm init` to
-create a new project based on the
-[@xpack/hello-world-template](https://github.com/xpack/hello-world-template-xpack)
-which is a separate source xPack.
-
-The command is executed in a separate shell, and the console output
-looks like this:
-
-![xpm init hello quick](assets/docs-images/xpm-init-quick.png)
-
-The result is a simple project, with:
-
-- a `src` folder with the source file `hello-world.cpp`
-- an `include` folder with the header file `hello-world.h`,
-- a `meta` folder with the additional metadata for performing the build
-(in this case a CMake `CMakeLists.txt` configuration file).
-
-The same result can be obtained by running the following commands in a
-terminal:
-
-```sh
-mkdir ~/tmp/hello
-cd ~/tmp/hello
-xpm init --template @xpack/hello-world-template@latest
-```
-
-### xPack Actions
-
-Once the project is created, the **xPack Actions** explorer should become
-visible in the bottom left part of the screen:
-
-![xPack Actions](assets/docs-images/xpack-actions.png)
-
-Note: If this does not happen automatically, at first use it might
-be necessary to enable this explorer by running the command
-**Explorer: Focus on xPack Actions View**, or by Right Clicking on any
-of the explorers on the bottom left corner, and enabling
-**xPack Actions**.
-
-Once enabled, the explorer shows two build configurations,
-**Debug** and **Release**.
-
-The explorer also shows multiple actions, which have
-associated custom sequences of commands (shown as tooltips).
-There are global
-actions, and actions specific to each build configuration.
-Actions can be executed by clicking the **Run** triangular icon.
-
-#### Tooltips
-
-As most of other graphical objects, the xPacks Actions explorer shown
-additional information as tooltips, visible after hovering with the
-mouse for a few moments on the visible items.
-
-### Satisfy dependencies
-
-The xPack project provides cross-platform binary tools which can be
-automatically linked to xPack projects.
-
-In this example, the generated project includes development dependencies
-to specific versions of **CMake** and **ninja**.
-
-To satisfy these dependencies, click the **Run Command** button
-in the explorer:
-
-![xpm install](assets/docs-images/xpm-install.png)
-
-The same result can be obtained by running the following command in the
-project folder:
-
-```sh
-xpm install
-```
-
-Note 1: using the xPack binary tools is not mandatory, for example
-GNU/Linux users may very well continue to build their projects
-in the traditional way, with tools installed via the system package
-manager; however, for macOS and Windows users, having a convenient
-way to install additional binary tools might be highly appreciated.
-
-Node 2: the binary xPacks are strictly versioned, and for obtaining
-reproducible builds it is always useful to lock a project to a set
-of tools, completely independent o the versions used by other
-projects and from the versions available in the system.
-
-### Perform the build
-
-With the binary tools available, the build can be invoked by selecting
-the desired configuration in the explorer (**Debug** in this case),
-and the clicking the **Run Action** icon at the right side of the
-**build** action.
-
-![xpm run build](assets/docs-images/xpm-run-build.png)
-
-The result is a `build/debug` folder, where CMake performed the build.
-
-The same result can be obtained by running the following command in the
-project folder:
-
-```sh
-xpm run build --config Debug
-```
-
-### Execute the Hello World application
-
-The resulting binary file is a regular ELF, which can be started as usual
-in a terminal.
-
-As a shortcut, the project includes an `execute` action, which
-invokes the `hello-world` executable:
-
-![xpm run execute](assets/docs-images/xpm-run-execute.png)
-
-### IntelliSense
-
-For build system generators which create the `compile_commands.json` file
-(like CMake and meson), the xPack extension automatically
-adds the paths to these files in the `.vscode/c_cpp_properties.json` file,
-and the VSCode automatically processes them.
-
-![IntelliSense Debug](assets/docs-images/intellisense-debug.png)
-
-As it can be seen, the editor renders dead code in gray, which is a good sign
-that the project was configured correctly.
-
-### Switching build configurations
-
-The **xPack C/C++ Managed Build** extension uses the
-**Microsoft C/C++** extension,
-which is able to handle multiple configurations.
-
-To test this, also build the release binaries (by clicking the `build`
-action in the **Release** section of the **xPacks Actions** explorer),
-then click the Debug entry shown on the bootom Status Bar, which should
-open a picker to select the desired configuration:
-
-![Switching Configurations](assets/docs-images/switch-configs.png)
-
-After selecting Release, the editor will automatically update the content,
-and show the debug dead code as grey:
-
-![IntelliSense Release](assets/docs-images/intellisense-release.png)
-
-### Closing the workspace
-
-When closing the workspace, either by closing VSCode, or via the **File** menu,
-VSCode asks the user permission to save the workspace configuration
-as a file:
-
-![Close Workspace](assets/docs-images/close-workspace.png)
-
-This is optional, and for independent projects, it is not of much help,
-so it can be skipped (click the **Don't Save** button).
-
-However, for complex projects which comprise multiple projects, it
-might be useful to group all folders as an workspace, and open all
-in the same VSCode instance.
-
-## Create an empty project
-
-The recommended way to start a new project is to create a simple
-Hello World project, which includes the two (Debug/Release)
-build configurations, each with the usual build/clean actions,
-and later extend the project with the actual application code.
-
-However, for those who prefer to start from scratch, it is possible to
-create an empty project, without any build configurations and actions,
-and manually add them to any custom configuration.
-
-![Command Empty](assets/docs-images/command-empty.png)
+Open the [Quick Start](https://xpack.github.io/quick-start/) page in a browser
+and follow the steps.
 
 ## How it works
 
-The xPack Managed Build is neutral to the build system, and basically
+The VS Code xPack Managed Build is neutral to the build system,
+and basically
 can invoke any tools, old and new, but favours modern tools
 (like CMake and meson) which can
 generate a `compile_commands.json` file, since this
@@ -233,14 +48,22 @@ stored in usual Git repositories, or even published on
 [npmjs.com](https://www.npmjs.com/search?q=xpack)
 or compatible servers.
 
-## Concepts
+## Concepts (configurations & actions)
 
 Compared to typical CMake/meson projects, which in most cases use a
 single build folder, an xPack Managed Build project is
-by design defined as a collection of named **build configurations**,
-each using a separate build folder, and each with its own set of
-named **actions**, defined as sequences of commands (stored in JSON
+by design defined as
+
+> a collection of named **build configurations**
+
+each using a separate build folder, and 
+
+> each with its own set of named **actions**
+
+defined as sequences of commands (stored in JSON as
 arrays of string).
+
+![xPack Actions](assets/docs-images/xpacks-actions.png)
 
 To avoid redundant definitions between configurations,
 the actions can use generic templates, with substitutions performed by the
@@ -332,7 +155,8 @@ using CMake, may look like:
 }
 ```
 
-Using xpm, the complete test of build/test can be invoked with:
+With the help of `xpm`, the complete cycle of prepare/build/execute
+can be invoked via:
 
 ```bash
 cd <project>
@@ -344,60 +168,23 @@ Note: this example assumes the presence of a toolchain, like GCC or clang.
 
 ## Known Issues
 
-- too early to call
+- **npm** picks `package.json` from xPack dependencies, which is generally
+  not useful; the workaround is to add a property to the project
+  `.vscode/settings.json`:
+
+```json
+"npm.exclude": "**/xpacks/**"
+```
 
 ## Release Notes
 
-The list is kept in reverse chronological order, with the most recent
-release on the top.
+The latest release is **v0.4.5**, which,
+according to [semantic versioning](https://semver.org) rules,
+means it is _in initial development_ phase.
 
-### 0.4.4
+The xPack extension is functional and can be used for beta-testing, 
+but anything MAY
+change at any time and the public API SHOULD NOT be considered stable.
 
-A new development release which adds:
-
-- support to create new projects from templates
-- internal watchers to automate refresh on package.json changes
-- dependencies to ms-vscode.cpptools & ms-vscode.cmake-tools
-
-### 0.3.2
-
-A new development release with functional IntelliSense which adds:
-
-- commands to create configs & actions
-- `xpm install` as a separate entry in the explorer, runnable
-
-### 0.2.2
-
-A new development release which adds the following:
-
-- since the project grew, as recommended, webpack was used to pack all code
-  into a single compact file;
-- IntelliSense support was added via `c_cpp_properties.json` (making
-  use of the `ms-vscode.cmake-tools` configuration provider); the new
-  status bae entry is no longer needed and was disabled;
-- generic template support was added by performing Liquid substitution,
-  mainly to compute `buildFolderRelativePath` but also to show
-  actions tooltips.
-
-### 0.1.5
-
-An early preview release, which adds the following:
-
-- an **xPacks Actions** explorer, implemented as a tree view, which allows
-  a convenient way to navigate between multiple build configurations and
-  actions; to make it visible, open a `package.json`
-  created via `xpm init` and add the `xpack` property
-  (for example from the above code);
-- actions are integrated into the usual VSCode workflow by associating
-  internal tasks with each action; separate tasks are added for common
-  commands like `xpm install`;
-- ~~a status bar entry used to select the active build configuration
-  to be used by IntelliSense
-  (integration with IntelliSence is not yet implemented)~~.
-
-### 0.0.1
-
-Initial release with minimal content, intended to validate the workflow.
-
-There is only one simple action defined, _xPack: Greeting_,
-which prints a short message.
+More details about each release can be found in the
+[releases](https://xpack.github.io/vscode/releases/) page.
