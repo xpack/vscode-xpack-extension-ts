@@ -8,7 +8,7 @@ and close existing issues and pull requests.
 
 ## 2021-04-24
 
-- v0.4.6 published
+- v0.4.7 published
 - simplify README and refer to new web site
 
 ## 2021-04-23
