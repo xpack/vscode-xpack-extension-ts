@@ -34,6 +34,11 @@
   "galleryBanner": {
     "theme": "light"
   },
+  "qna": "https://xpack.github.io/vscode/support/",
+  "extensionDependencies": [
+    "ms-vscode.cpptools",
+    "ms-vscode.cmake-tools"
+  ],
   "engines": {
     "vscode": "^1.54.0"
   },
@@ -257,9 +262,5 @@
         "when": "shellExecutionSupported"
       }
     ]
-  },
-  "extensionPack": [
-    "ms-vscode.cpptools",
-    "ms-vscode.cmake-tools"
-  ]
+  }
 }
