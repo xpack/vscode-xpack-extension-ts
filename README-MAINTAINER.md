@@ -110,7 +110,7 @@ In the `xpack/web-jekyll` GitHub repo:
 - in the `develop` branch
 - change the name from _pre-release_ to _released_
 - remove the _To install the pre-release version, use:_ section
-- commit with a message like **VS Code xPack extension v0.4.7 release**
+- commit with a message like **VS Code xPack extension v0.4.7 released**
 - select the `master` branch
 - merge `develop`
 - push both branches

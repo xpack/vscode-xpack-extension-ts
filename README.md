@@ -18,6 +18,10 @@ in [Eclipse Embedded CDT](https://projects.eclipse.org/projects/iot.embed-cdt/).
 A recent [xpm](https://xpack.github.io/xpm/),
 which is a portable [Node.js](https://nodejs.org/) command line application.
 
+```sh
+npm install --global xpm@latest
+```
+
 For details please follow the instructions in the
 [install](https://xpack.github.io/install/) page.
 
@@ -160,6 +164,7 @@ can be invoked via:
 
 ```bash
 cd <project>
+
 xpm install
 xpm run test
 ```
@@ -168,9 +173,10 @@ Note: this example assumes the presence of a toolchain, like GCC or clang.
 
 ## Known Issues
 
-- **npm** picks `package.json` from xPack dependencies, which is generally
-  not useful; the workaround is to add a property to the project
-  `.vscode/settings.json`:
+- unless told not to do so, **npm** picks `package.json` from anywhere in
+  the folders, including the xPack dependencies, which is generally
+  not useful; the workaround is to add a `npm.exclude` property to the
+  project `.vscode/settings.json`:
 
 ```json
 "npm.exclude": "**/xpacks/**"
@@ -180,7 +186,7 @@ Note: this example assumes the presence of a toolchain, like GCC or clang.
 
 The latest release is **v0.4.7**, which,
 according to [semantic versioning](https://semver.org) rules,
-means it is _in initial development_ phase.
+means it is still _in initial development_ phase.
 
 The xPack extension is functional and can be used for beta-testing, 
 but anything MAY
