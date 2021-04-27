@@ -171,6 +171,19 @@ xpm run test
 
 Note: this example assumes the presence of a toolchain, like GCC or clang.
 
+## IntelliSense only for top folders
+
+TL;DR - open separate packages as separate workspace folders.
+
+Due to the specifics of the VS Code C/C++ extension, IntelliSense is
+available only if the package is in the top of the workspace folder.
+
+In other words, when opening a workspace folder with multiple packages,
+IntelliSense will not be enabled.
+
+The correct solution is to open all packages as workspace folders, either
+separately or via a `.code-workspace` file.
+
 ## Known Issues
 
 - unless told not to do so, **npm** picks `package.json` from anywhere in
