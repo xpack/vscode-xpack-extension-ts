@@ -35,7 +35,7 @@ import * as cpt from 'vscode-cpptools'
 import { Logger } from '@xpack/logger'
 
 import { ExtensionManager } from './manager'
-import { DataNodeWorkspaceFolder } from './data-model'
+import { DataNodePackage } from './data-model'
 
 // ----------------------------------------------------------------------------
 
@@ -137,9 +137,10 @@ export class IntelliSense implements vscode.Disposable {
     log.trace('IntelliSense.updateCppPropertiesJson()')
 
     const promises: Array<Promise<void>> = []
-    this.manager.data.workspaceFolders.forEach(
-      (workspaceFolder) =>
-        promises.push(this.updateWorkspaceFolderCCppProperties(workspaceFolder))
+    this.manager.data.workspaceProjects.forEach(
+      (dataNodePackage) =>
+        promises.push(
+          this.updateWorkspaceProjectCCppProperties(dataNodePackage))
     )
 
     await Promise.all(promises)
@@ -149,15 +150,15 @@ export class IntelliSense implements vscode.Disposable {
    * Update the `c_cpp_properties.json` file for a workspace folder.
    * - https://code.visualstudio.com/docs/cpp/c-cpp-properties-schema-reference
    */
-  async updateWorkspaceFolderCCppProperties (
-    dataNodeWorkspaceFolder: DataNodeWorkspaceFolder
+  async updateWorkspaceProjectCCppProperties (
+    dataNodePackage: DataNodePackage
   ): Promise<void> {
     const log = this.log
 
-    log.trace(dataNodeWorkspaceFolder.workspaceFolder.uri.fsPath)
+    log.trace(dataNodePackage.folderPath)
 
     const vscodeFolderPath: string = path.join(
-      dataNodeWorkspaceFolder.workspaceFolder.uri.fsPath, '.vscode')
+      dataNodePackage.folderPath, '.vscode')
 
     const jsonFilePath: string = path.join(
       vscodeFolderPath, 'c_cpp_properties.json')
@@ -182,7 +183,7 @@ export class IntelliSense implements vscode.Disposable {
     }
 
     await this.updateCompileCommandsReferences(
-      dataNodeWorkspaceFolder, json.configurations)
+      dataNodePackage, json.configurations)
 
     if (json.configurations.length > 0) {
       const fileNewContent = JSON.stringify(json, null, 2) + os.EOL
@@ -192,67 +193,59 @@ export class IntelliSense implements vscode.Disposable {
   }
 
   async updateCompileCommandsReferences (
-    dataNodeWorkspaceFolder: DataNodeWorkspaceFolder,
+    dataNodePackage: DataNodePackage,
     jsonConfigurations: JsonCCppPropertiesConfiguration[]
   ): Promise<void> {
     const log = this.log
 
-    for (const dataNodePackage of dataNodeWorkspaceFolder.packages) {
-      for (const dataNodeConfiguration of dataNodePackage.configurations) {
-        let globalConfigurationName = dataNodeConfiguration.name
-        if (dataNodePackage.folderRelativePath !== '') {
-          globalConfigurationName += ' - '
-          globalConfigurationName += dataNodePackage.folderRelativePath
-        }
-        log.trace(`c/c++ configuration name: ${globalConfigurationName}`)
+    for (const dataNodeConfiguration of dataNodePackage.configurations) {
+      const globalConfigurationName = dataNodeConfiguration.name
+      log.trace(`c/c++ configuration name: ${globalConfigurationName}`)
 
-        // First try to identify an existing configuration;
-        // if not found, create a new empty one.
-        const currentJsonConfiguration =
+      // First try to identify an existing configuration;
+      // if not found, create a new empty one.
+      const currentJsonConfiguration =
           this.prepareCCppPropertiesConfiguration(
             globalConfigurationName, jsonConfigurations)
 
-        // Get the variable value (via substitutions).
-        const buildFolderRelativePath =
+      // Get the variable value (via substitutions).
+      const buildFolderRelativePath =
           await dataNodeConfiguration.getBuildFolderRelativePath()
 
-        // If there is a single package, try to be as portable as
-        // possible and use relative paths, otherwise use absolute paths.
-        const newBaseFolderPath =
-          (dataNodeWorkspaceFolder.packages.length > 1)
-            ? dataNodePackage.folderPath
-            : '$' + '{workspaceFolder}'
+      // Use relative paths.
+      const newBaseFolderPath = '$' + '{workspaceFolder}'
 
-        const compileCommandsValue = path.join(
-          newBaseFolderPath,
-          buildFolderRelativePath,
-          'compile_commands.json'
-        )
+      const compileCommandsValue = path.join(
+        newBaseFolderPath,
+        buildFolderRelativePath,
+        'compile_commands.json'
+      )
 
-        const compileCommandsFileAbsolutePath = path.join(
-          dataNodePackage.folderPath,
-          buildFolderRelativePath,
-          'compile_commands.json')
+      const compileCommandsFileAbsolutePath = path.join(
+        dataNodePackage.folderPath,
+        buildFolderRelativePath,
+        'compile_commands.json')
 
+      if (currentJsonConfiguration.configurationProvider === undefined) {
         // Configure the provider to the CMake one for now.
         currentJsonConfiguration.configurationProvider =
           'ms-vscode.cmake-tools'
-
-        try {
-          // Will throw if the file does not exists.
-          await fsPromises.stat(compileCommandsFileAbsolutePath)
-
-          // If the file exists, configure the path to it.
-          currentJsonConfiguration.compileCommands = compileCommandsValue
-        } catch (err) {
-          // The `compile_commands.json` file does not exist yet,
-          // ensure that this property is not set, to avoid an
-          // warning from the C/C++ extension.
-          delete currentJsonConfiguration.compileCommands
-        }
-
-        log.trace(`c/c++ compileCommands: ${compileCommandsValue}`)
       }
+
+      try {
+        // Will throw if the file does not exists.
+        await fsPromises.stat(compileCommandsFileAbsolutePath)
+
+        // If the file exists, configure the path to it.
+        currentJsonConfiguration.compileCommands = compileCommandsValue
+      } catch (err) {
+        // The `compile_commands.json` file does not exist yet,
+        // ensure that this property is not set, to avoid an
+        // warning from the C/C++ extension.
+        delete currentJsonConfiguration.compileCommands
+      }
+
+      log.trace(`c/c++ compileCommands: ${compileCommandsValue}`)
     }
   }
 
@@ -343,7 +336,7 @@ export class IntelliSense implements vscode.Disposable {
     log.trace(changeType, uri.fsPath)
 
     if (changeType === vscode.FileChangeType.Created) {
-      let dataNodeWorkspaceFolder: DataNodeWorkspaceFolder | undefined
+      let dataNodePackage: DataNodePackage | undefined
 
       // Iterate through all configurations and identify the workspace folder
       // where to update the `c_cpp_properties.json`.
@@ -353,13 +346,15 @@ export class IntelliSense implements vscode.Disposable {
           buildFolderRelativePath,
           'compile_commands.json')
 
-        if (compileCommandsFilePath === uri.fsPath) {
-          dataNodeWorkspaceFolder = node.package.parent
+        if (compileCommandsFilePath === uri.fsPath &&
+            node.package.folderRelativePath === '') {
+          // Process only workspace folders that include top packages.
+          dataNodePackage = node.package
           break
         }
       }
-      if (dataNodeWorkspaceFolder !== undefined) {
-        await this.updateWorkspaceFolderCCppProperties(dataNodeWorkspaceFolder)
+      if (dataNodePackage !== undefined) {
+        await this.updateWorkspaceProjectCCppProperties(dataNodePackage)
       }
     }
   }

@@ -44,6 +44,7 @@ export class DataModel implements vscode.Disposable {
   // Members.
 
   workspaceFolders: DataNodeWorkspaceFolder[] = []
+  workspaceProjects: DataNodePackage[] = []
   packages: DataNodePackage[] = []
   configurations: DataNodeConfiguration[] = []
   commands: DataNodeCommand[] = []
@@ -141,6 +142,12 @@ export class DataModel implements vscode.Disposable {
           parentWorkspaceFolder.addPackage(folderPath, packageJson)
         dataNodePackage.package.isPackageJsonDirty = isPackageJsonDirty
         this.packages.push(dataNodePackage)
+
+        if (dataNodePackage.folderRelativePath === '') {
+          // If the package is in the top of the workspace folder,
+          // it is a project.
+          this.workspaceProjects.push(dataNodePackage)
+        }
 
         await this.addCommands(xpackPackageJson, dataNodePackage)
         await this.addActions(xpackPackageJson.xpack.actions, dataNodePackage)
