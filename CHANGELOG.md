@@ -6,6 +6,11 @@ Please check
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 and close existing issues and pull requests.
 
+## 2021-04-28
+
+- v0.4.8 published
+- [#13] - write `c_cpp_properties.json` only in workspace folders
+
 ## 2021-04-24
 
 - v0.4.7 published
@@ -13,8 +18,8 @@ and close existing issues and pull requests.
 
 ## 2021-04-23
 
-- [#10] - add watcher to update c_cpp_properties.json
-- [#9] - fix package.json watcher concurrency
+- [#10] - add watcher to update `c_cpp_properties.json`
+- [#9] - fix `package.json` watcher concurrency
 - some refactoring for workspaceFolders
 
 ## 2021-04-22
@@ -30,7 +35,7 @@ and close existing issues and pull requests.
 - add Quick Start with images to README
 - v0.4.0 published
 - support to create new projects from templates
-- internal watchers to automate refresh on package.json changes
+- internal watchers to automate refresh on `package.json` changes
 - explorer: rework descriptions & tooltips
 
 ## 2021-04-19
@@ -45,7 +50,7 @@ and close existing issues and pull requests.
 ## 2021-04-16
 
 - #1 - add commands to create configs & actions
-- IntelliSense: write c_cpp_properties.json back only if not empty
+- IntelliSense: write `c_cpp_properties.json` back only if not empty
 
 ## 2021-04-14
 
@@ -63,7 +68,7 @@ and close existing issues and pull requests.
 
 - v0.1.5 published
 - add status bar and picker for the IntelliSense configuration
-- add tasks for xpm install
+- add tasks for `xpm install`
 - add tasks for action
 - add xPacks Actions explorer
 

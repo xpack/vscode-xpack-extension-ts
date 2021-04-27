@@ -60,7 +60,7 @@ by design defined as
 
 > a collection of named **build configurations**
 
-each using a separate build folder, and 
+each using a separate build folder, and
 
 > each with its own set of named **actions**
 
@@ -197,11 +197,11 @@ separately or via a `.code-workspace` file.
 
 ## Release Notes
 
-The latest release is **v0.4.7**, which,
+The latest release is **v0.4.8**, which,
 according to [semantic versioning](https://semver.org) rules,
 means it is still _in initial development_ phase.
 
-The xPack extension is functional and can be used for beta-testing, 
+The xPack extension is functional and can be used for beta-testing,
 but anything MAY
 change at any time and the public API SHOULD NOT be considered stable.
 
