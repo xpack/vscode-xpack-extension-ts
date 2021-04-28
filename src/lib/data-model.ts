@@ -733,7 +733,7 @@ class DataNodeRunable extends DataNode {
   parent: DataNodeConfiguration | DataNodePackage
 
   /**
-   * The VSCode task to be executed when the Run button is pressed.
+   * The VS Code task to be executed when the Run button is pressed.
    */
   task: vscode.Task
 

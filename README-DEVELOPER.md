@@ -3,9 +3,9 @@
 # Developer info
 
 This page documents the prerequisites and procedures used during the
-development of the **xPack C/C++ Managed Build** VSCode extension.
+development of the VS Code **xPack C/C++ Managed Build** extension.
 
-This project is written in TypeScript, as recommended for VSCode extensions.
+This project is written in TypeScript, as recommended for VS Code extensions.
 
 ## Prerequisites
 
@@ -23,9 +23,9 @@ Briefly, the prerequisites are:
 npm install --global xpm@latest
 ```
 
-### Prepare a separate instance of VSCode
+### Prepare a separate instance of VS Code
 
-To avoid interferences with other extensions in the regular VSCode
+To avoid interferences with other extensions in the regular VS Code
 configuration, it is recommended to use a custom folder and a separate
 set of extensions:
 
@@ -72,14 +72,14 @@ git clone --branch develop \
 https://github.com/xpack/vscode-xpack-extension-ts.git vscode-xpack-extension-ts.git
 ```
 
-### Start VSCode
+### Start VS Code
 
 ```sh
 code --extensions-dir ${HOME}/Work/vscode-extensions/code-portable-data-develop \
 ${HOME}/Work/vscode-extensions/vscode-xpack-extension-ts.git
 ```
 
-### Update VSCode settings
+### Update VS Code settings
 
 TBD
 
@@ -91,7 +91,7 @@ npm install
 
 ### Start the webpack-dev background task
 
-The extension uses webpack to make the distribution more compact.
+The xPack extension uses webpack to make the distribution more compact.
 
 To automate the workflow, webpack can be started as a background
 task to convert the `out` folder into the `dist` folder:
@@ -111,15 +111,15 @@ The current version is TypeScript 4:
 - <https://www.typescriptlang.org>
 - <https://www.typescriptlang.org/docs/handbook>
 
-## VSCode extension API
+## VS Code extension API
 
-The API used to implement VSCode extensions:
+The API used to implement VS Code extensions:
 
 - <https://code.visualstudio.com/api>
 
 ### package.json contributions
 
-The VSCode extensions require some definitions stored in the
+The VS Code extensions require some definitions stored in the
 `contributes` property of `package.json`.
 
 #### `contributes.commands`

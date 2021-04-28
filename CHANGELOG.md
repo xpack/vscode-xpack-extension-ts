@@ -8,6 +8,8 @@ and close existing issues and pull requests.
 
 ## 2021-04-28
 
+- v0.4.9 published
+- fix README link
 - v0.4.8 published
 - [#13] - write `c_cpp_properties.json` only in workspace folders
 

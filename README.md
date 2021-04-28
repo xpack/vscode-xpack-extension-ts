@@ -27,20 +27,29 @@ For details please follow the instructions in the
 
 ## Quick Start
 
-The simplest way to start with the **xPack C/C++ Managed Build** extension
-is to create a simple _Hello World_ project.
+TL;DR: **View** → **Command Palette...** →
+**xPack: Quick Start a Hello World project (C++, CMake)**
+(but better read the web page).
 
-Open the [Quick Start](https://xpack.github.io/quick-start/) page in a browser
-and follow the steps.
+The simplest way to start with the VS Code **xPack C/C++ Managed Build**
+extension is to create a simple _Hello World_ project.
+
+Open the
+[Quick Start](https://xpack.github.io/vscode/quick-start/)
+page in a browser and follow the steps. In addition to being
+a fully functional project, the result will also be a good
+starting point for more complex projects.
 
 ## How it works
 
-The VS Code xPack Managed Build is neutral to the build system,
-and basically
-can invoke any tools, old and new, but favours modern tools
+The xPack Build framework is a set of portable CLI tools,
+neutral to any build system,
+which can basically
+invoke any 3rd party tools, old and new, to perform the actual build;
+it favours modern tools
 (like CMake and meson) which can
 generate a `compile_commands.json` file, since this
-greatly simplifies/automates the project IntelliSense configuration.
+greatly simplifies integration with indexers (like VS Code IntelliSense).
 
 ## Disclaimer
 
@@ -173,7 +182,7 @@ Note: this example assumes the presence of a toolchain, like GCC or clang.
 
 ## IntelliSense only for top folders
 
-TL;DR - open separate packages as separate workspace folders.
+TL;DR: open separate packages as separate workspace folders.
 
 Due to the specifics of the VS Code C/C++ extension, IntelliSense is
 available only if the package is in the top of the workspace folder.
@@ -197,7 +206,7 @@ separately or via a `.code-workspace` file.
 
 ## Release Notes
 
-The latest release is **v0.4.8**, which,
+The latest release is **v0.4.9**, which,
 according to [semantic versioning](https://semver.org) rules,
 means it is still _in initial development_ phase.
 
