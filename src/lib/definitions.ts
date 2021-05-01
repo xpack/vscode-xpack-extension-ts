@@ -18,6 +18,8 @@ import * as vscode from 'vscode'
 // ----------------------------------------------------------------------------
 // Types.
 
+export type LogLevelKey = 'trace'|'debug'|'info'|'warning'|'error'
+
 export type AsyncVoidFunction = (() => Promise<void>)
 
 export type JsonActionValue = string | string[]

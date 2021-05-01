@@ -188,8 +188,22 @@
     "configuration": {
       "id": "xpack",
       "type": "object",
-      "title": "xPack",
-      "properties": {}
+      "title": "xPack Build Tools",
+      "properties": {
+        "xpack.loggingLevel": {
+          "type": "string",
+          "default": "info",
+          "description": "%configuration.loggingLevel%",
+          "enum": [
+            "trace",
+            "debug",
+            "info",
+            "warning",
+            "error"
+          ],
+          "scope": "window"
+        }
+      }
     },
     "configuration.none": {
       "id": "xpack",

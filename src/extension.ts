@@ -26,6 +26,7 @@ import { TaskProvider } from './lib/tasks'
 import { Explorer } from './lib/explorer'
 // import { StatusBar } from './lib/status-bar'
 import { IntelliSense } from './lib/intellisense'
+import { LogLevelKey } from './lib/definitions'
 
 // ----------------------------------------------------------------------------
 
@@ -43,8 +44,11 @@ let _manager: ExtensionManager
 export async function activate (
   context: vscode.ExtensionContext
 ): Promise<void> {
+  const loglevel = vscode.workspace.getConfiguration('xpack')
+    .get<LogLevelKey>('loggingLevel', 'info')
+
   const log = new Logger({
-    level: 'trace' // 'info'
+    level: loglevel
   })
 
   log.debug('"ilg-vscode.xpack" activated')
