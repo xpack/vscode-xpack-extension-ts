@@ -190,6 +190,12 @@
       "type": "object",
       "title": "xPack Build Tools",
       "properties": {
+        "xpack.maxSearchDepthLevel": {
+          "type": "number",
+          "default": 3,
+          "description": "%configuration.maxSearchDepthLevel%",
+          "scope": "window"
+        },
         "xpack.loggingLevel": {
           "type": "string",
           "default": "info",

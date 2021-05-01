@@ -34,11 +34,6 @@ import {
 
 // ----------------------------------------------------------------------------
 
-// TODO: make the depth configurable.
-const _maxSearchDepth: number = 3
-
-// ----------------------------------------------------------------------------
-
 export class ExtensionManager implements vscode.Disposable {
   // --------------------------------------------------------------------------
   // Members.
@@ -60,6 +55,8 @@ export class ExtensionManager implements vscode.Disposable {
   onSelectBuildConfiguration: vscode.EventEmitter<DataNodeConfiguration> =
   new vscode.EventEmitter<DataNodeConfiguration>()
 
+  maxSearchDepthLevel: number
+
   // --------------------------------------------------------------------------
   // Constructors.
 
@@ -69,7 +66,11 @@ export class ExtensionManager implements vscode.Disposable {
 
     log.debug(`node: ${process.version}`)
     log.debug(`home: '${os.homedir()}'`)
-    this.data = new DataModel(this.log, _maxSearchDepth)
+
+    this.maxSearchDepthLevel =
+      vscode.workspace.getConfiguration('xpack')
+        .get<number>('maxSearchDepthLevel', 3)
+    this.data = new DataModel(this.log, this.maxSearchDepthLevel)
   }
 
   // --------------------------------------------------------------------------
@@ -103,7 +104,7 @@ export class ExtensionManager implements vscode.Disposable {
         data.cancellation.cancel()
       }
     )
-    const data = new DataModel(this.log, _maxSearchDepth)
+    const data = new DataModel(this.log, this.maxSearchDepthLevel)
     this.dataCandidates.add(data)
 
     // Start the tree creation process; it might not be ready
