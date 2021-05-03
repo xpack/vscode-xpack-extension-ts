@@ -1,6 +1,6 @@
 # xPack C/C++ Managed Build (beta)
 
-Manage and build C/C++ projects with CMake, meson, etc, using the xPack tools.
+A VS Code extension to manage and build C/C++ projects with CMake, meson, etc, using the xPack tools.
 
 ## Features
 
@@ -8,7 +8,8 @@ Manage typical **multi-configuration projects** (like _Debug/Release_), but
 also complex, **multi-platform**, **multi-architecture**, **multi-toolchain**
 projects, with an emphasis on **modern C/C++** and **embedded** applications.
 
-This sub-project is part of [The xPack Project](https://github.com/xpack).
+The [xPack C/C++ Managed Build](https://marketplace.visualstudio.com/items?itemName=ilg-vscode.xpack)
+extension is part of the [xPack Project](https://github.com/xpack).
 
 It is intended as a replacement for the managed build system available
 in [Eclipse Embedded CDT](https://projects.eclipse.org/projects/iot.embed-cdt/).
@@ -42,21 +43,24 @@ starting point for more complex projects.
 
 ## How it works
 
-The xPack Build framework is a set of portable CLI tools,
+The xPack Build framework is not necessarily specific to VS Code,
+it is a set of portable CLI tools,
 neutral to any build system,
 which can basically
 invoke any 3rd party tools, old and new, to perform the actual build;
 it favours modern tools
 (like CMake and meson) which can
 generate a `compile_commands.json` file, since this
-greatly simplifies integration with indexers (like VS Code IntelliSense).
+greatly simplifies integration with indexers (like VS Code IntelliSense),
+but with some care can also be used with legacy tools
+like autotools and make.
 
 ## Disclaimer
 
 The xPack Project does not introduce a new package format, but
-inherits the simplicity of **npm**; it adds a few more definitions
+inherits from the simplicity of **npm**; it adds a few more definitions
 to `package.json`, but otherwise it uses exactly the same project
-format as **npm**; xPacks are actually npm packages, and can be
+format as **npm**; **xPacks are actually npm packages**, and can be
 stored in usual Git repositories, or even published on
 [npmjs.com](https://www.npmjs.com/search?q=xpack)
 or compatible servers.
@@ -106,6 +110,7 @@ using CMake, may look like:
     "@xpack-dev-tools/ninja-build": "1.10.2-2.1"
   },
   "xpack": {
+    "minimumXpmRequired": "0.9.1",
     "properties": {
       "buildFolderRelativePath": "build{% if os.platform == 'win32' %}\\{% else %}/{% endif %}{{ configuration.name | downcase }}",
       "commandPrepare": "cmake -S . -B {{ properties.buildFolderRelativePath }} -G Ninja -D CMAKE_BUILD_TYPE={{ properties.buildType }} -D CMAKE_EXPORT_COMPILE_COMMANDS=ON",
@@ -180,9 +185,9 @@ xpm run test
 
 Note: this example assumes the presence of a toolchain, like GCC or clang.
 
-## IntelliSense only for top folders
+## IntelliSense enabled only for top folders
 
-TL;DR: open separate packages as separate workspace folders.
+TL;DR: open separate projects/packages as separate workspace folders.
 
 Due to the specifics of the VS Code C/C++ extension, IntelliSense is
 available only if the package is in the top of the workspace folder.
@@ -191,7 +196,7 @@ In other words, when opening a workspace folder with multiple packages,
 IntelliSense will not be enabled.
 
 The correct solution is to open all packages as workspace folders, either
-separately or via a `.code-workspace` file.
+separately or via a `*.code-workspace` file.
 
 ## Known Issues
 
@@ -215,4 +220,4 @@ but anything MAY
 change at any time and the public API SHOULD NOT be considered stable.
 
 More details about each release can be found in the
-[releases](https://xpack.github.io/vscode/releases/) page.
+[releases](https://xpack.github.io/vscode/releases/) pages.
