@@ -79,6 +79,7 @@ export class ExtensionManager implements vscode.Disposable {
     this.maxSearchDepthLevel =
       vscode.workspace.getConfiguration('xpack')
         .get<number>('maxSearchDepthLevel', 3)
+    log.trace(`maxSearchDepthLevel = ${this.maxSearchDepthLevel}`)
     this.data = new DataModel(this.log, this.maxSearchDepthLevel)
   }
 
