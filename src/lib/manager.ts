@@ -67,6 +67,15 @@ export class ExtensionManager implements vscode.Disposable {
     log.debug(`node: ${process.version}`)
     log.debug(`home: '${os.homedir()}'`)
 
+    if (vscode.workspace.workspaceFolders != null) {
+      vscode.workspace.workspaceFolders.forEach(
+        (workspaceFolder) => {
+          log.debug(`workspace folder: ${workspaceFolder.uri.fsPath} ` +
+            `${workspaceFolder.uri.scheme}`)
+        }
+      )
+    }
+
     this.maxSearchDepthLevel =
       vscode.workspace.getConfiguration('xpack')
         .get<number>('maxSearchDepthLevel', 3)
