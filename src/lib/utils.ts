@@ -118,4 +118,10 @@ export function isJsonObject (value: any): boolean {
 export function isNonEmptyJsonObject (value: any): boolean {
   return isJsonObject(value) && (Object.keys(value).length > 0)
 }
+
+export function isPromise (object: any): boolean {
+  return object !== undefined &&
+    Object.prototype.toString.call(object) === '[object Promise]'
+}
+
 // ----------------------------------------------------------------------------
