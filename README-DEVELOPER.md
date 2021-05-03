@@ -33,7 +33,8 @@ set of extensions:
 mkdir ${HOME}/Work/vscode-extensions/code-portable-data-develop
 cd ${HOME}/Work/vscode-extensions
 
-code --extensions-dir ${HOME}/Work/vscode-extensions/code-portable-data-develop \
+code \
+--extensions-dir ${HOME}/Work/vscode-extensions/code-portable-data-develop \
 --install-extension ms-vscode.cpptools  \
 --install-extension ms-vscode.cmake-tools \
 --install-extension twxs.cmake \
@@ -44,9 +45,12 @@ code --extensions-dir ${HOME}/Work/vscode-extensions/code-portable-data-develop 
 --install-extension ban.spellright \
 --install-extension standard.vscode-standard \
 
-code --extensions-dir ${HOME}/Work/vscode-extensions/code-portable-data-develop \
+code \
+--extensions-dir ${HOME}/Work/vscode-extensions/code-portable-data-develop \
 --list-extensions --show-versions
 ```
+
+`ms-vscode.makefile-tools` may also be useful.
 
 On Windows, use the Git console, which is more or less a regular shell.
 
@@ -75,7 +79,8 @@ https://github.com/xpack/vscode-xpack-extension-ts.git vscode-xpack-extension-ts
 ### Start VS Code
 
 ```sh
-code --extensions-dir ${HOME}/Work/vscode-extensions/code-portable-data-develop \
+code \
+--extensions-dir ${HOME}/Work/vscode-extensions/code-portable-data-develop \
 ${HOME}/Work/vscode-extensions/vscode-xpack-extension-ts.git
 ```
 
