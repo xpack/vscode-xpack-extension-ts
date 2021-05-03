@@ -154,7 +154,7 @@ commands for multiple items, repeat the command with all different
 
 The `inline` groups is inspired from other projects, no documentation found.
 
-#### Documentation
+### Documentation
 
 - [contribution points](https://code.visualstudio.com/api/references/contribution-points)
 - [activation events](https://code.visualstudio.com/api/references/activation-events)
@@ -162,6 +162,22 @@ The `inline` groups is inspired from other projects, no documentation found.
 - [built-in commands](https://code.visualstudio.com/api/references/commands)
 - [when clause contexts](https://code.visualstudio.com/api/references/when-clause-contexts)
 - [product icon references](https://code.visualstudio.com/api/references/icons-in-labels)
+
+### Read configuration values
+
+```js
+vscode.workspace.getConfiguration('xpack').get<number>('maxSearchDepthLevel', 3)
+```
+
+### Write configuration values
+
+```js
+const inspectedValue = npm.inspect('exclude')
+const isGlobal = inspectedValue !== undefined &&
+  inspectedValue.workspaceValue === undefined
+
+await npm.update('exclude', newArray, isGlobal)
+```
 
 ## Standard style
 
