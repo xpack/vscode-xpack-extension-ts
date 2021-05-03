@@ -55,7 +55,9 @@ export async function activate (
 
   _manager = new ExtensionManager(context, log)
 
-  if (!_manager.hasLocalWorkspace()) {
+  if (_manager.hasLocalWorkspace()) {
+    await _manager.updateConfigurationNpmExclude()
+  } else {
     log.info('"ilg-vscode.xpack" requires local workspaces')
   }
 

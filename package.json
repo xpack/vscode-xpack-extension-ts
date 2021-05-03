@@ -196,6 +196,12 @@
           "description": "%configuration.maxSearchDepthLevel%",
           "scope": "window"
         },
+        "xpack.autoUpdateNpmExclude": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "%configuration.autoUpdateNpmExclude%",
+          "scope": "window"
+        },
         "xpack.loggingLevel": {
           "type": "string",
           "default": "info",

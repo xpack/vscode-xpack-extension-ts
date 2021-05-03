@@ -145,6 +145,40 @@ export class ExtensionManager implements vscode.Disposable {
 
   // --------------------------------------------------------------------------
 
+  async updateConfigurationNpmExclude (): Promise<void> {
+    const log = this.log
+
+    if (!vscode.workspace.getConfiguration('xpack')
+      .get<boolean>('autoUpdateNpmExclude', true)) {
+      return
+    }
+
+    const npm: vscode.WorkspaceConfiguration =
+     vscode.workspace.getConfiguration('npm')
+
+    const inspectedValue = npm.inspect('exclude')
+    log.trace(inspectedValue)
+    const isGlobal = inspectedValue !== undefined &&
+      inspectedValue.workspaceValue === undefined
+
+    const oldValue: string | string[] | undefined = npm.get('exclude')
+    log.trace(oldValue)
+
+    const oldArray = oldValue === undefined || oldValue === '' ? []
+      : (Array.isArray(oldValue) ? oldValue : [oldValue])
+
+    const newValue = '**/xpacks/**'
+    const alreadyIn = oldArray.some((value) => value === newValue)
+
+    const newArray = [...oldArray, newValue]
+    if (!alreadyIn) {
+      await npm.update('exclude', newArray, isGlobal)
+      log.info(`npm.exclude=${newArray.join()}`)
+    }
+  }
+
+  // --------------------------------------------------------------------------
+
   // Currently not used.
   setBuildConfiguration (treeNode: DataNodeConfiguration): void {
     this.selectedBuildConfiguration = treeNode
