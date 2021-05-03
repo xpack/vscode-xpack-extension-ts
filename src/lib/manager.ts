@@ -22,6 +22,7 @@ import * as os from 'os'
 import * as vscode from 'vscode'
 
 import { Logger } from '@xpack/logger'
+import * as utils from './utils'
 
 import {
   DataModel,
@@ -254,12 +255,13 @@ export class ExtensionManager implements vscode.Disposable {
 
   // --------------------------------------------------------------------------
 
-  dispose (): void {
-    this.subscriptions.forEach(
-      (element) => {
-        element.dispose()
+  async dispose (): Promise<void> {
+    for (const element of this.subscriptions) {
+      const object = element.dispose()
+      if (utils.isPromise(object)) {
+        await object
       }
-    )
+    }
   }
 
   // --------------------------------------------------------------------------
