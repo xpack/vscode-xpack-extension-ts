@@ -206,4 +206,4 @@ but anything MAY
 change at any time and the public API SHOULD NOT be considered stable.
 
 More details about each release can be found in the
-[releases](https://xpack.github.io/vscode/releases/) page.
+[releases](https://xpack.github.io/vscode/releases/) pages.
