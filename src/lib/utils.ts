@@ -14,6 +14,7 @@
 // ----------------------------------------------------------------------------
 
 import * as path from 'path'
+import * as minimatch from 'minimatch'
 
 import * as vscode from 'vscode'
 
@@ -122,6 +123,13 @@ export function isNonEmptyJsonObject (value: any): boolean {
 export function isPromise (object: any): boolean {
   return object !== undefined &&
     Object.prototype.toString.call(object) === '[object Promise]'
+}
+
+export function testForExclusionPattern (
+  path: string,
+  pattern: string
+): boolean {
+  return minimatch(path, pattern, { dot: true })
 }
 
 // ----------------------------------------------------------------------------

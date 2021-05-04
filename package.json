@@ -64,9 +64,11 @@
     "@xpack/logger": "^3.0.0",
     "liquidjs": "^9.24.1",
     "make-dir": "^3.1.0",
+    "minimatch": "^3.0.4",
     "vscode-cpptools": "^5.0.0"
   },
   "devDependencies": {
+    "@types/minimatch": "^3.0.4",
     "@types/node": "^15.0.1 ",
     "@types/vscode": "^1.54.0",
     "ts-loader": "^9.0.2",
