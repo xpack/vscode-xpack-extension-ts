@@ -159,6 +159,22 @@ commands for multiple items, repeat the command with all different
 
 The `inline` groups is inspired from other projects, no documentation found.
 
+#### `contributes.configuration`
+
+- <https://code.visualstudio.com/api/references/contribution-points#contributes.configuration>
+
+Scope:
+
+- `application` (all instances of VS Code and can only be configured
+  in user settings)
+- `machine` (user or remote settings, like installation path which
+  shouldn't be shared across machines)
+- `machine-overridable` (can be overridden by workspace or folder)
+- `window` (user, workspace, or remote settings; default)
+- `resource` (files and folders, and can be configured in all settings
+  levels, even folder settings)
+- `language-overridable`
+
 ### Documentation
 
 - [contribution points](https://code.visualstudio.com/api/references/contribution-points)
