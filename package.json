@@ -170,9 +170,19 @@
           "group": "inline"
         },
         {
+          "command": "xpack.runCommand",
+          "when": "view == xPackActions && viewItem == command",
+          "group": "navigation"
+        },
+        {
           "command": "xpack.runAction",
           "when": "view == xPackActions && viewItem == action",
           "group": "inline"
+        },
+        {
+          "command": "xpack.runAction",
+          "when": "view == xPackActions && viewItem == action",
+          "group": "navigation"
         },
         {
           "command": "xpack.addConfiguration",
@@ -180,13 +190,30 @@
           "group": "inline"
         },
         {
+          "command": "xpack.addConfiguration",
+          "when": "view == xPackActions && viewItem == package",
+          "group": "navigation"
+        },
+        {
           "command": "xpack.addAction",
           "when": "view == xPackActions && viewItem == package",
           "group": "inline"
         },
         {
           "command": "xpack.addAction",
+          "when": "view == xPackActions && viewItem == package",
+          "group": "navigation"
+        },
+        {
+          "command": "xpack.addAction",
           "when": "view == xPackActions && viewItem == configuration",
+          "group": "inline"
+        },
+        {
+          "command": "xpack.addAction",
+          "when": "view == xPackActions && viewItem == configuration",
+          "group": "navigation"
+        },
         {
           "command": "xpack.duplicateConfiguration",
           "when": "view == xPackActions && viewItem == configuration",
