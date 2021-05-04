@@ -211,6 +211,10 @@ export class TreeItemPackage extends TreeItem {
     return [...this.commands, ...this.actions, ...this.configurations]
   }
 
+  get package (): TreeItemPackage {
+    return this
+  }
+
   // --------------------------------------------------------------------------
   // Methods.
 
@@ -443,6 +447,10 @@ export class TreeItemConfiguration extends TreeItem {
 
   get children (): TreeItemConfigurationChild[] {
     return [...this.commands, ...this.actions]
+  }
+
+  get package (): TreeItemPackage {
+    return this.parent
   }
 
   // --------------------------------------------------------------------------
