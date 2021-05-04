@@ -30,7 +30,8 @@ For details please follow the instructions in the
 
 TL;DR: **View** → **Command Palette...** →
 **xPack: Quick Start a Hello World project (C++, CMake)**
-(but better read the web page).
+(but better read the
+[Quick Start](https://xpack.github.io/vscode/quick-start/) page).
 
 The simplest way to start with the VS Code **xPack C/C++ Managed Build**
 extension is to create a simple _Hello World_ project.
@@ -38,7 +39,7 @@ extension is to create a simple _Hello World_ project.
 Open the
 [Quick Start](https://xpack.github.io/vscode/quick-start/)
 page in a browser and follow the steps. In addition to being
-a fully functional project, the result will also be a good
+a fully functional project, the result can also be a good
 starting point for more complex projects.
 
 ## How it works
