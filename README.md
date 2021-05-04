@@ -45,7 +45,7 @@ starting point for more complex projects.
 
 ## How it works
 
-The xPack Build framework is not necessarily specific to VS Code,
+The **xPack Build framework** is not necessarily specific to VS Code,
 it is a set of portable CLI tools,
 neutral to any build system,
 which can basically
