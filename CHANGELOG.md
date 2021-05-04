@@ -6,6 +6,26 @@ Please check
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 and close existing issues and pull requests.
 
+## 2021-05-05
+
+- v0.4.10 published
+
+## 2021-05-04
+
+- [#16] - add commands to remove actions
+- [#15] - add right-click commands
+- [#6] - add code to duplicate existing configurations
+- [#5] - add xpack.exclude to configuration
+
+## 2021-05-03
+
+- [#2] add updateConfigurationNpmExclude
+
+## 2021-05-01
+
+- [#4] - Add configuration variable for maxDepthLevel
+- [#14] - add configuration variable for the log level
+
 ## 2021-04-28
 
 - v0.4.9 published
