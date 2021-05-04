@@ -137,6 +137,13 @@ export class Commands implements vscode.Disposable {
         this
       )
     )
+    context.subscriptions.push(
+      vscode.commands.registerCommand(
+        'xpack.duplicateConfiguration',
+        this.duplicateConfiguration,
+        this
+      )
+    )
 
     context.subscriptions.push(
       vscode.commands.registerCommand(
@@ -300,6 +307,47 @@ export class Commands implements vscode.Disposable {
     const fileNewContent = JSON.stringify(packageJson, null, 2) + os.EOL
     await fsPromises.writeFile(treeItemPackage.packageJsonPath, fileNewContent)
     log.trace(`${treeItemPackage.packageJsonPath} written back`)
+  }
+
+  async duplicateConfiguration (treeItem: TreeItem): Promise<void> {
+    const log = this.log
+
+    if (treeItem instanceof TreeItemConfiguration) {
+      log.trace(`duplicateConfiguration() '${treeItem.name}'`)
+    } else {
+      return
+    }
+
+    const configurationName = await vscode.window.showInputBox({
+      prompt: 'New configuration name',
+      placeHolder: 'Prefer capitalised words, dash separated'
+    })
+    if (configurationName === undefined) {
+      return
+    }
+    log.trace(configurationName)
+
+    const packageJson: XpackPackageJson = treeItem.parent.dataNode.packageJson
+    const buildConfigurations =
+      packageJson.xpack.buildConfigurations as JsonBuildConfigurations
+
+    if (buildConfigurations[configurationName] !== undefined) {
+      await vscode.window.showErrorMessage(
+          `Configuration '${configurationName}' ` +
+          'already present, choose a different name.')
+      return
+    }
+
+    const sourceBuildConfiguration = buildConfigurations[treeItem.dataNode.name]
+    buildConfigurations[configurationName] = {
+      ...sourceBuildConfiguration
+    }
+    log.trace(packageJson)
+
+    const fileNewContent = JSON.stringify(packageJson, null, 2) + os.EOL
+    await fsPromises.writeFile(treeItem.parent.packageJsonPath,
+      fileNewContent)
+    log.trace(`${treeItem.parent.packageJsonPath} written back`)
   }
 
   /**

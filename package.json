@@ -127,6 +127,11 @@
         "icon": "$(empty-window)"
       },
       {
+        "command": "xpack.duplicateConfiguration",
+        "title": "%command.duplicateConfiguration%",
+        "icon": "$(multiple-windows)"
+      },
+      {
         "command": "xpack.addAction",
         "title": "%command.addAction%",
         "icon": "$(add)"
@@ -182,7 +187,15 @@
         {
           "command": "xpack.addAction",
           "when": "view == xPackActions && viewItem == configuration",
+        {
+          "command": "xpack.duplicateConfiguration",
+          "when": "view == xPackActions && viewItem == configuration",
           "group": "inline"
+        },
+        {
+          "command": "xpack.duplicateConfiguration",
+          "when": "view == xPackActions && viewItem == configuration",
+          "group": "navigation"
         }
       ]
     },
