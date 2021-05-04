@@ -153,11 +153,12 @@ top/beginning of a menu.
 
 These are the commands associated with the items in the view tree.
 
+- `inline` groups are shown in the item line
+- `navigation` groups are shown as right click.
+
 Node: the `when` expressions do not accept parenthesis, so to enable
 commands for multiple items, repeat the command with all different
 `viewItem`.
-
-The `inline` groups is inspired from other projects, no documentation found.
 
 #### `contributes.configuration`
 
