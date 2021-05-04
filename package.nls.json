@@ -14,6 +14,7 @@
   "taskdef.buildConfigurationName": "The name of the xPack build configuration where the action is defined. If omitted, the action does not belong to a configuration, but to the package.",
   "taskdef.packageFolderRelativePath": "The path to the package that provides the action. If omitted the root of the workspace folder is used.",
   "configuration.maxSearchDepthLevel": "The maximum number of folders used in the recursive search for package.json files.",
-  "configuration.autoUpdateNpmExclude": "Automatically add a `**/xpacks/**` line to `npm.exclude` to prevent the npm explorer listing the `package.json` files inside xPack dependencies.",
+  "configuration.exclude": "The glob patterns for folders that should be excluded from recursive searches for `package.json`.",
+  "configuration.autoUpdateNpmExclude": "Automatically add a `**/xpacks/**` line to `npm.exclude` to prevent the npm explorer from listing the `package.json` files inside the xPack dependencies.",
   "configuration.loggingLevel": "The xPack extension logging level, used during debugging."
 }

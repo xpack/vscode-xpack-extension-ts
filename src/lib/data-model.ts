@@ -93,10 +93,16 @@ export class DataModel implements vscode.Disposable {
 
       this.workspaceFolders.forEach(
         (dataNodeWorkspaceFolder) => {
+          const folderConfiguration = vscode.workspace.getConfiguration(
+            'xpack', dataNodeWorkspaceFolder.workspaceFolder.uri)
+          const exclude = folderConfiguration
+            .get<string | string[]>('exclude', [])
+          const excludeArray = Array.isArray(exclude) ? exclude : [exclude]
           const promise = this._findPackageJsonFilesRecursive(
             dataNodeWorkspaceFolder.workspaceFolder.uri.fsPath,
             this._maxSearchDepth,
-            dataNodeWorkspaceFolder
+            dataNodeWorkspaceFolder,
+            excludeArray
           )
           promises.push(promise)
         }
@@ -110,7 +116,8 @@ export class DataModel implements vscode.Disposable {
   async _findPackageJsonFilesRecursive (
     folderPath: string,
     depth: number,
-    parentWorkspaceFolder: DataNodeWorkspaceFolder
+    parentWorkspaceFolder: DataNodeWorkspaceFolder,
+    exclude: string[]
   ): Promise<void> {
     assert(folderPath)
     const log = this.log
@@ -120,6 +127,12 @@ export class DataModel implements vscode.Disposable {
 
     if (this.cancellation.token.isCancellationRequested) {
       return
+    }
+
+    for (const pattern of exclude) {
+      if (utils.testForExclusionPattern(folderPath, pattern)) {
+        return
+      }
     }
 
     const xpack = new Xpack(folderPath)
@@ -144,7 +157,7 @@ export class DataModel implements vscode.Disposable {
         this.packages.push(dataNodePackage)
 
         if (dataNodePackage.folderRelativePath === '') {
-          // If the package is in the top of the workspace folder,
+          // If the package is in the root of the workspace folder,
           // it is a project.
           this.workspaceProjects.push(dataNodePackage)
         }
@@ -185,7 +198,10 @@ export class DataModel implements vscode.Disposable {
       (entry) => {
         promises.push(
           this._findPackageJsonFilesRecursive(
-            path.join(folderPath, entry.name), depth - 1, parentWorkspaceFolder)
+            path.join(folderPath, entry.name),
+            depth - 1,
+            parentWorkspaceFolder,
+            exclude)
         )
       })
 

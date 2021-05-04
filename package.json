@@ -195,7 +195,18 @@
           "type": "number",
           "default": 3,
           "description": "%configuration.maxSearchDepthLevel%",
-          "scope": "window"
+          "scope": "resource"
+        },
+        "xpack.exclude": {
+          "type": [
+            "string",
+            "array"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "description": "%configuration.exclude%",
+          "scope": "resource"
         },
         "xpack.autoUpdateNpmExclude": {
           "type": "boolean",
