@@ -372,8 +372,11 @@ export class XpmLiquid {
     input: string,
     map: XpmLiquidMap
   ): Promise<string> {
-    assert(input)
     assert(map)
+
+    if (input === '') {
+      return input
+    }
 
     const log = this.log
 
