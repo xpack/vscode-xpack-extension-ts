@@ -234,9 +234,9 @@ export class TreeItemPackage extends TreeItem {
   }
 
   addConfiguration (
-    configurationName: string
+    dataNode: DataNodeConfiguration
   ): TreeItemConfiguration {
-    const treeItem = new TreeItemConfiguration(configurationName, this)
+    const treeItem = new TreeItemConfiguration(dataNode, this)
     this.configurations.push(treeItem)
     return treeItem
   }
@@ -408,19 +408,22 @@ export class TreeItemConfiguration extends TreeItem {
   commands: TreeItemCommand[] = []
   actions: TreeItemAction[] = []
 
+  dataNode: DataNodeConfiguration
+
   // --------------------------------------------------------------------------
   // Constructors.
 
   constructor (
-    configurationName: string,
+    dataNode: DataNodeConfiguration,
     parent: TreeItemPackage
   ) {
     super(
-      configurationName,
+      dataNode.name,
       vscode.TreeItemCollapsibleState.Collapsed,
-      configurationName
+      dataNode.name
     )
 
+    this.dataNode = dataNode
     this.parent = parent
 
     const packageJson: XpackPackageJson = parent.dataNode.packageJson
@@ -429,7 +432,7 @@ export class TreeItemConfiguration extends TreeItem {
 
     // Tree item properties.
     this.iconPath = vscode.ThemeIcon.Folder
-    this.tooltip = `The ${configurationName} build configuration ` +
+    this.tooltip = `The ${this.name} build configuration ` +
       `of the '${packageName}@${packageVersion}' xPack`
     this.contextValue = 'configuration'
     this.description = `(${packageName})`
@@ -598,7 +601,7 @@ export class XpackActionsTreeDataProvider implements
     dataNodeConfigurations.forEach(
       (dataNodeConfiguration) => {
         const treeItemConfiguration =
-          parentTreeItem.addConfiguration(dataNodeConfiguration.name)
+          parentTreeItem.addConfiguration(dataNodeConfiguration)
 
         this._addCommands(dataNodeConfiguration.commands, treeItemConfiguration)
         this._addActions(dataNodeConfiguration.actions, treeItemConfiguration)
