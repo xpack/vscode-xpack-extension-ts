@@ -70,6 +70,10 @@ export interface XpackTaskDefinition extends vscode.TaskDefinition {
   packageFolderRelativePath?: string
 }
 
+export interface MessageItemConfirmation extends vscode.MessageItem {
+  isConfirmed: boolean
+}
+
 // ----------------------------------------------------------------------------
 // Constants.
 

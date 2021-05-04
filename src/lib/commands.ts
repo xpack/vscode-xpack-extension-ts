@@ -44,7 +44,13 @@ import {
   TreeItemConfiguration,
   TreeItemPackage
 } from './explorer'
-import { JsonBuildConfigurations, XpackPackageJson } from './definitions'
+
+import {
+  JsonActions,
+  JsonBuildConfigurations,
+  MessageItemConfirmation,
+  XpackPackageJson
+} from './definitions'
 
 import * as utils from './utils'
 
@@ -139,8 +145,22 @@ export class Commands implements vscode.Disposable {
     )
     context.subscriptions.push(
       vscode.commands.registerCommand(
+        'xpack.removeAction',
+        this.removeAction,
+        this
+      )
+    )
+    context.subscriptions.push(
+      vscode.commands.registerCommand(
         'xpack.duplicateConfiguration',
         this.duplicateConfiguration,
+        this
+      )
+    )
+    context.subscriptions.push(
+      vscode.commands.registerCommand(
+        'xpack.removeConfiguration',
+        this.removeConfiguration,
         this
       )
     )
@@ -273,7 +293,7 @@ export class Commands implements vscode.Disposable {
     }
 
     const actionName = await vscode.window.showInputBox({
-      prompt: 'New action name',
+      prompt: 'Enter the name of the new action',
       placeHolder: 'Prefer lowercase words, dash separated'
     })
     if (actionName === undefined) {
@@ -309,6 +329,49 @@ export class Commands implements vscode.Disposable {
     log.trace(`${treeItemPackage.packageJsonPath} written back`)
   }
 
+  async removeAction (treeItem: TreeItem): Promise<void> {
+    const log = this.log
+
+    if (treeItem instanceof TreeItemAction) {
+      log.trace(`removeAction() '${treeItem.name}'`)
+    } else {
+      return
+    }
+
+    const actionName: string = treeItem.name
+    const chosen = await vscode.window
+      .showInformationMessage<MessageItemConfirmation>(
+      `Do you really want to remove action '${actionName}'?`,
+      { modal: true },
+      { title: 'Remove', isConfirmed: true }
+    )
+    if (chosen === undefined || !chosen.isConfirmed) {
+      return
+    }
+
+    const treeItemPackage: TreeItemPackage = treeItem.parent.package
+
+    const packageJson: XpackPackageJson = treeItemPackage.dataNode.packageJson
+    let actions: JsonActions = packageJson.xpack.actions as JsonActions
+    if (treeItem.parent instanceof TreeItemConfiguration) {
+      const buildConfigurationName = treeItem.parent.name
+
+      const buildConfigurations =
+      packageJson.xpack.buildConfigurations as JsonBuildConfigurations
+
+      actions =
+        buildConfigurations[buildConfigurationName].actions as JsonActions
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+    delete actions[actionName]
+
+    const fileNewContent = JSON.stringify(packageJson, null, 2) + os.EOL
+    await fsPromises.writeFile(treeItemPackage.packageJsonPath,
+      fileNewContent)
+    log.trace(`${treeItemPackage.packageJsonPath} written back`)
+  }
+
   async duplicateConfiguration (treeItem: TreeItem): Promise<void> {
     const log = this.log
 
@@ -319,7 +382,7 @@ export class Commands implements vscode.Disposable {
     }
 
     const configurationName = await vscode.window.showInputBox({
-      prompt: 'New configuration name',
+      prompt: 'Enter the name of the new configuration',
       placeHolder: 'Prefer capitalised words, dash separated'
     })
     if (configurationName === undefined) {
@@ -349,6 +412,41 @@ export class Commands implements vscode.Disposable {
       fileNewContent)
     log.trace(`${treeItem.parent.packageJsonPath} written back`)
   }
+
+  async removeConfiguration (treeItem: TreeItem): Promise<void> {
+    const log = this.log
+
+    if (treeItem instanceof TreeItemConfiguration) {
+      log.trace(`removeConfiguration() '${treeItem.name}'`)
+    } else {
+      return
+    }
+
+    const buildConfigurationName = treeItem.dataNode.name
+    const chosen = await vscode.window
+      .showInformationMessage<MessageItemConfirmation>(
+      `Do you really want to remove configuration '${buildConfigurationName}'?`,
+      { modal: true },
+      { title: 'Remove', isConfirmed: true }
+    )
+    if (chosen === undefined || !chosen.isConfirmed) {
+      return
+    }
+
+    const packageJson: XpackPackageJson = treeItem.parent.dataNode.packageJson
+    const buildConfigurations =
+      packageJson.xpack.buildConfigurations as JsonBuildConfigurations
+
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+    delete buildConfigurations[buildConfigurationName]
+
+    const fileNewContent = JSON.stringify(packageJson, null, 2) + os.EOL
+    await fsPromises.writeFile(treeItem.parent.packageJsonPath,
+      fileNewContent)
+    log.trace(`${treeItem.parent.packageJsonPath} written back`)
+  }
+
+  // --------------------------------------------------------------------------
 
   /**
    * Select the build configuration. Currently Not used.

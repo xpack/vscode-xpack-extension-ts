@@ -132,9 +132,19 @@
         "icon": "$(multiple-windows)"
       },
       {
+        "command": "xpack.removeConfiguration",
+        "title": "%command.removeConfiguration%",
+        "icon": "$(trash)"
+      },
+      {
         "command": "xpack.addAction",
         "title": "%command.addAction%",
         "icon": "$(add)"
+      },
+      {
+        "command": "xpack.removeAction",
+        "title": "%command.removeAction%",
+        "icon": "$(trash)"
       }
     ],
     "menus": {
@@ -195,6 +205,16 @@
           "group": "navigation"
         },
         {
+          "command": "xpack.removeConfiguration",
+          "when": "view == xPackActions && viewItem == configuration",
+          "group": "inline"
+        },
+        {
+          "command": "xpack.removeConfiguration",
+          "when": "view == xPackActions && viewItem == configuration",
+          "group": "navigation"
+        },
+        {
           "command": "xpack.addAction",
           "when": "view == xPackActions && viewItem == package",
           "group": "inline"
@@ -223,6 +243,11 @@
           "command": "xpack.duplicateConfiguration",
           "when": "view == xPackActions && viewItem == configuration",
           "group": "navigation"
+        },
+        {
+          "command": "xpack.removeAction",
+          "when": "view == xPackActions && viewItem == action",
+          "group": "navigation@9"
         }
       ]
     },
