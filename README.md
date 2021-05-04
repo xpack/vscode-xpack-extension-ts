@@ -17,7 +17,8 @@ extension is part of the [xPack Project](https://github.com/xpack).
 ## Requirements
 
 A recent [xpm](https://xpack.github.io/xpm/),
-which is a portable [Node.js](https://nodejs.org/) command line application.
+which is a portable [Node.js](https://nodejs.org/) command line application,
+available from [npmjs.com](https://www.npmjs.com/package/xpm).
 
 ```sh
 npm install --global xpm@latest
