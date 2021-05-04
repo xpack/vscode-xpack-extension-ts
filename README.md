@@ -173,8 +173,8 @@ using CMake, may look like:
 }
 ```
 
-With the help of `xpm`, the complete cycle of prepare/build/execute
-can be invoked via:
+With a bit of `xpm` magic, the complete cycle of prepare/build/execute
+can be reduced to:
 
 ```bash
 cd <project>
