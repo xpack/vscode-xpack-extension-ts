@@ -192,10 +192,10 @@ Note: this example assumes the presence of a toolchain, like GCC or clang.
 TL;DR: open separate projects/packages as separate workspace folders.
 
 Due to the specifics of the VS Code C/C++ extension, IntelliSense is
-available only if the package is in the top of the workspace folder.
+available only if the package is in the root of the workspace folder.
 
-In other words, when opening a workspace folder with multiple packages,
-IntelliSense will not be enabled.
+In other words, when opening a workspace folder which includes multiple
+packages, IntelliSense will not be enabled.
 
 The correct solution is to open all packages as workspace folders, either
 separately or via a `*.code-workspace` file.
