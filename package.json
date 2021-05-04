@@ -189,7 +189,7 @@
     "configuration": {
       "id": "xpack",
       "type": "object",
-      "title": "xPack Build Tools",
+      "title": "xPack C/C++ Build Tools",
       "properties": {
         "xpack.maxSearchDepthLevel": {
           "type": "number",
