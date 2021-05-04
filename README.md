@@ -2,6 +2,9 @@
 
 A VS Code extension to manage and build C/C++ projects with CMake, meson, etc, using the xPack tools.
 
+It is intended as a replacement for the managed build system available
+in [Eclipse Embedded CDT](https://projects.eclipse.org/projects/iot.embed-cdt/).
+
 ## Features
 
 Manage typical **multi-configuration projects** (like _Debug/Release_), but
@@ -10,9 +13,6 @@ projects, with an emphasis on **modern C/C++** and **embedded** applications.
 
 The [xPack C/C++ Managed Build](https://marketplace.visualstudio.com/items?itemName=ilg-vscode.xpack)
 extension is part of the [xPack Project](https://github.com/xpack).
-
-It is intended as a replacement for the managed build system available
-in [Eclipse Embedded CDT](https://projects.eclipse.org/projects/iot.embed-cdt/).
 
 ## Requirements
 
