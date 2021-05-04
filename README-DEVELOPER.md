@@ -212,6 +212,7 @@ all files should limit the line length to 80.
 
 ```js
 /* eslint max-len: [ "error", 80, { "ignoreUrls": true } ] */
+// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
 ```
 
 Known and accepted exceptions:
