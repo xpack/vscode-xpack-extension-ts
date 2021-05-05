@@ -89,7 +89,10 @@ Check if the page shows at:
 - push all changes to GitHub; this should trigger CI
 - **wait for CI tests to complete**
 - `npm run publish`
-- after a few minutes, check <https://marketplace.visualstudio.com/items?itemName=ilg-vscode.xpack>
+- after a few minutes, check
+
+- <https://marketplace.visualstudio.com/items?itemName=ilg-vscode.xpack>
+- <https://marketplace.visualstudio.com/manage/publishers/ilg-vscode/extensions/xpack/hub>
 
 ### Test
 
