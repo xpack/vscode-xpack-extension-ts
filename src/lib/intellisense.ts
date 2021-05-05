@@ -64,7 +64,8 @@ export class IntelliSense implements vscode.Disposable {
 
     const log = manager.log
 
-    await _intellisense._initialize()
+    // Temporarily disabled.
+    // await _intellisense._register()
 
     log.trace('IntelliSense object created')
     return _intellisense
@@ -77,7 +78,7 @@ export class IntelliSense implements vscode.Disposable {
 
   readonly manager: ExtensionManager
 
-  private readonly _configProvider: CppConfigurationProvider
+  private readonly _configProvider: XpackCppConfigurationProvider
   private _cppToolsAPI?: cpt.CppToolsApi
 
   watcherCompileCommandsJson: vscode.FileSystemWatcher | undefined
@@ -99,14 +100,15 @@ export class IntelliSense implements vscode.Disposable {
 
     const context = this.manager.vscodeContext
 
-    this._configProvider = new CppConfigurationProvider(manager)
+    this._configProvider = new XpackCppConfigurationProvider(manager)
     context.subscriptions.push(this._configProvider)
   }
 
   // --------------------------------------------------------------------------
   // Methods.
 
-  async _initialize (): Promise<void> {
+  // Currently not called.
+  async _register (): Promise<void> {
     const log = this.log
 
     this._cppToolsAPI = await cpt.getCppToolsApi(cpt.Version.v4)
@@ -229,7 +231,7 @@ export class IntelliSense implements vscode.Disposable {
       if (currentJsonConfiguration.configurationProvider === undefined) {
         // Configure the provider to the CMake one for now.
         currentJsonConfiguration.configurationProvider =
-          'ms-vscode.cmake-tools'
+        'ms-vscode.cmake-tools' // 'ilg-vscode.xpack'
       }
 
       try {
@@ -381,7 +383,7 @@ export class IntelliSense implements vscode.Disposable {
 // - canProvideBrowseConfigurationsPerFolder
 // - canProvideBrowseConfiguration
 
-export class CppConfigurationProvider
+export class XpackCppConfigurationProvider
 implements cpt.CustomConfigurationProvider {
   // --------------------------------------------------------------------------
   // Members.
@@ -406,6 +408,9 @@ implements cpt.CustomConfigurationProvider {
 
   constructor (extensionManager: ExtensionManager) {
     this.log = extensionManager.log
+    const log = this.log
+
+    log.trace('XpackCppConfigurationProvider constructed')
   }
 
   // --------------------------------------------------------------------------
@@ -417,9 +422,9 @@ implements cpt.CustomConfigurationProvider {
   ): Promise<boolean> {
     const log = this.log
 
-    log.error(`canProvideConfiguration(${_uri.fsPath}) not implemented`)
-    throw new Error('Method not implemented.')
-    // return false
+    log.trace(`canProvideConfiguration(${_uri.fsPath})`)
+    // throw new Error('Method not implemented.')
+    return true
   }
 
   async provideConfigurations (
@@ -428,8 +433,10 @@ implements cpt.CustomConfigurationProvider {
   ): Promise<cpt.SourceFileConfigurationItem[]> {
     const log = this.log
 
-    log.error('provideConfigurations() not implemented')
-    throw new Error('Method not implemented.')
+    log.error('provideConfigurations() not implemented, ' +
+    'use \'ms-vscode.cmake-tools\'')
+    // throw new Error('Method not implemented.')
+    return []
   }
 
   async canProvideBrowseConfiguration (
@@ -464,7 +471,7 @@ implements cpt.CustomConfigurationProvider {
   dispose (): void {
     const log = this.log
 
-    log.trace('CppConfigurationProvider.dispose()')
+    log.trace('XpackCppConfigurationProvider.dispose()')
   }
 
   // --------------------------------------------------------------------------
