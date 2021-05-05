@@ -202,18 +202,11 @@ separately or via a `*.code-workspace` file.
 
 ## Known Issues
 
-- unless told not to do so, **npm** picks `package.json` from anywhere in
-  the folders, including the xPack dependencies, which is generally
-  not useful; the workaround is to add a `npm.exclude` property to the
-  project `.vscode/settings.json`:
-
-```json
-"npm.exclude": "**/xpacks/**"
-```
+- none
 
 ## Release Notes
 
-The latest release is **v0.4.11**, which,
+The latest release is **v0.4.12**, which,
 according to [semantic versioning](https://semver.org) rules,
 means it is still _in initial development_ phase.
 
