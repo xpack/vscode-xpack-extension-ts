@@ -8,6 +8,8 @@ and close existing issues and pull requests.
 
 ## 2021-05-05
 
+- v0.4.11 published
+- [#12] - do not register the configuration provider, use CMake for now
 - v0.4.10 published
 
 ## 2021-05-04

@@ -213,7 +213,7 @@ separately or via a `*.code-workspace` file.
 
 ## Release Notes
 
-The latest release is **v0.4.10**, which,
+The latest release is **v0.4.11**, which,
 according to [semantic versioning](https://semver.org) rules,
 means it is still _in initial development_ phase.
 
