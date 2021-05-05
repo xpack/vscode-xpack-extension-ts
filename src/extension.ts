@@ -24,6 +24,7 @@ import { ExtensionManager } from './lib/manager'
 import { Commands } from './lib/commands'
 import { TaskProvider } from './lib/tasks'
 import { Explorer } from './lib/explorer'
+// import { Hover } from './lib/hover'
 // import { StatusBar } from './lib/status-bar'
 import { IntelliSense } from './lib/intellisense'
 import { LogLevelKey } from './lib/definitions'
@@ -71,6 +72,9 @@ export async function activate (
   await TaskProvider.register(_manager)
   await Explorer.register(_manager)
   await Commands.register(_manager)
+
+  // Not yet implemented.
+  // await Hover.register(_manager)
 
   // For now use the C/C++ status bar to select the configuration.
   // await StatusBar.register(_extensionManager)
