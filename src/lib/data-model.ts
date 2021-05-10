@@ -60,7 +60,7 @@ export class DataModel implements vscode.Disposable {
   new vscode.CancellationTokenSource()
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (
     log: Logger,
@@ -411,7 +411,7 @@ export class DataNode implements vscode.Disposable {
   log: Logger
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (name: string, log: Logger) {
     this.name = name
@@ -438,7 +438,7 @@ export class DataNodeWorkspaceFolder extends DataNode {
   packages: DataNodePackage[] = []
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (
     workspaceFolder: vscode.WorkspaceFolder,
@@ -531,7 +531,7 @@ export class DataNodePackage extends DataNode {
   xpmLiquidMap: any
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (
     folderPath: string,
@@ -650,7 +650,7 @@ export class DataNodeConfiguration extends DataNode {
   xpmLiquidMap: any
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (
     name: string,
@@ -754,7 +754,7 @@ class DataNodeRunable extends DataNode {
   task: vscode.Task
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (
     name: string,
@@ -815,7 +815,7 @@ export class DataNodeAction extends DataNodeRunable {
   value: string[]
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (
     name: string,
@@ -854,7 +854,7 @@ export class DataNodeCommand extends DataNodeRunable {
   // Members.
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (
     name: string,

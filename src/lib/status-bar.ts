@@ -58,7 +58,7 @@ export class StatusBar implements vscode.Disposable {
   private readonly _statusBarItem: vscode.StatusBarItem
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (manager: ExtensionManager) {
     this.manager = manager

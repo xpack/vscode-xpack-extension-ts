@@ -87,7 +87,7 @@ export class Commands implements vscode.Disposable {
   private _buildConfigurationPicks: BuildConfigurationPick[] | undefined
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (manager: ExtensionManager) {
     this.manager = manager

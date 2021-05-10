@@ -29,7 +29,7 @@ export class Xpack {
   packageJson?: any
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (folderPath: string | undefined = undefined) {
     this.folderPath = folderPath

@@ -84,7 +84,7 @@ export class IntelliSense implements vscode.Disposable {
   watcherCompileCommandsJson: vscode.FileSystemWatcher | undefined
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (manager: ExtensionManager) {
     this.manager = manager
@@ -404,7 +404,7 @@ implements cpt.CustomConfigurationProvider {
   readonly log: Logger
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (extensionManager: ExtensionManager) {
     this.log = extensionManager.log

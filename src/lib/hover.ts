@@ -53,7 +53,7 @@ export class Hover implements vscode.Disposable {
   private readonly _hoverProvider: XpackHoverProvider
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (readonly manager: ExtensionManager) {
     this.log = manager.log
@@ -105,7 +105,7 @@ export class XpackHoverProvider implements vscode.HoverProvider {
   readonly manager: ExtensionManager
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (manager: ExtensionManager) {
     this.manager = manager

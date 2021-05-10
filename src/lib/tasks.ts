@@ -57,7 +57,7 @@ export class TaskProvider implements vscode.TaskProvider, vscode.Disposable {
   private _tasks: vscode.Task[] | undefined
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (manager: ExtensionManager) {
     this.manager = manager

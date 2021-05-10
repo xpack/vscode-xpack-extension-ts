@@ -77,7 +77,7 @@ export class Explorer implements vscode.Disposable {
   private readonly _treeView: vscode.TreeView<vscode.TreeItem>
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (readonly manager: ExtensionManager) {
     this.log = manager.log
@@ -137,7 +137,7 @@ export class TreeItem extends vscode.TreeItem implements vscode.Disposable {
   parent: TreeItem | null = null
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (
     label: string,
@@ -181,7 +181,7 @@ export class TreeItemPackage extends TreeItem {
   dataNode: DataNodePackage
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (dataNode: DataNodePackage) {
     super(path.join(dataNode.folderRelativePath, packageJsonFileName),
@@ -273,7 +273,7 @@ class TreeItemRunnable extends TreeItem {
   parent: TreeItemRunableParent
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (
     name: string,
@@ -344,7 +344,7 @@ export class TreeItemCommand extends TreeItemRunnable {
   // Members.
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (
     commandName: string,
@@ -375,7 +375,7 @@ export class TreeItemAction extends TreeItemRunnable {
   actionValue: string[]
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (
     actionName: string,
@@ -415,7 +415,7 @@ export class TreeItemConfiguration extends TreeItem {
   dataNode: DataNodeConfiguration
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (
     dataNode: DataNodeConfiguration,
@@ -495,7 +495,7 @@ export class TreeItemConfiguration extends TreeItem {
 // An empty tree when there are no xPacks.
 class TreeItemEmpty extends TreeItem {
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (message: string) {
     super(message, vscode.TreeItemCollapsibleState.None, '')
@@ -535,7 +535,7 @@ export class XpackActionsTreeDataProvider implements
   this._onDidChangeTreeData.event
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (
     manager: ExtensionManager

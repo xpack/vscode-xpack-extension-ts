@@ -59,7 +59,7 @@ export class ExtensionManager implements vscode.Disposable {
   maxSearchDepthLevel: number
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (context: vscode.ExtensionContext, log: Logger) {
     this.vscodeContext = context
@@ -279,7 +279,7 @@ export class BuildConfigurationPick implements vscode.QuickPickItem {
   dataNode: DataNodeConfiguration
 
   // --------------------------------------------------------------------------
-  // Constructors.
+  // Constructor.
 
   constructor (
     dataNode: DataNodeConfiguration
