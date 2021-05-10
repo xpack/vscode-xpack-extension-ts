@@ -35,7 +35,7 @@ import {
 } from './definitions'
 
 import * as utils from './utils'
-import { XpmLiquid, filterPath } from './xpm-liquid'
+import { XpmLiquid, filterPath } from '@xpack/xpm-liquid'
 
 // ----------------------------------------------------------------------------
 
