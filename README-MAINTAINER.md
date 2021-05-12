@@ -53,7 +53,7 @@ Check GitHub issues and pull requests:
 - check if all previous fixed issues are in
 - commit with a message like _prepare v0.4.13_
 
-## Prepare a new blog post with the pre-release
+## Prepare a new blog post with the release
 
 In the `xpack/web-jekyll` GitHub repo:
 
