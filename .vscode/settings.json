@@ -12,7 +12,10 @@
   "editor.tabSize": 2,
   "standard.engine": "ts-standard",
   "standard.autoFixOnSave": true,
-  "npm.exclude": "**/tests/**",
+  "npm.exclude": [
+    "**/tests/**",
+    "**/xpacks/**"
+  ],
   "markdownlint.config": {
     "MD041": false
   },
