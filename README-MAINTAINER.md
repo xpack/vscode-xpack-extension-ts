@@ -6,7 +6,6 @@
 [![GitHub issues](https://img.shields.io/github/issues/xpack/vscode-xpack-extension-ts.svg)](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 [![GitHub pulls](https://img.shields.io/github/issues-pr/xpack/vscode-xpack-extension-ts.svg)](https://github.com/xpack/vscode-xpack-extension-ts/pulls)
 
-
 # Maintainer info
 
 This page complements the developer page and documents the
@@ -20,9 +19,8 @@ Before making the release, perform some checks and tweaks.
 ### Update npm packages
 
 - `npm outdated`
-- `npm update` or edit and `npm install`
-- repeat and possibly manually edit `package.json` until everything is
-  up to date
+- edit `package.json`  and `npm install`
+- repeat until everything is up to date
 
 ### Check Git
 
@@ -53,7 +51,7 @@ Check GitHub issues and pull requests:
 - check the latest commits `npm run git-log`
 - open the `CHANGELOG.md` file
 - check if all previous fixed issues are in
-- commit with a message like _prepare v0.4.12_
+- commit with a message like _prepare v0.4.13_
 
 ## Prepare a new blog post with the pre-release
 
@@ -62,7 +60,7 @@ In the `xpack/web-jekyll` GitHub repo:
 - select the `develop` branch
 - add a new file to `_posts/releases/vscode-xpack`
 - name the file like `2021-03-28-vscode-xpack-v0-4-11-released.md`
-- name the post like: **VS Code xPack extension v0.4.12 released**
+- name the post like: **VS Code xPack extension v0.4.13 released**
 - update the `date:` field with the current date
 - update the **Changes** sections
 
@@ -74,7 +72,7 @@ as:
 - [#1] ...
 ```
 
-- commit with a message like **VS Code xPack extension v0.4.12 released**
+- commit with a message like **VS Code xPack extension v0.4.13 released**
 - push
 - wait for CI job to complete
 
@@ -132,7 +130,7 @@ Check if the page shows at:
 
 - in a separate browser windows, open [TweetDeck](https://tweetdeck.twitter.com/)
 - using the `@xpack_project` account
-- paste the release name like **VS Code xPack extension v0.4.12 released**
+- paste the release name like **VS Code xPack extension v0.4.13 released**
 - paste the link to the Web page
   [release](https://xpack.github.io/vscode-xpack/releases/)
 - click the **Tweet** button

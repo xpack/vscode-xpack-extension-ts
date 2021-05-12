@@ -6,6 +6,11 @@ Please check
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 and close existing issues and pull requests.
 
+## 2021-05-12
+
+- v0.4.13 published
+- update to use `@xpack/xpm-liquid`
+
 ## 2021-05-05
 
 - v0.4.12 published

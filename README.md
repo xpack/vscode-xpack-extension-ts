@@ -116,13 +116,13 @@ using CMake, may look like:
     "@xpack-dev-tools/ninja-build": "1.10.2-2.1"
   },
   "xpack": {
-    "minimumXpmRequired": "0.9.1",
+    "minimumXpmRequired": "0.10.1",
     "properties": {
-      "buildFolderRelativePath": "build{% if os.platform == 'win32' %}\\{% else %}/{% endif %}{{ configuration.name | downcase }}",
+      "buildFolderRelativePath": "build{{ path.sep }}{{ configuration.name | downcase }}",
       "commandPrepare": "cmake -S . -B {{ properties.buildFolderRelativePath }} -G Ninja -D CMAKE_BUILD_TYPE={{ properties.buildType }} -D CMAKE_EXPORT_COMPILE_COMMANDS=ON",
       "commandBuild": "cmake --build {{ properties.buildFolderRelativePath }}",
       "commandClean": "cmake --build {{ properties.buildFolderRelativePath }} --target clean",
-      "commandExecuteHello": "{{ properties.buildFolderRelativePath }}{% if os.platform == 'win32' %}\\{% else %}/{% endif %}hello-world"
+      "commandExecuteHello": "{{ properties.buildFolderRelativePath }}{{ path.sep }}hello-world"
     },
     "actions": {
       "prepare-all": [
@@ -182,7 +182,7 @@ using CMake, may look like:
 With a bit of `xpm` magic, the complete cycle of prepare/build/execute
 can be reduced to:
 
-```bash
+```sh
 cd <project>
 
 xpm install
@@ -206,11 +206,11 @@ separately or via a `*.code-workspace` file.
 
 ## Known Issues
 
-- none
+- none so far
 
 ## Release Notes
 
-The latest release is **v0.4.12**, which,
+The latest release is **v0.4.13**, which,
 according to [semantic versioning](https://semver.org) rules,
 means it is still _in initial development_ phase.
 
