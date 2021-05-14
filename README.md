@@ -15,8 +15,16 @@ Manage typical **multi-configuration projects** (like _Debug/Release_), but
 also complex, **multi-platform**, **multi-architecture**, **multi-toolchain**
 projects, with an emphasis on **modern C/C++** and **embedded** applications.
 
-The [xPack C/C++ Managed Build](https://marketplace.visualstudio.com/items?itemName=ilg-vscode.xpack)
-extension is part of the [xPack Project](https://github.com/xpack).
+## Overview
+
+The [xPack C/C++ Managed Build extension](https://xpack.github.io/vscode/)
+is an open source project hosted on
+[GitHub](https://github.com/xpack/vscode-xpack-extension-ts) and
+is part of the [xPack Build Framework](https://xpack.github.io/).
+
+It can be installed from the VisualStudio Marketplace as
+[ilg-vscode.xpack](https://marketplace.visualstudio.com/items?itemName=ilg-vscode.xpack)
+and it pulls its own dependencies (like the C/C++, CMake, meson extensions).
 
 ## Requirements
 
@@ -49,7 +57,7 @@ starting point for more complex projects.
 
 ## How it works
 
-The **xPack Build framework** is not necessarily specific to VS Code,
+The **xPack Build Framework** is not necessarily specific to VS Code,
 it is a set of portable CLI tools,
 neutral to any build system,
 which can basically
@@ -61,9 +69,13 @@ greatly simplifies integration with indexers (like VS Code IntelliSense),
 but with some care can also be used with legacy tools
 like autotools and make.
 
+Future versions of the xPack Build Framework are planned to
+include an integrated build system generator, similar to that used in
+Eclipse CDT.
+
 ## Disclaimer
 
-The xPack Project does not introduce a new package format, but
+The xPack project does not introduce a new package format, but
 inherits from the simplicity of **npm**; it adds a few more definitions
 to `package.json`, but otherwise it uses exactly the same project
 format as **npm**; **xPacks are actually npm packages**, and can be
@@ -215,8 +227,8 @@ according to [semantic versioning](https://semver.org) rules,
 means it is still _in initial development_ phase.
 
 The xPack extension is functional and can be used for beta-testing,
-but anything MAY
-change at any time and the public API SHOULD NOT be considered stable.
+but anything **MAY**
+change at any time and the public API **SHOULD NOT** be considered stable.
 
 More details about each release can be found in the
 [releases](https://xpack.github.io/vscode/releases/) pages.
