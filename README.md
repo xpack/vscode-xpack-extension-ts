@@ -30,7 +30,7 @@ and it pulls its own dependencies (like the C/C++, CMake, meson extensions).
 
 A recent [xpm](https://xpack.github.io/xpm/),
 which is a portable [Node.js](https://nodejs.org/) command line application,
-available from [npmjs.com](https://www.npmjs.com/package/xpm).
+available from [npmjs.com](https://www.npmjs.com/package/xpm/).
 
 ```sh
 npm install --global xpm@latest

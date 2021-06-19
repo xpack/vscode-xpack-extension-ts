@@ -127,7 +127,7 @@ The current version is TypeScript 4:
 
 The API used to implement VS Code extensions:
 
-- <https://code.visualstudio.com/api>
+- <https://code.visualstudio.com/api/>
 
 ### package.json contributions
 
@@ -185,12 +185,12 @@ Scope:
 
 ### Documentation
 
-- [contribution points](https://code.visualstudio.com/api/references/contribution-points)
-- [activation events](https://code.visualstudio.com/api/references/activation-events)
-- [extension manifest](https://code.visualstudio.com/api/references/extension-manifest)
-- [built-in commands](https://code.visualstudio.com/api/references/commands)
-- [when clause contexts](https://code.visualstudio.com/api/references/when-clause-contexts)
-- [product icon references](https://code.visualstudio.com/api/references/icons-in-labels)
+- [contribution points](https://code.visualstudio.com/api/references/contribution-points/)
+- [activation events](https://code.visualstudio.com/api/references/activation-events/)
+- [extension manifest](https://code.visualstudio.com/api/references/extension-manifest/)
+- [built-in commands](https://code.visualstudio.com/api/references/commands/)
+- [when clause contexts](https://code.visualstudio.com/api/references/when-clause-contexts/)
+- [product icon references](https://code.visualstudio.com/api/references/icons-in-labels/)
 
 ### Read configuration values
 
@@ -243,4 +243,4 @@ $ npm run fix
 
 ## Bundling extensions
 
-- <https://code.visualstudio.com/api/working-with-extensions/bundling-extension>
+- <https://code.visualstudio.com/api/working-with-extensions/bundling-extension/>

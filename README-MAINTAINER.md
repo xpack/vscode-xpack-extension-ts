@@ -100,7 +100,7 @@ Check if the page shows at:
 - after a few minutes, check
 
 - <https://marketplace.visualstudio.com/items?itemName=ilg-vscode.xpack>
-- <https://marketplace.visualstudio.com/manage/publishers/ilg-vscode/extensions/xpack/hub>
+- <https://marketplace.visualstudio.com/manage/publishers/ilg-vscode/extensions/xpack/hub/>
 
 ### Test
 
@@ -138,8 +138,8 @@ Check if the page shows at:
 
 ## Links
 
-- [Extension Manifest](https://code.visualstudio.com/api/references/extension-manifest)
+- [Extension Manifest](https://code.visualstudio.com/api/references/extension-manifest/)
 - [Packaging extensions](https://code.visualstudio.com/api/working-with-extensions/publishing-extension#packaging-extensions)
-- [Marketplace publisher](https://marketplace.visualstudio.com/manage/publishers/ilg-vscode)
+- [Marketplace publisher](https://marketplace.visualstudio.com/manage/publishers/ilg-vscode/)
 - [Marketplace: xPack C/C++ Managed Build Tools](https://marketplace.visualstudio.com/manage/publishers/ilg-vscode/extensions/xpack/hub?_a=acquisition)
 - [Azure DevOps organization](https://dev.azure.com/xpack-org/)
