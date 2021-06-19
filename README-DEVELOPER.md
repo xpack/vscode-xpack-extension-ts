@@ -73,22 +73,23 @@ To clone the `master` branch, use:
 mkdir ${HOME}/Work/vscode-extensions
 cd ${HOME}/Work/vscode-extensions
 git clone \
-https://github.com/xpack/vscode-xpack-extension-ts.git vscode-xpack-extension-ts.git
+  https://github.com/xpack/vscode-xpack-extension-ts.git vscode-xpack-extension-ts.git
 ```
 
 For development, to clone the `develop` branch, use:
 
 ```sh
-git clone --branch develop \
-https://github.com/xpack/vscode-xpack-extension-ts.git vscode-xpack-extension-ts.git
+git clone \
+  --branch develop \
+  https://github.com/xpack/vscode-xpack-extension-ts.git vscode-xpack-extension-ts.git
 ```
 
 ### Start VS Code
 
 ```sh
 code \
---extensions-dir ${HOME}/Work/vscode-extensions/code-portable-data-develop \
-${HOME}/Work/vscode-extensions/vscode-xpack-extension-ts.git
+  --extensions-dir ${HOME}/Work/vscode-extensions/code-portable-data-develop \
+  ${HOME}/Work/vscode-extensions/vscode-xpack-extension-ts.git
 ```
 
 ### Update VS Code settings
