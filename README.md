@@ -127,13 +127,17 @@ using CMake, may look like:
   "dependencies": {},
   "devDependencies": {
     "@xpack-dev-tools/cmake": "3.19.2-2.1",
+    "@xpack-dev-tools/gcc": "8.5.0-1.1",
     "@xpack-dev-tools/ninja-build": "1.10.2-2.1"
   },
   "xpack": {
     "minimumXpmRequired": "0.10.1",
     "properties": {
       "buildFolderRelativePath": "build{{ path.sep }}{{ configuration.name | downcase }}",
+      "toolchainFileName": "toolchain-gcc.cmake",
       "commandPrepare": "cmake -S . -B {{ properties.buildFolderRelativePath }} -G Ninja -D CMAKE_BUILD_TYPE={{ properties.buildType }} -D CMAKE_EXPORT_COMPILE_COMMANDS=ON",
+      "commandPrepareWithToolchain": "{{ properties.commandPrepare }} -D CMAKE_TOOLCHAIN_FILE={{ properties.toolchainFileName }}",
+      "commandReconfigure": "{{ properties.commandPrepare }}",
       "commandBuild": "cmake --build {{ properties.buildFolderRelativePath }}",
       "commandClean": "cmake --build {{ properties.buildFolderRelativePath }} --target clean",
       "commandExecuteHello": "{{ properties.buildFolderRelativePath }}{{ path.sep }}hello-world"
@@ -165,9 +169,9 @@ using CMake, may look like:
           "buildType": "Debug"
         },
         "actions": {
-          "prepare": "{{ properties.commandPrepare }}",
+          "prepare": "{{ properties.commandPrepareWithToolchain }}",
           "build": [
-            "{{ properties.commandPrepare }}",
+            "{{ properties.commandReconfigure }}",
             "{{ properties.commandBuild }}"
           ],
           "clean": "{{ properties.commandClean }}",
@@ -179,9 +183,9 @@ using CMake, may look like:
           "buildType": "Release"
         },
         "actions": {
-          "prepare": "{{ properties.commandPrepare }}",
+          "prepare": "{{ properties.commandPrepareWithToolchain }}",
           "build": [
-            "{{ properties.commandPrepare }}",
+            "{{ properties.commandReconfigure }}",
             "{{ properties.commandBuild }}"
           ],
           "clean": "{{ properties.commandClean }}",
