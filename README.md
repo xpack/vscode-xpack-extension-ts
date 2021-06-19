@@ -203,7 +203,22 @@ xpm install
 xpm run test
 ```
 
-Note: this example assumes the presence of a toolchain, like GCC or clang.
+Note: this example does not require the presence of a compiler
+in the system, it includes a dependency to xPack GCC and a CMake
+toolchain description file using it, to prevent CMake picking
+any other unwanted compiler possibly present in the system.
+
+## VS Code configurations
+
+The VS Code C/C++ extension keeps track of multiple configurations
+in the `.vscode/c_cpp_properties.json` file, and the xPack
+extension automatically maps the `package.json` build configurations
+to VS Code configurations.
+
+IntelliSense correctly renders the content for the _active_
+configurations, shown in the status bar.
+
+![Active Configuration](assets/docs-images/switch-configs.png)
 
 ## IntelliSense enabled only for top folders
 
@@ -217,6 +232,15 @@ packages, IntelliSense will not be enabled.
 
 The correct solution is to open all packages as workspace folders, either
 separately or via a `*.code-workspace` file.
+
+## IntelliSense available only after the first build
+
+In order to correctly parse the project, for managed projects,
+IntelliSense needs a file called `compile_commands.json`.
+One such file is expected in each build
+folder, and the system build generator
+(CMake/meson/etc) automatically creates these files when the
+project is prepared, like during the first build.
 
 ## Known Issues
 
