@@ -34,6 +34,7 @@ which is a portable [Node.js](https://nodejs.org/) command line application,
 available from [npmjs.com](https://www.npmjs.com/package/xpm/).
 
 ```sh
+npm uninstall --global xpm
 npm install --global xpm@latest
 ```
 
