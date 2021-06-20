@@ -207,12 +207,12 @@ export class IntelliSense implements vscode.Disposable {
       // First try to identify an existing configuration;
       // if not found, create a new empty one.
       const currentJsonConfiguration =
-          this.prepareCCppPropertiesConfiguration(
-            globalConfigurationName, jsonConfigurations)
+        this.prepareCCppPropertiesConfiguration(
+          globalConfigurationName, jsonConfigurations)
 
       // Get the variable value (via substitutions).
       const buildFolderRelativePath =
-          await dataNodeConfiguration.getBuildFolderRelativePath()
+        await dataNodeConfiguration.getBuildFolderRelativePath()
 
       // Use relative paths.
       const newBaseFolderPath = '$' + '{workspaceFolder}'
@@ -297,7 +297,7 @@ export class IntelliSense implements vscode.Disposable {
       vscode.workspace.workspaceFolders !== undefined) {
       log.trace('registerPackageJsonWatchers()')
       const watcherCompileCommandsJson =
-      vscode.workspace.createFileSystemWatcher('**/compile_commands.json')
+        vscode.workspace.createFileSystemWatcher('**/compile_commands.json')
       watcherCompileCommandsJson.onDidChange(
         async (e): Promise<void> => {
           log.trace(`onDidChange() ${e.fsPath}`)
@@ -354,7 +354,7 @@ export class IntelliSense implements vscode.Disposable {
           'compile_commands.json')
 
         if (compileCommandsFilePath === uri.fsPath &&
-            node.package.folderRelativePath === '') {
+          node.package.folderRelativePath === '') {
           // Process only workspace folders that include top packages.
           dataNodePackage = node.package
           break
@@ -439,7 +439,7 @@ implements cpt.CustomConfigurationProvider {
     const log = this.log
 
     log.error('provideConfigurations() not implemented, ' +
-    'use \'ms-vscode.cmake-tools\'')
+      'use \'ms-vscode.cmake-tools\'')
     // throw new Error('Method not implemented.')
     return []
   }
