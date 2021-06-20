@@ -6,6 +6,11 @@ Please check
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 and close existing issues and pull requests.
 
+## 2021-06-20
+
+- v0.4.14 published
+- [#17] - no longer use ms-vscode.cmake-tools as configurationProvider
+
 ## 2021-05-12
 
 - v0.4.13 published
