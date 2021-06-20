@@ -9,7 +9,8 @@ and close existing issues and pull requests.
 ## 2021-06-20
 
 - v0.4.14 published
-- [#17] - no longer use ms-vscode.cmake-tools as configurationProvider
+- no longer use `"configurationProvider": "ms-vscode.cmake-tools"` in `c_cpp_properties.json`
+- dependency on `ms-vscode.cmake-tools` removed
 
 ## 2021-05-12
 
