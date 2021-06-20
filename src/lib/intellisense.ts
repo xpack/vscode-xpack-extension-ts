@@ -228,11 +228,16 @@ export class IntelliSense implements vscode.Disposable {
         buildFolderRelativePath,
         'compile_commands.json')
 
+      // Based on feedback and tests, the dependency on CMake seems no
+      // longer necessary and was disabled, at least until a proper
+      // `ilg-vscode.xpack` provider will be added.
+      /*
       if (currentJsonConfiguration.configurationProvider === undefined) {
         // Configure the provider to the CMake one for now.
         currentJsonConfiguration.configurationProvider =
         'ms-vscode.cmake-tools' // 'ilg-vscode.xpack'
       }
+      */
 
       try {
         // Will throw if the file does not exists.
