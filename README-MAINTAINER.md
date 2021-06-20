@@ -83,7 +83,7 @@ Check if the page shows at:
 
 ## Publish to Marketplace
 
-- terminate all running tasks (**Terminal** → **Terminate Task...**)
+- terminate **all** running tasks (**Terminal** → **Terminate Task...**)
 - select the `develop` branch
 - commit everything
 - `npm run fix`
@@ -94,10 +94,10 @@ Check if the page shows at:
 - `npm version patch` (bug fixes), `npm version minor` (compatible API
   additions), `npm version major` (incompatible API changes)
 - `npm run package`; again, to have an up-to-date .vsix
-- push all changes to GitHub; this should trigger CI
+- push all changes to GitHub; this should trigger CI (to be implemented)
 - **wait for CI tests to complete**
 - `npm run publish`
-- after a few minutes, check
+- after the confirmation eMail arrives, check
 
 - <https://marketplace.visualstudio.com/items?itemName=ilg-vscode.xpack>
 - <https://marketplace.visualstudio.com/manage/publishers/ilg-vscode/extensions/xpack/hub/>
