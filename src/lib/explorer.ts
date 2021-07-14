@@ -528,11 +528,12 @@ export class XpackActionsTreeDataProvider implements
   // Lazy creation at first use and after Refresh.
   private _tree: ActionsTree | null = null
 
-  private readonly _onDidChangeTreeData: vscode.EventEmitter<TreeItem | null> =
+  private readonly _onDidChangeTreeDataEmitter:
+  vscode.EventEmitter<TreeItem | null> =
   new vscode.EventEmitter<TreeItem | null>()
 
-  readonly onDidChangeTreeData: vscode.Event<TreeItem | null> =
-  this._onDidChangeTreeData.event
+  readonly onDidChangeTreeDataEvent: vscode.Event<TreeItem | null> =
+  this._onDidChangeTreeDataEmitter.event
 
   // --------------------------------------------------------------------------
   // Constructor.
@@ -630,7 +631,7 @@ export class XpackActionsTreeDataProvider implements
       })
 
     this._tree = null
-    this._onDidChangeTreeData.fire(null)
+    this._onDidChangeTreeDataEmitter.fire(null)
   }
 
   getTreeItem (element: TreeItem): TreeItem {
