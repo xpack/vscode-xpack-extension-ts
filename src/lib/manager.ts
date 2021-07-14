@@ -134,6 +134,11 @@ export class ExtensionManager implements vscode.Disposable {
     this.data = data
     oldData.dispose()
 
+    // Use loop, not async Promise.all(), to preserve the order.
+    for (const func of this.callbacksRefresh) {
+      await func()
+    }
+
     // Enable the explorer only if there were xPacks identified.
     await vscode.commands.executeCommand(
       'setContext',
@@ -145,11 +150,6 @@ export class ExtensionManager implements vscode.Disposable {
         ? 'shown'
         : 'hidden')
     )
-
-    // Use loop, not async Promise.all(), to preserve the order.
-    for (const func of this.callbacksRefresh) {
-      await func()
-    }
 
     log.trace('ExtensionManager.refresh() completed')
   }
