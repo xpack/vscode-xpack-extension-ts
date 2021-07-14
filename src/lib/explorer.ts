@@ -556,11 +556,14 @@ export class XpackActionsTreeDataProvider implements
   private _createTree (): ActionsTree {
     const log = this.log
 
+    log.trace('XpackActionsTreeDataProvider._createTree()')
+
     const tree: TreeItemPackage[] = []
 
     // Basically replicate the data model tree created by the manager.
 
     if (this.manager.data.packages.length === 0) {
+      log.trace('empty tree')
       return [new TreeItemEmpty('No xPacks identified.')]
     }
 
@@ -635,12 +638,15 @@ export class XpackActionsTreeDataProvider implements
   }
 
   getTreeItem (element: TreeItem): TreeItem {
+    // const log = this.log
+    // log.trace('getTreeItem', element)
     return element
   }
 
   getChildren (
     element?: TreeItem
   ): TreeItem[] {
+    // const log = this.log
     // log.trace('getChildren', element)
 
     // Lazy creation, delay to first use or after 'Refresh'.
@@ -662,6 +668,7 @@ export class XpackActionsTreeDataProvider implements
   getParent (
     element: TreeItem
   ): TreeItem | null {
+    // const log = this.log
     // log.trace('getParent', element)
 
     if (element instanceof TreeItem) {
