@@ -295,7 +295,7 @@ export class IntelliSense implements vscode.Disposable {
     // Register only once.
     if (this.watcherCompileCommandsJson === undefined &&
       vscode.workspace.workspaceFolders !== undefined) {
-      log.trace('registerPackageJsonWatchers()')
+      log.trace('registerCompileCommandsJsonWatchers()')
       const watcherCompileCommandsJson =
         vscode.workspace.createFileSystemWatcher('**/compile_commands.json')
       watcherCompileCommandsJson.onDidChange(
