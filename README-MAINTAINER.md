@@ -89,7 +89,7 @@ Check if the page shows at:
 - commit everything
 - `npm run fix`
 - in the develop branch, commit all changes
-- `npm run test`
+- `npm run test` (TODO)
 - `npm run package`; check the list of packaged files, possibly
   update `.vscodeignore`
 - `npm version patch` (bug fixes), `npm version minor` (compatible API
