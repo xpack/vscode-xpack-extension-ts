@@ -5,7 +5,8 @@
 
 # xPack C/C++ Managed Build (beta)
 
-A VS Code extension to manage and build C/C++ projects with CMake, meson, etc, using the xPack tools.
+A VS Code extension to manage and build C/C++ projects with CMake, meson,
+etc, using the xPack tools.
 
 It is intended as a replacement for the managed build system available
 in [Eclipse Embedded CDT](https://projects.eclipse.org/projects/iot.embed-cdt/).
@@ -25,11 +26,11 @@ is part of the [xPack Build Framework](https://xpack.github.io/).
 
 It can be installed from the VisualStudio Marketplace as
 [ilg-vscode.xpack](https://marketplace.visualstudio.com/items?itemName=ilg-vscode.xpack)
-and it pulls its own dependencies (like the C/C++, CMake, meson extensions).
+and it pulls its own dependencies (like the C/C++).
 
 ## Requirements
 
-A recent [xpm](https://xpack.github.io/xpm/),
+VS Code 1.54 or later and a recent [xpm](https://xpack.github.io/xpm/),
 which is a portable [Node.js](https://nodejs.org/) command line application,
 available from [npmjs.com](https://www.npmjs.com/package/xpm/).
 
@@ -252,7 +253,7 @@ project is prepared, like during the first build.
 
 ## Release Notes
 
-The latest release is **v0.4.14**, which,
+The latest release is **v0.4.15**, which,
 according to [semantic versioning](https://semver.org) rules,
 means it is still _in initial development_ phase.
 

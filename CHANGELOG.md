@@ -6,6 +6,11 @@ Please check
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 and close existing issues and pull requests.
 
+## 2021-07-15
+
+- v0.4.15 published
+- [#21] - fix race condition in showing explorer
+
 ## 2021-06-20
 
 - v0.4.14 published
