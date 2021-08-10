@@ -6,6 +6,11 @@ Please check
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 and close existing issues and pull requests.
 
+## 2021-08-10
+
+- v0.4.16 published
+- [#22] - fix Explorer tree refresh after package.json edit
+
 ## 2021-07-15
 
 - v0.4.15 published

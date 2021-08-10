@@ -253,7 +253,7 @@ project is prepared, like during the first build.
 
 ## Release Notes
 
-The latest release is **v0.4.15**, which,
+The latest release is **v0.4.16**, which,
 according to [semantic versioning](https://semver.org) rules,
 means it is still _in initial development_ phase.
 
