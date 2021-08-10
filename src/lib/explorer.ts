@@ -647,8 +647,8 @@ export class XpackActionsTreeDataProvider implements
   getChildren (
     element?: TreeItem
   ): TreeItem[] {
-    const log = this.log
-    log.trace('getChildren', element)
+    // const log = this.log
+    // log.trace('getChildren', element)
 
     // Lazy creation, delay to first use or after 'Refresh'.
     if (this._tree === null) {
@@ -669,8 +669,8 @@ export class XpackActionsTreeDataProvider implements
   getParent (
     element: TreeItem
   ): TreeItem | null {
-    const log = this.log
-    log.trace('getParent', element)
+    // const log = this.log
+    // log.trace('getParent', element)
 
     if (element instanceof TreeItem) {
       return element.parent
