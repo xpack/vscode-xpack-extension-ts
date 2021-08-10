@@ -212,10 +212,14 @@ export class Commands implements vscode.Disposable {
 
     log.trace('Command.runCommand()')
     if (treeItem instanceof TreeItemCommand) {
+      if (treeItem.task === undefined) {
+        log.debug('runCommand(): inconsistent treeItem, no task')
+        return
+      }
       log.trace(treeItem.task.execution)
       await treeItem.runTask()
     } else {
-      throw new Error('treeItem not yet implemented')
+      log.debug('runCommand(): treeItem not yet implemented')
     }
   }
 
@@ -224,16 +228,23 @@ export class Commands implements vscode.Disposable {
    *
    * @param treeItem - When invoked by the tree viewer it gets the
    * TreeItem where the invocation occured.
+   *
+   * Errors trigger a generic message, and the exceptions are not
+   * reflected in the output, so better use log messages.
    */
   async runAction (treeItem: TreeItem): Promise<void> {
     const log = this.log
 
     log.trace('Command.runAction()')
     if (treeItem instanceof TreeItemAction) {
+      if (treeItem.task === undefined) {
+        log.debug('runAction(): inconsistent treeItem, no task')
+        return
+      }
       log.trace(treeItem.task.execution)
       await treeItem.runTask()
     } else {
-      throw new Error('treeItem not yet implemented')
+      log.debug('unAction(): treeItem not yet implemented')
     }
   }
 
