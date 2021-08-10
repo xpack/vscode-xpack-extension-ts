@@ -76,7 +76,7 @@ as:
 
 - commit with a message like **VS Code xPack extension v0.4.16 released**
 - push
-- wait for CI job to complete
+- wait for the CI job to complete (<https://github.com/xpack/web-jekyll/actions>)
 
 Check if the page shows at:
 
