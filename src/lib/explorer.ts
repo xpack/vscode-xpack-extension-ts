@@ -532,7 +532,7 @@ export class XpackActionsTreeDataProvider implements
   vscode.EventEmitter<TreeItem | null> =
   new vscode.EventEmitter<TreeItem | null>()
 
-  readonly onDidChangeTreeDataEvent: vscode.Event<TreeItem | null> =
+  readonly onDidChangeTreeData: vscode.Event<TreeItem | null> =
   this._onDidChangeTreeDataEmitter.event
 
   // --------------------------------------------------------------------------
@@ -634,6 +634,7 @@ export class XpackActionsTreeDataProvider implements
       })
 
     this._tree = null
+    // Inform the tree that a repaint is necessary.
     this._onDidChangeTreeDataEmitter.fire(null)
   }
 
@@ -646,8 +647,8 @@ export class XpackActionsTreeDataProvider implements
   getChildren (
     element?: TreeItem
   ): TreeItem[] {
-    // const log = this.log
-    // log.trace('getChildren', element)
+    const log = this.log
+    log.trace('getChildren', element)
 
     // Lazy creation, delay to first use or after 'Refresh'.
     if (this._tree === null) {
@@ -668,8 +669,8 @@ export class XpackActionsTreeDataProvider implements
   getParent (
     element: TreeItem
   ): TreeItem | null {
-    // const log = this.log
-    // log.trace('getParent', element)
+    const log = this.log
+    log.trace('getParent', element)
 
     if (element instanceof TreeItem) {
       return element.parent
