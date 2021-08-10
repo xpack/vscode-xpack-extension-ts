@@ -14,7 +14,10 @@
     "meson",
     "xpack",
     "build",
-    "c++"
+    "c++",
+    "managed",
+    "xpm",
+    "actions"
   ],
   "repository": {
     "type": "git",
