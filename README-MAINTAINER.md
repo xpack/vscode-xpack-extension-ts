@@ -19,8 +19,8 @@ Before making the release, perform some checks and tweaks.
 ### Update npm packages
 
 - `npm outdated`
-- for a while keep `@types/vscode` locked to `1.54.0`, and the 
-  `@types/node` locked to the latest LTS
+- keep `@types/vscode` locked to `1.54.0`, and the
+  `@types/node` locked to the latest node.js LTS (14.7.4)
 - edit `package.json`  and `npm install`
 - repeat until everything is up to date
 
