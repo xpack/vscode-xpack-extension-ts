@@ -135,7 +135,7 @@ Check if the page shows at:
 - using the `@xpack_project` account
 - paste the release name like **VS Code xPack extension v0.4.16 released**
 - paste the link to the Web page
-  [release](https://xpack.github.io/vscode-xpack/releases/)
+  [release](https://xpack.github.io/vscode/releases/)
 - click the **Tweet** button
 
 ## Links
