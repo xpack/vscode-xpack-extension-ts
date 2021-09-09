@@ -163,7 +163,8 @@ using CMake, may look like:
       "test": [
         "xpm run build-all",
         "xpm run execute-all"
-      ]    },
+      ]
+    },
     "buildConfigurations": {
       "Debug": {
         "properties": {
