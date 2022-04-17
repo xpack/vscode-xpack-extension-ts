@@ -17,6 +17,8 @@ import * as assert from 'assert'
 import { promises as fsPromises } from 'fs'
 import * as path from 'path'
 
+import { Logger } from '@xpack/logger'
+
 // ----------------------------------------------------------------------------
 
 // Helper class for processing xPacks.
@@ -28,10 +30,13 @@ export class Xpack {
   folderPath?: string
   packageJson?: any
 
+  readonly log: Logger
+
   // --------------------------------------------------------------------------
   // Constructor.
 
-  constructor (folderPath: string | undefined = undefined) {
+  constructor (log: Logger, folderPath: string | undefined = undefined) {
+    this.log = log
     this.folderPath = folderPath
   }
 

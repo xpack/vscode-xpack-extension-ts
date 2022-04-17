@@ -135,7 +135,7 @@ export class DataModel implements vscode.Disposable {
       }
     }
 
-    const xpack = new Xpack(folderPath)
+    const xpack = new Xpack(log, folderPath)
     const packageJson = await xpack.checkIfFolderHasPackageJson()
     if (xpack.isPackage()) {
       if (xpack.isXpack()) {
