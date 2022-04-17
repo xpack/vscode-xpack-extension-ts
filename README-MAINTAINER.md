@@ -100,9 +100,8 @@ Check if the page shows at:
 - **wait for CI tests to complete** (TODO)
 - `npm run publish`
 - after the confirmation eMail arrives, check
-
-- <https://marketplace.visualstudio.com/items?itemName=ilg-vscode.xpack>
-- <https://marketplace.visualstudio.com/manage/publishers/ilg-vscode/extensions/xpack/hub/>
+  - <https://marketplace.visualstudio.com/items?itemName=ilg-vscode.xpack>
+  - <https://marketplace.visualstudio.com/manage/publishers/ilg-vscode/extensions/xpack/hub/>
 
 ### Test
 
