@@ -125,6 +125,14 @@ export function isPromise (object: any): boolean {
     Object.prototype.toString.call(object) === '[object Promise]'
 }
 
+export function isString (object: any): boolean {
+  return Object.prototype.toString.call(object) === '[object String]'
+}
+
+export function isBoolean (object: any): boolean {
+  return typeof object === 'boolean'
+}
+
 export function testForExclusionPattern (
   path: string,
   pattern: string
