@@ -175,7 +175,8 @@ export class ExtensionManager implements vscode.Disposable {
     const oldValue: string | string[] | undefined = npm.get('exclude')
     log.trace(oldValue)
 
-    const oldArray = oldValue === undefined || oldValue === '' ? []
+    const oldArray = oldValue === undefined || oldValue === ''
+      ? []
       : (Array.isArray(oldValue) ? oldValue : [oldValue])
 
     const newValue = '**/xpacks/**'

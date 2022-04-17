@@ -568,7 +568,8 @@ export class Commands implements vscode.Disposable {
     // onDidEndTaskProcess: Event<TaskProcessEndEvent>
 
     const start = (vscode.workspace.workspaceFolders !== undefined)
-      ? vscode.workspace.workspaceFolders.length : 0
+      ? vscode.workspace.workspaceFolders.length
+      : 0
     vscode.workspace.updateWorkspaceFolders(start, 0, { uri: uris[0] })
 
     log.trace(code)
