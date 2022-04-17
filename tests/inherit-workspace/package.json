@@ -1,0 +1,534 @@
+{
+  "name": "@micro-os-plus/utils-lists",
+  "version": "3.0.0",
+  "description": "A source library xPack with the µOS++ C++ lists utilities",
+  "main": "",
+  "scripts": {
+    "npm-install": "npm install",
+    "pack": "npm pack",
+    "version-patch": "npm version patch",
+    "version-minor": "npm version minor",
+    "postversion": "git push origin --all && git push origin --tags",
+    "git-log": "git log --pretty='%cd * %h %s' --date=short"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/micro-os-plus/utils-lists-xpack.git/"
+  },
+  "bugs": {
+    "url": "https://github.com/micro-os-plus/utils-lists-xpack/issues/"
+  },
+  "homepage": "https://github.com/micro-os-plus/utils-lists-xpack/",
+  "keywords": [
+    "xpack",
+    "c++",
+    "micro-os-plus"
+  ],
+  "author": {
+    "name": "Liviu Ionescu",
+    "email": "ilg@livius.net",
+    "url": "https://github.com/ilg-ul/"
+  },
+  "license": "MIT",
+  "config": {},
+  "devDependencies": {
+    "@xpack-dev-tools/cmake": "3.21.6-1.1",
+    "@xpack-dev-tools/meson-build": "0.60.3-1.1",
+    "@xpack-dev-tools/ninja-build": "1.10.2-5.1",
+    "@micro-os-plus/build-helper": "2.7.1",
+    "@micro-os-plus/micro-test-plus": "3.0.0",
+    "@micro-os-plus/diag-trace": "3.0.1"
+  },
+  "xpack": {
+    "minimumXpmRequired": "0.11.0",
+    "properties": {
+      "buildFolderRelativePath": "{{ 'build' | path_join: configuration.name | to_filename | downcase }}",
+      "buildFolderRelativePathPosix": "{{ 'build' | path_posix_join: configuration.name | downcase }}",
+      "commandCMakePrepare": "{{ properties.commandCMakeReconfigure }} --log-level=VERBOSE",
+      "commandCMakePrepareWithToolchain": "{{ properties.commandCMakePrepare }} -D CMAKE_TOOLCHAIN_FILE=../xpacks/micro-os-plus-build-helper/cmake/toolchains/{{ properties.toolchainFileName }}",
+      "commandCMakeReconfigure": "cmake -S tests -B {{ properties.buildFolderRelativePathPosix }} -G Ninja -D CMAKE_BUILD_TYPE={{ properties.buildType }} -D PLATFORM_NAME={{ properties.platformName }} -D CMAKE_EXPORT_COMPILE_COMMANDS=ON",
+      "commandCMakeBuild": "cmake --build {{ properties.buildFolderRelativePathPosix }}",
+      "commandCMakeBuildVerbose": "cmake --build {{ properties.buildFolderRelativePathPosix }} --verbose",
+      "commandCMakeClean": "cmake --build {{ properties.buildFolderRelativePathPosix }} --target clean",
+      "commandCMakePerformTests": "cd {{ properties.buildFolderRelativePath }} && ctest -V",
+      "commandMesonPrepare": "meson setup --backend ninja --buildtype {{ properties.buildType }} -D platform-name={{ properties.platformName }} {{ properties.buildFolderRelativePathPosix }} tests",
+      "commandMesonPrepareWithToolchain": "meson setup --backend ninja --buildtype {{ properties.buildType }} -D platform-name={{ properties.platformName }} --native-file xpacks/micro-os-plus-build-helper/meson/toolchains/{{ properties.toolchainFileName }} --native-file tests/platform-{{ properties.platformName }}/meson/native.ini {{ properties.buildFolderRelativePathPosix }} tests",
+      "commandMesonPrepareCross": "meson setup --backend ninja --buildtype {{ properties.buildType }} -D platform-name={{ properties.platformName }} --cross xpacks/micro-os-plus-build-helper/meson/toolchains/{{ properties.toolchainFileName }} --cross tests/platform-{{ properties.platformName }}/meson/cross.ini {{ properties.buildFolderRelativePathPosix }} tests",
+      "commandMesonReconfigure": "meson setup --reconfigure {{ properties.buildFolderRelativePathPosix }} tests",
+      "commandMesonBuild": "meson compile -C {{ properties.buildFolderRelativePathPosix }}",
+      "commandMesonBuildVerbose": "meson compile -C {{ properties.buildFolderRelativePathPosix }} --verbose",
+      "commandMesonClean": "meson compile -C {{ properties.buildFolderRelativePathPosix }} --clean",
+      "commandMesonPerformTests": "meson test -C {{ properties.buildFolderRelativePathPosix }} --verbose"
+    },
+    "actions": {
+      "install-all": [
+        "xpm install --all-configs --quiet"
+      ],
+      "link-deps": [
+        "xpm link @micro-os-plus/build-helper",
+        "xpm link @micro-os-plus/micro-test-plus",
+        "xpm link @micro-os-plus/diag-trace"
+      ],
+      "test-all": [
+        "xpm run test-native",
+        "xpm run test-cortexm"
+      ],
+      "test-native": [
+        "{% if os.platform == 'darwin' %}xpm run test-native-cmake{% endif %}",
+        "xpm run test-native-cmake-gcc11",
+        "xpm run test-native-cmake-clang12",
+        "xpm run test-native-cmake-clang13",
+        "{% if os.platform == 'darwin' %}xpm run test-native-meson{% endif %}",
+        "xpm run test-native-meson-gcc11",
+        "xpm run test-native-meson-clang12",
+        "xpm run test-native-meson-clang13"
+      ],
+      "test-cortexm": [
+        "xpm run test-qemu-mps2-an386-cmake",
+        "xpm run test-qemu-mps2-an386-meson"
+      ],
+      "test-native-cmake": [
+        "xpm run prepare --config native-cmake-debug",
+        "xpm run build --config native-cmake-debug",
+        "xpm run test --config native-cmake-debug",
+        "xpm run prepare --config native-cmake-release",
+        "xpm run build --config native-cmake-release",
+        "xpm run test --config native-cmake-release"
+      ],
+      "test-native-cmake-gcc11": [
+        "xpm run prepare --config native-cmake-gcc11-debug",
+        "xpm run build --config native-cmake-gcc11-debug",
+        "xpm run test --config native-cmake-gcc11-debug",
+        "xpm run prepare --config native-cmake-gcc11-release",
+        "xpm run build --config native-cmake-gcc11-release",
+        "xpm run test --config native-cmake-gcc11-release"
+      ],
+      "test-native-cmake-clang12": [
+        "xpm run prepare --config native-cmake-clang12-debug",
+        "xpm run build --config native-cmake-clang12-debug",
+        "xpm run test --config native-cmake-clang12-debug",
+        "xpm run prepare --config native-cmake-clang12-release",
+        "xpm run build --config native-cmake-clang12-release",
+        "xpm run test --config native-cmake-clang12-release"
+      ],
+      "test-native-cmake-clang13": [
+        "xpm run prepare --config native-cmake-clang13-debug",
+        "xpm run build --config native-cmake-clang13-debug",
+        "xpm run test --config native-cmake-clang13-debug",
+        "xpm run prepare --config native-cmake-clang13-release",
+        "xpm run build --config native-cmake-clang13-release",
+        "xpm run test --config native-cmake-clang13-release"
+      ],
+      "test-native-meson": [
+        "xpm run prepare --config native-meson-debug",
+        "xpm run build --config native-meson-debug",
+        "xpm run test --config native-meson-debug",
+        "xpm run prepare --config native-meson-release",
+        "xpm run build --config native-meson-release",
+        "xpm run test --config native-meson-release"
+      ],
+      "test-native-meson-gcc11": [
+        "xpm run prepare --config native-meson-gcc11-debug",
+        "xpm run build --config native-meson-gcc11-debug",
+        "xpm run test --config native-meson-gcc11-debug",
+        "xpm run prepare --config native-meson-gcc11-release",
+        "xpm run build --config native-meson-gcc11-release",
+        "xpm run test --config native-meson-gcc11-release"
+      ],
+      "test-native-meson-clang12": [
+        "xpm run prepare --config native-meson-clang12-debug",
+        "xpm run build --config native-meson-clang12-debug",
+        "xpm run test --config native-meson-clang12-debug",
+        "xpm run prepare --config native-meson-clang12-release",
+        "xpm run build --config native-meson-clang12-release",
+        "xpm run test --config native-meson-clang12-release"
+      ],
+      "test-native-meson-clang13": [
+        "xpm run prepare --config native-meson-clang13-debug",
+        "xpm run build --config native-meson-clang13-debug",
+        "xpm run test --config native-meson-clang13-debug",
+        "xpm run prepare --config native-meson-clang13-release",
+        "xpm run build --config native-meson-clang13-release",
+        "xpm run test --config native-meson-clang13-release"
+      ],
+      "test-qemu-mps2-an386-cmake": [
+        "xpm run prepare --config qemu-mps2-an386-cmake-debug",
+        "xpm run build --config qemu-mps2-an386-cmake-debug",
+        "xpm run test --config qemu-mps2-an386-cmake-debug",
+        "xpm run prepare --config qemu-mps2-an386-cmake-release",
+        "xpm run build --config qemu-mps2-an386-cmake-release",
+        "xpm run test --config qemu-mps2-an386-cmake-release"
+      ],
+      "test-qemu-mps2-an386-meson": [
+        "xpm run prepare --config qemu-mps2-an386-meson-debug",
+        "xpm run build --config qemu-mps2-an386-meson-debug",
+        "xpm run test --config qemu-mps2-an386-meson-debug",
+        "xpm run prepare --config qemu-mps2-an386-meson-release",
+        "xpm run build --config qemu-mps2-an386-meson-release",
+        "xpm run test --config qemu-mps2-an386-meson-release"
+      ],
+      "clean-all": [
+        "xpm run clean --config native-cmake-debug",
+        "xpm run clean --config native-cmake-release",
+        "xpm run clean --config native-cmake-gcc11-debug",
+        "xpm run clean --config native-cmake-gcc11-release",
+        "xpm run clean --config native-cmake-clang12-debug",
+        "xpm run clean --config native-cmake-clang12-release",
+        "xpm run clean --config native-cmake-clang13-debug",
+        "xpm run clean --config native-cmake-clang13-release",
+        "xpm run clean --config native-meson-debug",
+        "xpm run clean --config native-meson-release",
+        "xpm run clean --config native-meson-gcc11-debug",
+        "xpm run clean --config native-meson-gcc11-release",
+        "xpm run clean --config native-meson-clang12-debug",
+        "xpm run clean --config native-meson-clang12-release",
+        "xpm run clean --config native-meson-clang13-debug",
+        "xpm run clean --config native-meson-clang13-release",
+        "xpm run clean --config qemu-mps2-an386-cmake-debug",
+        "xpm run clean --config qemu-mps2-an386-cmake-release",
+        "xpm run clean --config qemu-mps2-an386-meson-debug",
+        "xpm run clean --config qemu-mps2-an386-meson-release"
+      ],
+      "deep-clean": "rm -rf build node_modules xpacks",
+      "trigger-workflow-test-all": "bash tests/scripts/trigger-workflow-test-all.sh"
+    },
+    "buildConfigurations": {
+      "native-dependencies": {
+        "properties": {
+          "hidden": true
+        },
+        "actions": {
+          "link-deps": [
+            "xpm link --config {{ configuration.name }} @micro-os-plus/architecture-synthetic-posix"
+          ]
+        },
+        "devDependencies": {
+          "@micro-os-plus/architecture-synthetic-posix": "4.0.2"
+        }
+      },
+      "qemu-mps2-an386-dependencies": {
+        "properties": {
+          "hidden": true
+        },
+        "actions": {
+          "link-deps": [
+            "xpm link --config {{ configuration.name }} @micro-os-plus/architecture-cortexm",
+            "xpm link --config {{ configuration.name }} @micro-os-plus/devices-cortexm",
+            "xpm link --config {{ configuration.name }} @micro-os-plus/devices-qemu-cortexm",
+            "xpm link --config {{ configuration.name }} @micro-os-plus/libs-c",
+            "xpm link --config {{ configuration.name }} @micro-os-plus/libs-cpp",
+            "xpm link --config {{ configuration.name }} @micro-os-plus/semihosting",
+            "xpm link --config {{ configuration.name }} @micro-os-plus/startup",
+            "xpm link --config {{ configuration.name }} @micro-os-plus/version",
+            "xpm link --config {{ configuration.name }} @xpack-3rd-party/arm-cmsis-core-m"
+          ]
+        },
+        "devDependencies": {
+          "@xpack-dev-tools/arm-none-eabi-gcc": "10.3.1-2.3.1",
+          "@xpack-dev-tools/qemu-arm": "6.2.0-1.1",
+          "@micro-os-plus/architecture-cortexm": "5.0.0",
+          "@micro-os-plus/devices-cortexm": "3.0.0",
+          "@micro-os-plus/devices-qemu-cortexm": "3.0.0",
+          "@micro-os-plus/libs-c": "3.0.0",
+          "@micro-os-plus/libs-cpp": "3.0.0",
+          "@micro-os-plus/semihosting": "4.0.0",
+          "@micro-os-plus/startup": "3.0.0",
+          "@micro-os-plus/version": "7.1.2",
+          "@xpack-3rd-party/arm-cmsis-core-m": "5.4.0-5"
+        }
+      },
+      "native-cmake-debug": {
+        "inherit": [
+          "native-dependencies"
+        ],
+        "properties": {
+          "buildType": "Debug",
+          "platformName": "native"
+        },
+        "actions": {
+          "prepare": "{{ properties.commandCMakePrepare }}",
+          "build": [
+            "{{ properties.commandCMakeReconfigure }}",
+            "{{ properties.commandCMakeBuild }}"
+          ],
+          "test": "{{ properties.commandCMakePerformTests }}",
+          "clean": "{{ properties.commandCMakeClean }}"
+        }
+      },
+      "native-cmake-release": {
+        "inherit": [
+          "native-cmake-debug"
+        ],
+        "properties": {
+          "buildType": "Release"
+        }
+      },
+      "native-cmake-gcc11-debug": {
+        "inherit": [
+          "native-dependencies"
+        ],
+        "properties": {
+          "buildType": "Debug",
+          "platformName": "native",
+          "toolchainFileName": "gcc.cmake"
+        },
+        "actions": {
+          "prepare": "{{ properties.commandCMakePrepareWithToolchain }}",
+          "build": [
+            "{{ properties.commandCMakeReconfigure }}",
+            "{{ properties.commandCMakeBuild }}"
+          ],
+          "test": "{{ properties.commandCMakePerformTests }}",
+          "clean": "{{ properties.commandCMakeClean }}"
+        },
+        "devDependencies": {
+          "@xpack-dev-tools/gcc": "11.2.0-3.3"
+        }
+      },
+      "native-cmake-gcc11-release": {
+        "inherit": [
+          "native-cmake-gcc11-debug"
+        ],
+        "properties": {
+          "buildType": "Release"
+        }
+      },
+      "native-cmake-clang12-debug": {
+        "inherit": [
+          "native-dependencies"
+        ],
+        "properties": {
+          "buildType": "Debug",
+          "platformName": "native",
+          "toolchainFileName": "clang.cmake"
+        },
+        "actions": {
+          "prepare": "{{ properties.commandCMakePrepareWithToolchain }}",
+          "build": [
+            "{{ properties.commandCMakeReconfigure }}",
+            "{{ properties.commandCMakeBuild }}"
+          ],
+          "test": "{{ properties.commandCMakePerformTests }}",
+          "clean": "{{ properties.commandCMakeClean }}"
+        },
+        "devDependencies": {
+          "@xpack-dev-tools/clang": "12.0.1-2.2"
+        }
+      },
+      "native-cmake-clang12-release": {
+        "inherit": [
+          "native-cmake-clang12-debug"
+        ],
+        "properties": {
+          "buildType": "Release"
+        }
+      },
+      "native-cmake-clang13-debug": {
+        "inherit": [
+          "native-dependencies"
+        ],
+        "properties": {
+          "buildType": "Debug",
+          "platformName": "native",
+          "toolchainFileName": "clang.cmake"
+        },
+        "actions": {
+          "prepare": "{{ properties.commandCMakePrepareWithToolchain }}",
+          "build": [
+            "{{ properties.commandCMakeReconfigure }}",
+            "{{ properties.commandCMakeBuild }}"
+          ],
+          "test": "{{ properties.commandCMakePerformTests }}",
+          "clean": "{{ properties.commandCMakeClean }}"
+        },
+        "devDependencies": {
+          "@xpack-dev-tools/clang": "13.0.1-1.1"
+        }
+      },
+      "native-cmake-clang13-release": {
+        "inherit": [
+          "native-cmake-clang13-debug"
+        ],
+        "properties": {
+          "buildType": "Release"
+        }
+      },
+      "native-meson-debug": {
+        "inherit": [
+          "native-dependencies"
+        ],
+        "properties": {
+          "buildType": "debug",
+          "platformName": "native"
+        },
+        "actions": {
+          "prepare": "{{ properties.commandMesonPrepare }}",
+          "build": [
+            "{{ properties.commandMesonReconfigure }}",
+            "{{ properties.commandMesonBuild }}"
+          ],
+          "test": "{{ properties.commandMesonPerformTests }}",
+          "clean": "{{ properties.commandMesonClean }}"
+        }
+      },
+      "native-meson-release": {
+        "inherit": [
+          "native-meson-debug"
+        ],
+        "properties": {
+          "buildType": "release"
+        }
+      },
+      "native-meson-gcc11-debug": {
+        "inherit": [
+          "native-dependencies"
+        ],
+        "properties": {
+          "buildType": "debug",
+          "platformName": "native",
+          "toolchainFileName": "gcc-{{ os.platform }}.ini"
+        },
+        "actions": {
+          "prepare": "{{ properties.commandMesonPrepareWithToolchain }}",
+          "build": [
+            "{{ properties.commandMesonReconfigure }}",
+            "{{ properties.commandMesonBuild }}"
+          ],
+          "test": "{{ properties.commandMesonPerformTests }}",
+          "clean": "{{ properties.commandMesonClean }}"
+        },
+        "devDependencies": {
+          "@xpack-dev-tools/gcc": "11.2.0-3.3"
+        }
+      },
+      "native-meson-gcc11-release": {
+        "inherit": [
+          "native-meson-gcc11-debug"
+        ],
+        "properties": {
+          "buildType": "release"
+        }
+      },
+      "native-meson-clang12-debug": {
+        "inherit": [
+          "native-dependencies"
+        ],
+        "properties": {
+          "buildType": "debug",
+          "platformName": "native",
+          "toolchainFileName": "clang-{{ os.platform }}.ini"
+        },
+        "actions": {
+          "prepare": "{{ properties.commandMesonPrepareWithToolchain }}",
+          "build": [
+            "{{ properties.commandMesonReconfigure }}",
+            "{{ properties.commandMesonBuild }}"
+          ],
+          "test": "{{ properties.commandMesonPerformTests }}",
+          "clean": "{{ properties.commandMesonClean }}"
+        },
+        "devDependencies": {
+          "@xpack-dev-tools/clang": "12.0.1-2.2"
+        }
+      },
+      "native-meson-clang12-release": {
+        "inherit": [
+          "native-meson-clang12-debug"
+        ],
+        "properties": {
+          "buildType": "release"
+        }
+      },
+      "native-meson-clang13-debug": {
+        "inherit": [
+          "native-dependencies"
+        ],
+        "properties": {
+          "buildType": "debug",
+          "platformName": "native",
+          "toolchainFileName": "clang-{{ os.platform }}.ini"
+        },
+        "actions": {
+          "prepare": "{{ properties.commandMesonPrepareWithToolchain }}",
+          "build": [
+            "{{ properties.commandMesonReconfigure }}",
+            "{{ properties.commandMesonBuild }}"
+          ],
+          "test": "{{ properties.commandMesonPerformTests }}",
+          "clean": "{{ properties.commandMesonClean }}"
+        },
+        "devDependencies": {
+          "@xpack-dev-tools/clang": "13.0.1-1.1"
+        }
+      },
+      "native-meson-clang13-release": {
+        "inherit": [
+          "native-meson-clang13-debug"
+        ],
+        "properties": {
+          "buildType": "release"
+        }
+      },
+      "qemu-mps2-an386-cmake-debug": {
+        "inherit": [
+          "qemu-mps2-an386-dependencies"
+        ],
+        "properties": {
+          "buildType": "Debug",
+          "platformName": "qemu-mps2-an386",
+          "toolchainFileName": "arm-none-eabi-gcc.cmake",
+          "qemuBoardName": "QEMU mps2-an386",
+          "shortConfigurationName": "q1d",
+          "buildFolderRelativePath": "{% if os.platform != 'win32' %}{{ 'build' | path_join: configuration.name | to_filename | downcase }}{% else %}{{ 'build' | path_join: properties.shortConfigurationName | to_filename | downcase }}{% endif %}",
+          "buildFolderRelativePathPosix": "{% if os.platform != 'win32' %}{{ 'build' | path_posix_join: configuration.name | downcase }}{% else %}{{ 'build' | path_posix_join: properties.shortConfigurationName | downcase }}{% endif %}"
+        },
+        "actions": {
+          "prepare": "{{ properties.commandCMakePrepareWithToolchain }}",
+          "build": [
+            "{{ properties.commandCMakeReconfigure }}",
+            "{{ properties.commandCMakeBuild }}"
+          ],
+          "test": "{{ properties.commandCMakePerformTests }}",
+          "clean": "{{ properties.commandCMakeClean }}"
+        }
+      },
+      "qemu-mps2-an386-cmake-release": {
+        "inherit": [
+          "qemu-mps2-an386-cmake-debug"
+        ],
+        "properties": {
+          "buildType": "MinSizeRel",
+          "shortConfigurationName": "q1r"
+        }
+      },
+      "qemu-mps2-an386-meson-debug": {
+        "inherit": [
+          "qemu-mps2-an386-dependencies"
+        ],
+        "properties": {
+          "buildType": "debug",
+          "platformName": "qemu-mps2-an386",
+          "toolchainFileName": "arm-none-eabi-gcc-{{ os.platform }}.ini",
+          "qemuBoardName": "QEMU mps2-an386"
+        },
+        "actions": {
+          "prepare": "{{ properties.commandMesonPrepareCross }}",
+          "build": [
+            "{{ properties.commandMesonReconfigure }}",
+            "{{ properties.commandMesonBuild }}"
+          ],
+          "test": "{{ properties.commandMesonPerformTests }}",
+          "clean": "{{ properties.commandMesonClean }}"
+        }
+      },
+      "qemu-mps2-an386-meson-release": {
+        "inherit": [
+          "qemu-mps2-an386-meson-debug"
+        ],
+        "properties": {
+          "buildType": "minsize"
+        }
+      }
+    }
+  }
+}
