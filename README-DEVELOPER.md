@@ -113,6 +113,13 @@ task to convert the `out` folder into the `dist` folder:
 npm run webpack-dev
 ```
 
+With the current version, an error is expected:
+
+```console
+WARNING in ./node_modules/liquidjs/dist/liquid.node.esm.js 393:15-36
+Critical dependency: the request of a dependency is an expression
+```
+
 ### Start debug sessions
 
 Use the existing launchers.

@@ -6,6 +6,11 @@ Please check
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 and close existing issues and pull requests.
 
+## 2022-04-17
+
+- v0.4.17 published
+- [#31] - update for buildConfiguration inheritance
+
 ## 2021-08-10
 
 - v0.4.16 published
