@@ -51,7 +51,7 @@
     "webpack": "webpack --mode development",
     "outdated": "npm outdated",
     "update": "npm update",
-    "install ": "npm install",
+    "npm-install ": "npm install",
     "version-patch": "npm version patch",
     "version-minor": "npm version minor",
     "package": "vsce ls && vsce package --githubBranch master",
@@ -64,22 +64,22 @@
   },
   "dependencies": {
     "@xpack/logger": "^5.0.2",
-    "@xpack/xpm-liquid": "^1.1.0",
+    "@xpack/xpm-liquid": "^1.2.1",
     "make-dir": "^3.1.0",
-    "minimatch": "^3.0.4",
-    "vscode-cpptools": "^5.0.0"
+    "minimatch": "^5.0.1",
+    "vscode-cpptools": "^6.1.0"
   },
   "devDependencies": {
     "@types/minimatch": "^3.0.5",
-    "@types/node": "^14.17.4",
-    "@types/vscode": "1.54.0",
-    "ts-loader": "^9.2.5",
-    "ts-standard": "^10.0.0",
-    "typescript": "^4.3.5",
-    "vsce": "^1.96.1",
+    "@types/node": "^16.11.27",
+    "@types/vscode": "1.66.0",
+    "ts-loader": "^9.2.8",
+    "ts-standard": "^11.0.0",
+    "typescript": "^4.6.3",
+    "vsce": "^2.7.0",
     "vscode-test": "^1.6.1",
-    "webpack": "^5.49.0",
-    "webpack-cli": "^4.7.2"
+    "webpack": "^5.72.0",
+    "webpack-cli": "^4.9.2"
   },
   "main": "./dist/extension.js",
   "activationEvents": [
