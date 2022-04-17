@@ -25,7 +25,11 @@ export type AsyncVoidFunction = (() => Promise<void>)
 export type JsonActionValue = string | string[]
 
 export interface JsonProperties {
-  [actionName: string]: string
+  [propertyName: string]: string
+}
+
+export interface JsonBuildConfigurationInherits {
+  [buildConfigurationName: string]: string
 }
 
 export interface JsonActions {
@@ -33,6 +37,7 @@ export interface JsonActions {
 }
 
 export interface JsonBuildConfiguration {
+  inherit?: JsonBuildConfigurationInherits | string
   properties?: JsonProperties
   actions?: JsonActions
   dependencies?: any
