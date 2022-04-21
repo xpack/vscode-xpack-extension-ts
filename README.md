@@ -248,6 +248,15 @@ folder, and the system build generator
 (CMake/meson/etc) automatically creates these files when the
 project is prepared, like during the first build.
 
+## Ignore the kits selection question
+
+Although not needed by the xPack extension, the CMake extension still
+insists on selecting a _kit_:
+
+![CMake kits](assets/docs-images/cmake-kits-unspecified.png)
+
+Select _Unspecified_, since kits are not used by the xPack extension.
+
 ## Known Issues
 
 - none so far
