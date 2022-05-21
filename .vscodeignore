@@ -17,6 +17,7 @@ tests/**
 node_modules/**
 out/**
 assets/docs-images/**
+.github/**
 
 # DO NOT add node_modules with plain vsce! (with webpack you can add it)
 
