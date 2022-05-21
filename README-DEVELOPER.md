@@ -186,7 +186,7 @@ Scope:
 - `machine` (user or remote settings, like installation path which
   shouldn't be shared across machines)
 - `machine-overridable` (can be overridden by workspace or folder)
-- `window` (user, workspace, or remote settings; default)
+- **`window`** (user, workspace, or remote settings; default)
 - `resource` (files and folders, and can be configured in all settings
   levels, even folder settings)
 - `language-overridable`

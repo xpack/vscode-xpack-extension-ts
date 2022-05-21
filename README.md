@@ -257,13 +257,16 @@ insists on selecting a _kit_:
 
 Select _Unspecified_, since kits are not used by the xPack extension.
 
+This issue is currently under consideration by the CMake Tools project
+and it is expected to be fixed in a future release.
+
 ## Known Issues
 
 - none so far
 
 ## Release Notes
 
-The latest release is **v0.4.17**, which,
+The latest release is **v0.4.18**, which,
 according to [semantic versioning](https://semver.org) rules,
 means it is still _in initial development_ phase.
 
