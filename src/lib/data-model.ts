@@ -289,8 +289,9 @@ export class DataModel implements vscode.Disposable {
       for (const configurationName of Object.keys(fromJson)) {
         const jsonBuildConfiguration = fromJson[configurationName]
 
+        const hidden = jsonBuildConfiguration.hidden ?? false
         const dataNodeConfiguration =
-          parent.addConfiguration(configurationName)
+          parent.addConfiguration(configurationName, hidden)
 
         await this.addCommands(
           jsonBuildConfiguration, dataNodeConfiguration)
@@ -593,10 +594,11 @@ export class DataNodePackage extends DataNode {
   }
 
   addConfiguration (
-    name: string
+    name: string,
+    hidden: boolean
   ): DataNodeConfiguration {
     const dataNodeConfiguration =
-      new DataNodeConfiguration(name, this, this.log)
+      new DataNodeConfiguration(name, hidden, this, this.log)
 
     this.configurations.push(dataNodeConfiguration)
 
@@ -634,6 +636,8 @@ export class DataNodeConfiguration extends DataNode {
   // --------------------------------------------------------------------------
   // Members.
 
+  hidden: boolean
+
   parent: DataNodePackage
 
   /**
@@ -654,10 +658,12 @@ export class DataNodeConfiguration extends DataNode {
 
   constructor (
     name: string,
+    hidden: boolean,
     parent: DataNodePackage,
     log: Logger
   ) {
     super(name, log)
+    this.hidden = hidden
     this.parent = parent
 
     this.xpmLiquidEngine = new XpmLiquid(this.log)

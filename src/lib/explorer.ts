@@ -612,11 +612,14 @@ export class XpackActionsTreeDataProvider implements
   ): void {
     dataNodeConfigurations.forEach(
       (dataNodeConfiguration) => {
-        const treeItemConfiguration =
-          parentTreeItem.addConfiguration(dataNodeConfiguration)
+        if (!dataNodeConfiguration.hidden) {
+          const treeItemConfiguration =
+            parentTreeItem.addConfiguration(dataNodeConfiguration)
 
-        this._addCommands(dataNodeConfiguration.commands, treeItemConfiguration)
-        this._addActions(dataNodeConfiguration.actions, treeItemConfiguration)
+          this._addCommands(dataNodeConfiguration.commands,
+            treeItemConfiguration)
+          this._addActions(dataNodeConfiguration.actions, treeItemConfiguration)
+        }
       }
     )
   }

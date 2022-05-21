@@ -194,9 +194,7 @@
     },
     "buildConfigurations": {
       "native-dependencies": {
-        "properties": {
-          "hidden": true
-        },
+        "hidden": true,
         "actions": {
           "link-deps": [
             "xpm link --config {{ configuration.name }} @micro-os-plus/architecture-synthetic-posix"
@@ -207,9 +205,7 @@
         }
       },
       "qemu-mps2-an386-dependencies": {
-        "properties": {
-          "hidden": true
-        },
+        "hidden": true,
         "actions": {
           "link-deps": [
             "xpm link --config {{ configuration.name }} @micro-os-plus/architecture-cortexm",

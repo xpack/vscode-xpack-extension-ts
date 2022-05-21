@@ -40,6 +40,7 @@ export interface JsonActions {
 
 export interface JsonBuildConfiguration {
   inherit?: JsonBuildConfigurationInherits | string
+  hidden?: boolean
   properties?: JsonProperties
   actions?: JsonActions
   dependencies?: any
