@@ -62,7 +62,7 @@ In the `xpack/web-jekyll` GitHub repo:
 
 - select the `develop` branch
 - add a new file to `_posts/releases/vscode-xpack`
-- name the file like `2021-03-28-vscode-xpack-v0-4-15-released.md`
+- name the file like `2022-07-28-vscode-xpack-v0-4-19-released.md`
 - name the post like: **VS Code xPack extension v0.4.19 released**
 - update the `date:` field with the current date
 - update the **Changes** sections
