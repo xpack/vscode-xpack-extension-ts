@@ -54,7 +54,7 @@ Check GitHub issues and pull requests:
 - check the latest commits `npm run git-log`
 - open the `CHANGELOG.md` file
 - check if all previous fixed issues are in
-- commit with a message like _prepare v0.4.18_
+- commit with a message like _prepare v0.4.19_
 
 ## Prepare a new blog post with the release
 
@@ -63,7 +63,7 @@ In the `xpack/web-jekyll` GitHub repo:
 - select the `develop` branch
 - add a new file to `_posts/releases/vscode-xpack`
 - name the file like `2021-03-28-vscode-xpack-v0-4-15-released.md`
-- name the post like: **VS Code xPack extension v0.4.18 released**
+- name the post like: **VS Code xPack extension v0.4.19 released**
 - update the `date:` field with the current date
 - update the **Changes** sections
 
@@ -75,7 +75,7 @@ as:
 - [#1] ...
 ```
 
-- commit with a message like **VS Code xPack extension v0.4.18 released**
+- commit with a message like **VS Code xPack extension v0.4.19 released**
 - push
 - wait for the CI job to complete (<https://github.com/xpack/web-jekyll/actions>)
 
@@ -95,9 +95,9 @@ Check if the page shows at:
   update `.vscodeignore`
 - `npm version patch` (bug fixes), `npm version minor` (compatible API
   additions), `npm version major` (incompatible API changes)
-- `npm run package`; again, to have an up-to-date .vsix
+- `npm run package`; again, to have an up-to-date `.vsix`
 - push all changes to GitHub; this should trigger CI (to be implemented)
-- push the new `v0.4.18` tag (separate step for VS Code, included for Sourcetree)
+- push the new `v0.4.19` tag (separate step for VS Code, included for Sourcetree)
 - **wait for CI tests to complete** (TODO)
 - `npm run publish`
 - after the confirmation eMail arrives, check
@@ -133,7 +133,7 @@ Check if the page shows at:
 
 - in a separate browser windows, open [TweetDeck](https://tweetdeck.twitter.com/)
 - using the `@xpack_project` account
-- paste the release name like **VS Code xPack extension v0.4.18 released**
+- paste the release name like **VS Code xPack extension v0.4.19 released**
 - paste the link to the Web page
   [release](https://xpack.github.io/vscode/releases/)
 - click the **Tweet** button

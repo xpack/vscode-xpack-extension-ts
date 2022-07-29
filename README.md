@@ -22,7 +22,7 @@ projects, with an emphasis on **modern C/C++** and **embedded** applications.
 The [xPack C/C++ Managed Build extension](https://xpack.github.io/vscode/)
 is an open source project hosted on
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts) and
-is part of the [xPack Build Framework](https://xpack.github.io/).
+is part of the [xPack Reproducible Build Framework](https://xpack.github.io/).
 
 It can be installed from the VisualStudio Marketplace as
 [ilg-vscode.xpack](https://marketplace.visualstudio.com/items?itemName=ilg-vscode.xpack)
@@ -60,8 +60,8 @@ starting point for more complex projects.
 
 ## How it works
 
-The **xPack Build Framework** is not necessarily specific to VS Code,
-it is a set of portable CLI tools,
+The **xPack Reproducible Build Framework** is not necessarily specific
+to VS Code, it is a set of portable CLI tools,
 neutral to any build system,
 which can basically
 invoke any 3rd party tools, old and new, to perform the actual build;
@@ -72,7 +72,7 @@ greatly simplifies integration with indexers (like VS Code IntelliSense),
 but with some care can also be used with legacy tools
 like autotools and make.
 
-Future versions of the xPack Build Framework are planned to
+Future versions of the xPack Reproducible Build Framework are planned to
 include an integrated build system generator, similar to that used in
 Eclipse CDT.
 
@@ -214,6 +214,33 @@ in the system, it includes a dependency to xPack GCC and a CMake
 toolchain description file using it, to prevent CMake picking
 any other unwanted compiler possibly present in the system.
 
+## Create a Hello World project
+
+The **Quick Start a Hello World project** presented above creates
+a C++ project built with CMake.
+
+The full set of choices is available when executing the
+**xPack: Create a Hello World project**, which is an interactive
+applications requiring user input.
+
+The result is similar, but using different build tools or
+language (C vs C++).
+
+When this command is invoked, VS Code instantiates the separate
+project template available from:
+
+- <https://github.com/xpack/hello-world-template-xpack/>
+
+## Create a Hello World QEMU semihosted project
+
+In addition to native projects running on the host system, it is possible
+to create Arm and RISC-V bare metal projects running on QEMU.
+
+When this command is invoked, VS Code instantiates the separate
+project template available from:
+
+- <https://github.com/micro-os-plus/hello-world-qemu-template-xpack>
+
 ## VS Code configurations
 
 The VS Code C/C++ extension keeps track of multiple configurations
@@ -266,7 +293,7 @@ and it is expected to be fixed in a future release.
 
 ## Release Notes
 
-The latest release is **v0.4.18**, which,
+The latest release is **v0.4.19**, which,
 according to [semantic versioning](https://semver.org) rules,
 means it is still _in initial development_ phase.
 
