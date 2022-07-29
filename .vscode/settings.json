@@ -23,5 +23,16 @@
     "en_GB"
   ],
   "spellright.notificationClass": "warning",
-  "cmake.configureOnOpen": false
+  "cmake.configureOnOpen": false,
+  "cSpell.ignoreWords": [
+    "cmake",
+    "cpptools",
+    "mhutchie",
+    "mkdir",
+    "spellright",
+    "twxs",
+    "vscodeignore",
+    "vsix",
+    "xpack"
+  ]
 }
