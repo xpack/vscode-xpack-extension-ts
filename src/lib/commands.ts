@@ -186,6 +186,14 @@ export class Commands implements vscode.Disposable {
         this
       )
     )
+
+    context.subscriptions.push(
+      vscode.commands.registerCommand(
+        'xpack.createProjectHelloQemu',
+        this.createProjectHelloQemu,
+        this
+      )
+    )
   }
 
   // --------------------------------------------------------------------------
@@ -520,6 +528,19 @@ export class Commands implements vscode.Disposable {
       [
         'init',
         '--template', '@xpack/hello-world-template@latest'
+      ]
+    )
+  }
+
+  async createProjectHelloQemu (): Promise<void> {
+    const log = this.log
+
+    log.trace('Command.createProjectHelloQemu()')
+
+    await this._createXpmProject(
+      [
+        'init',
+        '--template', '@micro-os-plus/hello-world-qemu-template@latest'
       ]
     )
   }

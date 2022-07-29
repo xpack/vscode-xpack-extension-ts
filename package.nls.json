@@ -12,6 +12,7 @@
   "command.createProjectEmpty": "Create an empty project",
   "command.createProjectHelloQuick": "Quick Start a Hello World project (C++, CMake)",
   "command.createProjectHello": "Create a Hello World project (C/C++, CMake/meson)",
+  "command.createProjectHelloQemu": "Create a Hello World QEMU semihosted project (Arm/RISC-V, C/C++, CMake/meson)",
   "taskdef.xpmCommand": "The xpm command to customize.",
   "taskdef.actionName": "The name of the xPack action to customize.",
   "taskdef.buildConfigurationName": "The name of the xPack build configuration where the action is defined. If omitted, the action does not belong to a configuration, but to the package.",
