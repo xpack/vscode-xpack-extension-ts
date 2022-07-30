@@ -28,14 +28,13 @@ It can be installed from the VisualStudio Marketplace as
 [ilg-vscode.xpack](https://marketplace.visualstudio.com/items?itemName=ilg-vscode.xpack)
 and it pulls its own dependencies (like the C/C++).
 
-## Requirements
+## Prerequisites (node/npm)
 
 VS Code 1.54 or later and a recent [xpm](https://xpack.github.io/xpm/),
 which is a portable [Node.js](https://nodejs.org/) command line application,
 available from [npmjs.com](https://www.npmjs.com/package/xpm/).
 
 ```sh
-npm uninstall --global xpm
 npm install --global xpm@latest
 ```
 
