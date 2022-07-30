@@ -25,10 +25,13 @@
   "spellright.notificationClass": "warning",
   "cmake.configureOnOpen": false,
   "cSpell.ignoreWords": [
+    "Ionescu",
+    "Liviu",
     "cmake",
     "cpptools",
     "mhutchie",
     "mkdir",
+    "semihosted",
     "spellright",
     "twxs",
     "vscodeignore",
