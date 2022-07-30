@@ -287,7 +287,8 @@ project template available from:
 ### Create a Hello World QEMU semihosted project
 
 In addition to native projects running on the host system, it is possible
-to create Arm and RISC-V bare metal projects running on QEMU.
+to create Arm Cortex-M, Arm Cortex-A (32/64-bit) and RISC-V (32/64-bit)
+bare metal projects running on QEMU.
 
 When this command is invoked, VS Code instantiates the separate
 project template available from:
