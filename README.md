@@ -214,33 +214,6 @@ in the system, it includes a dependency to xPack GCC and a CMake
 toolchain description file using it, to prevent CMake picking
 any other unwanted compiler possibly present in the system.
 
-## Create a Hello World project
-
-The **Quick Start a Hello World project** presented above creates
-a C++ project built with CMake.
-
-The full set of choices is available when executing the
-**xPack: Create a Hello World project**, which is an interactive
-applications requiring user input.
-
-The result is similar, but using different build tools or
-language (C vs C++).
-
-When this command is invoked, VS Code instantiates the separate
-project template available from:
-
-- <https://github.com/xpack/hello-world-template-xpack/>
-
-## Create a Hello World QEMU semihosted project
-
-In addition to native projects running on the host system, it is possible
-to create Arm and RISC-V bare metal projects running on QEMU.
-
-When this command is invoked, VS Code instantiates the separate
-project template available from:
-
-- <https://github.com/micro-os-plus/hello-world-qemu-template-xpack>
-
 ## VS Code configurations
 
 The VS Code C/C++ extension keeps track of multiple configurations
@@ -291,6 +264,37 @@ and it is expected to be fixed in a future release.
 
 - none so far
 
+## Project templates
+
+Creating new projects is automated by using project templates.
+
+### Create a Hello World project
+
+The **Quick Start a Hello World project** presented above creates
+a C++ project built with CMake.
+
+The full set of choices is available when executing the
+**xPack: Create a Hello World project**, which is an interactive
+applications requiring user input.
+
+The result is similar, but using different build tools or
+language (C vs C++).
+
+When this command is invoked, VS Code instantiates the separate
+project template available from:
+
+- <https://github.com/xpack/hello-world-template-xpack/>
+
+### Create a Hello World QEMU semihosted project
+
+In addition to native projects running on the host system, it is possible
+to create Arm and RISC-V bare metal projects running on QEMU.
+
+When this command is invoked, VS Code instantiates the separate
+project template available from:
+
+- <https://github.com/micro-os-plus/hello-world-qemu-template-xpack>
+
 ## Release Notes
 
 The latest release is **v0.4.19**, which,
@@ -303,3 +307,9 @@ change at any time and the public API **SHOULD NOT** be considered stable.
 
 More details about each release can be found in the
 [releases](https://xpack.github.io/vscode/releases/) pages.
+
+## License
+
+The original content is released under the
+[MIT License](https://opensource.org/licenses/MIT), with all rights
+reserved to [Liviu Ionescu](https://github.com/ilg-ul/).
