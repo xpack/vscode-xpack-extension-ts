@@ -6,6 +6,10 @@ Please check
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 and close existing issues and pull requests.
 
+## 2022-10-21
+
+* prepare v0.4.20
+
 ## 2022-07-29
 
 * prepare v0.4.19
