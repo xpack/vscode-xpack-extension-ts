@@ -228,11 +228,19 @@ export class DataModel implements vscode.Disposable {
         configurationName,
         parent.package
       )
-
-      const dataNodeCommand = parent.addCommand('install', task)
-
-      this.commands.push(dataNodeCommand)
       this.tasks.push(task)
+
+      const actions: JsonActions | undefined =
+        (parent instanceof DataNodeConfiguration)
+          ? (fromJson as JsonBuildConfiguration).actions
+          : (fromJson as XpackPackageJson).xpack.actions
+      if (actions?.install !== undefined) {
+        // An action with the explicit name `install` is present;
+        // do not show the default command.
+      } else {
+        const dataNodeCommand = parent.addCommand('install', task)
+        this.commands.push(dataNodeCommand)
+      }
     }
   }
 
