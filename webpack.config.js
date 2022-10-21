@@ -3,12 +3,17 @@
 'use strict'
 
 const path = require('path')
+const { ContextReplacementPlugin } = require('webpack')
 
 /** @type {import('webpack').Configuration} */
 const config = {
   target: 'node', // vscode extensions run in a Node.js-context 📖 -> https://webpack.js.org/configuration/node/
 
   entry: './src/extension.ts', // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
+  plugins: [
+    // https://github.com/harttle/liquidjs/issues/334#issuecomment-1287213224
+    new ContextReplacementPlugin(/liquidjs/)
+  ],
   output: {
     // the bundle is stored in the 'dist' folder (check package.json), 📖 -> https://webpack.js.org/configuration/output/
     path: path.resolve(__dirname, 'dist'),
