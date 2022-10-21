@@ -57,7 +57,7 @@ export class DataModel implements vscode.Disposable {
   log: Logger
 
   cancellation: vscode.CancellationTokenSource =
-  new vscode.CancellationTokenSource()
+    new vscode.CancellationTokenSource()
 
   // --------------------------------------------------------------------------
   // Constructor.

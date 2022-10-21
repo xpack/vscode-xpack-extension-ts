@@ -530,10 +530,10 @@ export class XpackActionsTreeDataProvider implements
 
   private readonly _onDidChangeTreeDataEmitter:
   vscode.EventEmitter<TreeItem | null> =
-  new vscode.EventEmitter<TreeItem | null>()
+      new vscode.EventEmitter<TreeItem | null>()
 
   readonly onDidChangeTreeData: vscode.Event<TreeItem | null> =
-  this._onDidChangeTreeDataEmitter.event
+    this._onDidChangeTreeDataEmitter.event
 
   // --------------------------------------------------------------------------
   // Constructor.

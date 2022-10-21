@@ -562,7 +562,7 @@ export class Commands implements vscode.Disposable {
       canSelectFiles: false,
       canSelectFolders: true,
       canSelectMany: false,
-      defaultUri: defaultUri
+      defaultUri
     })
 
     if (uris === undefined) {

@@ -54,7 +54,7 @@ export class ExtensionManager implements vscode.Disposable {
   subscriptions: vscode.Disposable[] = []
 
   onSelectBuildConfiguration: vscode.EventEmitter<DataNodeConfiguration> =
-  new vscode.EventEmitter<DataNodeConfiguration>()
+    new vscode.EventEmitter<DataNodeConfiguration>()
 
   maxSearchDepthLevel: number
 

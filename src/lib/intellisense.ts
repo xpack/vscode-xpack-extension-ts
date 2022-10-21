@@ -399,12 +399,12 @@ implements cpt.CustomConfigurationProvider {
 
   private readonly _workspaceBrowseConfiguration:
   cpt.WorkspaceBrowseConfiguration =
-  {
-    browsePath: []
-  }
+      {
+        browsePath: []
+      }
 
   private readonly _workspaceBrowseConfigurations =
-  new Map<string, cpt.WorkspaceBrowseConfiguration>()
+    new Map<string, cpt.WorkspaceBrowseConfiguration>()
 
   readonly log: Logger
 
