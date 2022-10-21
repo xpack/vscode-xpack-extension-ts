@@ -47,8 +47,8 @@ export class DataModel implements vscode.Disposable {
   workspaceProjects: DataNodePackage[] = []
   packages: DataNodePackage[] = []
   configurations: DataNodeConfiguration[] = []
-  commands: DataNodeCommand[] = []
-  actions: DataNodeAction[] = []
+  commands: DataNodeCommand[] = [] // Associated with npm scripts
+  actions: DataNodeAction[] = [] // xPack actions
 
   tasks: vscode.Task[] = []
 
