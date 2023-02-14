@@ -122,6 +122,14 @@ export class Commands implements vscode.Disposable {
         this
       )
     )
+    context.subscriptions.push(
+      vscode.commands.registerCommand(
+        'xpack.copyAction',
+        this.copyAction,
+        this
+      )
+    )
+
     // context.subscriptions.push(
     //   vscode.commands.registerCommand(
     //     'xpack.selectBuildConfiguration',
@@ -252,7 +260,37 @@ export class Commands implements vscode.Disposable {
       log.trace(treeItem.task.execution)
       await treeItem.runTask()
     } else {
-      log.debug('unAction(): treeItem not yet implemented')
+      log.debug('runAction(): treeItem not yet implemented')
+    }
+  }
+
+  async copyAction (treeItem: TreeItem): Promise<void> {
+    const log = this.log
+
+    log.trace('Command.copyAction()')
+    if (treeItem instanceof TreeItemAction) {
+      if (treeItem.task === undefined) {
+        log.debug('copyAction(): inconsistent treeItem, no task')
+        return
+      }
+      log.trace(treeItem.task.execution)
+      let command = `xpm run ${treeItem.name}`
+      if (treeItem.parent instanceof TreeItemConfiguration) {
+        command += ` --config ${treeItem.parent.name}`
+      }
+
+      let node = treeItem.parent
+      while (!(node instanceof TreeItemPackage)) {
+        node = node.parent
+      }
+
+      const projectFolderPath = node.dataNode.folderPath
+
+      command += ` -C '${projectFolderPath}'`
+      log.trace(command)
+      await vscode.env.clipboard.writeText(command)
+    } else {
+      log.debug('copyAction(): treeItem not yet implemented')
     }
   }
 

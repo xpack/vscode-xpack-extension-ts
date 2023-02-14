@@ -126,6 +126,11 @@
         "icon": "$(run)"
       },
       {
+        "command": "xpack.copyAction",
+        "title": "%command.copyAction%",
+        "icon": "$(run)"
+      },
+      {
         "command": "xpack.addConfiguration",
         "title": "%command.addConfiguration%",
         "icon": "$(empty-window)"
@@ -199,6 +204,11 @@
         },
         {
           "command": "xpack.runAction",
+          "when": "view == xPackActions && viewItem == action",
+          "group": "navigation"
+        },
+        {
+          "command": "xpack.copyAction",
           "when": "view == xPackActions && viewItem == action",
           "group": "navigation"
         },
