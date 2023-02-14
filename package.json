@@ -85,12 +85,7 @@
   "main": "./dist/extension.js",
   "activationEvents": [
     "onLanguage:json",
-    "workspaceContains:**/package.json",
-    "onView:xPackActions",
-    "onCommand:xpack.createProjectEmpty",
-    "onCommand:xpack.createProjectHelloQuick",
-    "onCommand:xpack.createProjectHello",
-    "onCommand:xpack.createProjectHelloQemu"
+    "workspaceContains:**/package.json"
   ],
   "contributes": {
     "commands": [
