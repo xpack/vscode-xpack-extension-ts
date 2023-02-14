@@ -48,7 +48,30 @@
       ]
     },
     "buildConfigurations": {
+      "common-dependencies": {
+        "hidden": true,
+        "devDependencies": {
+          "@xpack-dev-tools/cmake": "3.23.5-1.1",
+          "@xpack-dev-tools/m4": "1.4.19-2.1",
+          "@xpack-dev-tools/ninja-build": "1.11.1-2.1",
+          "@xpack-dev-tools/pkg-config": "0.29.2-2.1"
+        }
+      },
+      "common-actions": {
+        "hidden": true,
+        "actions": {
+          "deep-clean": [
+            "rm -rf {{ properties.buildFolderRelativePathPosix }}",
+            "rm -rf ${HOME}/Work/{{ properties.appLcName }}-[0-9]*-*/{{ configuration.name }}"
+          ],
+          "install": "xpm install --config {{ configuration.name }}"
+        }
+      },
       "Debug": {
+        "inherit": [
+          "common-dependencies",
+          "common-actions"
+        ],
         "properties": {
           "buildType": "Debug"
         },
@@ -62,16 +85,11 @@
         }
       },
       "Release": {
+        "inherit": [
+          "Debug"
+        ],
         "properties": {
           "buildType": "Release"
-        },
-        "actions": {
-          "build": [
-            "{{ properties.commandCmakeGenerate }}",
-            "{{ properties.commandCmakeBuild }}"
-          ],
-          "clean": "{{ properties.commandCmakeClean }}",
-          "execute": "{{ properties.buildFolderRelativePath }}/hello-world"
         }
       }
     }
