@@ -228,10 +228,22 @@ export class DataModel implements vscode.Disposable {
     )
     this.tasks.push(task)
 
-    const actions: JsonActions | undefined =
-        (parent instanceof DataNodeConfiguration)
-          ? (fromJson as JsonBuildConfiguration).actions
-          : (fromJson as XpackPackageJson).xpack.actions
+    let actions: JsonActions | undefined
+    if (parent instanceof DataNodeConfiguration) {
+      if (!utils.isNonEmptyJsonObject(fromJson.devDependencies)) {
+        return
+      }
+      actions = (fromJson as JsonBuildConfiguration).actions
+    } else if (parent instanceof DataNodePackage) {
+      if (!utils.isNonEmptyJsonObject(fromJson.devDependencies) &&
+          !utils.isNonEmptyJsonObject(
+            (fromJson as XpackPackageJson).xpack.devDependencies)) {
+        return
+      }
+      actions = (fromJson as XpackPackageJson).xpack.actions
+    } else {
+      throw new Error('Internal error, unknown parent.')
+    }
     if (actions?.install !== undefined) {
       // An action with the explicit name `install` is present;
       // do not show the default command.
