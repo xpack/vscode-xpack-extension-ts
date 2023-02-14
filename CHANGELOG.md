@@ -6,8 +6,26 @@ Please check
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 and close existing issues and pull requests.
 
+## 2023-02-14
+
+* 055f638 package.json: reorder deps
+* 20515cb tests/single: install2
+* aaf123b #40: filter out configs without devDependencies
+* ddf9343 #39: add Copy to right click
+* eed9c50 tests/single: use hidden configurations
+* f26ed23 #37: skip hidden build configurations
+* d583eb8 tsconfig.json: use es6 modules & resolution
+* 6216c82 README updates
+* e207a6d package.json: cleanups in activationEvents
+* c89f65e package.json: update scripts
+* 1994615 engines: vscode 1.75.0
+* f2ba67a package.json: bump deps
+* fabec90 #40: make the install button visible
+* 1dee595 definitions.ts: add *dependencies
+
 ## 2022-10-21
 
+* a4f5df9 webpack.config.js: suppress warning
 * prepare v0.4.20
 
 ## 2022-07-29
