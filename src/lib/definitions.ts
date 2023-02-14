@@ -59,6 +59,8 @@ export interface XpackPackageJson {
   xpack: {
     properties?: JsonProperties
     actions?: JsonActions
+    dependencies?: any
+    devDependencies?: any
     buildConfigurations?: JsonBuildConfigurations
   }
 }
