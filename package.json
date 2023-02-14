@@ -42,7 +42,7 @@
     "ms-vscode.cpptools"
   ],
   "engines": {
-    "vscode": "^1.71.0"
+    "vscode": "^1.75.0"
   },
   "scripts": {
     "webpack-dev": "webpack --mode development --watch",
