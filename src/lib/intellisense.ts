@@ -202,6 +202,12 @@ export class IntelliSense implements vscode.Disposable {
 
     for (const dataNodeConfiguration of dataNodePackage.configurations) {
       const globalConfigurationName = dataNodeConfiguration.name
+
+      if (dataNodeConfiguration.hidden) {
+        log.trace(`c/c++ configuration name: ${globalConfigurationName} hidden`)
+        continue
+      }
+
       log.trace(`c/c++ configuration name: ${globalConfigurationName}`)
 
       // First try to identify an existing configuration;
