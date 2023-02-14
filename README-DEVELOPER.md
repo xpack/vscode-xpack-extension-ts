@@ -124,6 +124,9 @@ Critical dependency: the request of a dependency is an expression
 
 Use the existing launchers.
 
+Note: the debug session requires the `dist` code, created by the
+`webpack-dev` task, the `out` folder created by the compiler is not enough.
+
 ## Language standard compliance
 
 The current version is TypeScript 4:

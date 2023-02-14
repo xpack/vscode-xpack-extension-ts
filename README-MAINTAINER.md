@@ -21,8 +21,6 @@ Before making the release, perform some checks and tweaks.
 - `npm outdated`
 - keep `@types/node` locked to the
   [latest node.js LTS](https://www.npmjs.com/package/@types/node)
-- keep `@types/vscode` locked to
-  one [minor version behind](https://www.npmjs.com/package/@types/vscode)
 - edit `package.json`  and `npm install`
 - repeat until everything is up to date
 
