@@ -212,35 +212,32 @@ export class DataModel implements vscode.Disposable {
     fromJson: XpackPackageJson | JsonBuildConfiguration,
     parent: DataNodeConfiguration | DataNodePackage
   ): Promise<void> {
-    if (utils.isNonEmptyJsonObject(fromJson.dependencies) ||
-    utils.isNonEmptyJsonObject(fromJson.devDependencies)) {
-      const configurationName =
+    const configurationName =
       (parent instanceof DataNodeConfiguration)
         ? parent.name
         : ''
 
-      if (this.cancellation.token.isCancellationRequested) {
-        return
-      }
+    if (this.cancellation.token.isCancellationRequested) {
+      return
+    }
 
-      const task = await this.createTaskForCommand(
-        'install',
-        configurationName,
-        parent.package
-      )
-      this.tasks.push(task)
+    const task = await this.createTaskForCommand(
+      'install',
+      configurationName,
+      parent.package
+    )
+    this.tasks.push(task)
 
-      const actions: JsonActions | undefined =
+    const actions: JsonActions | undefined =
         (parent instanceof DataNodeConfiguration)
           ? (fromJson as JsonBuildConfiguration).actions
           : (fromJson as XpackPackageJson).xpack.actions
-      if (actions?.install !== undefined) {
-        // An action with the explicit name `install` is present;
-        // do not show the default command.
-      } else {
-        const dataNodeCommand = parent.addCommand('install', task)
-        this.commands.push(dataNodeCommand)
-      }
+    if (actions?.install !== undefined) {
+      // An action with the explicit name `install` is present;
+      // do not show the default command.
+    } else {
+      const dataNodeCommand = parent.addCommand('install', task)
+      this.commands.push(dataNodeCommand)
     }
   }
 
