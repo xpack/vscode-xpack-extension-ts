@@ -43,7 +43,7 @@ import {
 // ----------------------------------------------------------------------------
 
 type ActionsTree = TreeItemPackage[] | TreeItemEmpty[]
-type TreeItemRunableParent = TreeItemPackage | TreeItemConfiguration
+type TreeItemRunnableParent = TreeItemPackage | TreeItemConfiguration
 type TreeItemPackageChild = TreeItemCommand | TreeItemAction |
 TreeItemConfiguration
 type TreeItemConfigurationChild = TreeItemCommand | TreeItemAction
@@ -270,7 +270,7 @@ class TreeItemRunnable extends TreeItem {
   // Members.
 
   task: vscode.Task
-  parent: TreeItemRunableParent
+  parent: TreeItemRunnableParent
 
   // --------------------------------------------------------------------------
   // Constructor.
@@ -278,7 +278,7 @@ class TreeItemRunnable extends TreeItem {
   constructor (
     name: string,
     task: vscode.Task,
-    parent: TreeItemRunableParent
+    parent: TreeItemRunnableParent
   ) {
     super(name, vscode.TreeItemCollapsibleState.None, name)
 
@@ -330,7 +330,7 @@ class TreeItemRunnable extends TreeItem {
   }
 
   dispose (): void {
-    this.parent = undefined as unknown as TreeItemRunableParent
+    this.parent = undefined as unknown as TreeItemRunnableParent
     this.task = undefined as unknown as vscode.Task
 
     super.dispose()
@@ -349,7 +349,7 @@ export class TreeItemCommand extends TreeItemRunnable {
   constructor (
     commandName: string,
     task: vscode.Task,
-    parent: TreeItemRunableParent
+    parent: TreeItemRunnableParent
   ) {
     super(commandName, task, parent)
 
@@ -381,7 +381,7 @@ export class TreeItemAction extends TreeItemRunnable {
     actionName: string,
     actionValue: string[],
     task: vscode.Task,
-    parent: TreeItemRunableParent
+    parent: TreeItemRunnableParent
   ) {
     super(actionName, task, parent)
 

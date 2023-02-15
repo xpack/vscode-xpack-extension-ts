@@ -70,7 +70,7 @@ export interface XpackPackageJson {
  * in `package.json`.
  * It must be filled in and passed as the first parameter
  * when creating tasks.
- * In adition to these members, an inherited property named `type` must
+ * In addition to these members, an inherited property named `type` must
  * be set to `xPack`.
  */
 export interface XpackTaskDefinition extends vscode.TaskDefinition {

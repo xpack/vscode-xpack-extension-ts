@@ -765,7 +765,7 @@ export class DataNodeConfiguration extends DataNode {
 /**
  * A parent class for actions and commands to store the associated task.
  */
-class DataNodeRunable extends DataNode {
+class DataNodeRunnable extends DataNode {
   // --------------------------------------------------------------------------
   // Members.
 
@@ -827,7 +827,7 @@ class DataNodeRunable extends DataNode {
 /**
  * A class to store the action value and the associated task.
  */
-export class DataNodeAction extends DataNodeRunable {
+export class DataNodeAction extends DataNodeRunnable {
   // --------------------------------------------------------------------------
   // Members.
 
@@ -872,7 +872,7 @@ export class DataNodeAction extends DataNodeRunable {
 /**
  * A class to store the command and the associated task.
  */
-export class DataNodeCommand extends DataNodeRunable {
+export class DataNodeCommand extends DataNodeRunnable {
   // --------------------------------------------------------------------------
   // Members.
 

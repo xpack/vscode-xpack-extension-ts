@@ -92,7 +92,7 @@ export async function activate (
  * Deactivate the extension.
  *
  * @description
- * VS Code calls this function, usualy when shutting down, but also
+ * VS Code calls this function, usually when shutting down, but also
  * when the extension in disabled or uninstalled.
  */
 export async function deactivate (): Promise<void> {

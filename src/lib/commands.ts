@@ -221,7 +221,7 @@ export class Commands implements vscode.Disposable {
    * Run a command.
    *
    * @param treeItem - When invoked by the tree viewer it gets the
-   * TreeItem where the invocation occured.
+   * TreeItem where the invocation occurred.
    */
   async runCommand (treeItem: TreeItem): Promise<void> {
     const log = this.log
@@ -243,7 +243,7 @@ export class Commands implements vscode.Disposable {
    * Run an action.
    *
    * @param treeItem - When invoked by the tree viewer it gets the
-   * TreeItem where the invocation occured.
+   * TreeItem where the invocation occurred.
    *
    * Errors trigger a generic message, and the exceptions are not
    * reflected in the output, so better use log messages.

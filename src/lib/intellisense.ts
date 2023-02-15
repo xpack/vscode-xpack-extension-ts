@@ -270,7 +270,7 @@ export class IntelliSense implements vscode.Disposable {
    * is expected to appear in the compile_commands.json file.
    * @param jsonConfigurations - An array of configurations.
    *
-   * @returns Either an exisiting configuration or a new empty one.
+   * @returns Either an existing configuration or a new empty one.
    */
   prepareCCppPropertiesConfiguration (
     configurationName: string,
