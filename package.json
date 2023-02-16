@@ -70,6 +70,7 @@
   "dependencies": {
     "@xpack/logger": "^5.0.4",
     "@xpack/xpm-liquid": "^1.2.3",
+    "comment-json": "^4.2.3",
     "make-dir": "^3.1.0",
     "minimatch": "^5.1.6",
     "vscode-cpptools": "^6.1.0"
