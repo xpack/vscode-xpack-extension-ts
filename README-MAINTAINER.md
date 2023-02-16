@@ -94,9 +94,9 @@ Check if the page shows at:
   update `.vscodeignore`
 - `npm version patch` (bug fixes), `npm version minor` (compatible API
   additions), `npm version major` (incompatible API changes)
+- a post-version scripts should push all changes to GitHub; this should
+  also trigger CI (to be implemented)
 - `npm run package`; again, to have an up-to-date `.vsix`
-- push all changes to GitHub; this should trigger CI (to be implemented)
-- push the new `v0.4.22` tag (separate step for VS Code, included for Sourcetree)
 - **wait for CI tests to complete** (TODO)
 - `npm run publish`
 - after the confirmation eMail arrives, check
