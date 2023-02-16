@@ -6,8 +6,22 @@ Please check
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 and close existing issues and pull requests.
 
+## 2023-02-16
+
+* a73cd0f tsconfig.json: revert to module: commonjs
+* 032f302 #38: accept comments in c_cpp_properties.json
+* 916365c package.json: add comment-json
+
+## 2023-02-15
+
+* c379e70 .vscode/settings.json: ignoreWords
+* 4e8335a fix typos
+* 8cad29f package.json: reorder scripts
+
 ## 2023-02-14
 
+* 16810f8 0.4.21
+* c715492 prepare v0.4.21
 * 055f638 package.json: reorder deps
 * 20515cb tests/single: install2
 * aaf123b #40: filter out configs without devDependencies
