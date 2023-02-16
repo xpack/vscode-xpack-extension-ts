@@ -10,7 +10,7 @@
 		"lib": [
 			"es6"
 		],
-    "module": "es6",
+    "module": "commonjs",
     "moduleResolution": "node",
  		"strict": true,
 		"alwaysStrict": true,
