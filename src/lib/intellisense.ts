@@ -26,11 +26,18 @@ import { promises as fsPromises } from 'fs'
 import * as os from 'os'
 import * as path from 'path'
 
+// ----------------------------------------------------------------------------
+
+// https://www.npmjs.com/package/comment-json
+import * as jsonc from 'comment-json'
+
 // https://www.npmjs.com/package/make-dir
 import * as makeDir from 'make-dir'
 
 import * as vscode from 'vscode'
 import * as cpt from 'vscode-cpptools'
+
+// ----------------------------------------------------------------------------
 
 import { Logger } from '@xpack/logger'
 
@@ -39,11 +46,15 @@ import { DataNodePackage } from './data-model'
 
 // ----------------------------------------------------------------------------
 
+// The content is actually a bit more complicated, since it includes
+// the objects required to store the JSON comments, but this is not
+// relevant here, so keep them hidden.
 interface JsonCCppProperties {
   configurations: JsonCCppPropertiesConfiguration[]
   version: number
 }
 
+// Same here.
 interface JsonCCppPropertiesConfiguration {
   name: string
   configurationProvider?: string
@@ -169,7 +180,8 @@ export class IntelliSense implements vscode.Disposable {
     try {
       const fileContent = await fsPromises.readFile(jsonFilePath)
       assert(fileContent !== null)
-      json = JSON.parse(fileContent.toString())
+      const jc: jsonc.CommentJSONValue = jsonc.parse(fileContent.toString())
+      json = jc as unknown as JsonCCppProperties
     } catch (err) {
       // Ensure that the folder is there.
       await makeDir(vscodeFolderPath)
@@ -188,7 +200,7 @@ export class IntelliSense implements vscode.Disposable {
       dataNodePackage, json.configurations)
 
     if (json.configurations.length > 0) {
-      const fileNewContent = JSON.stringify(json, null, 2) + os.EOL
+      const fileNewContent = jsonc.stringify(json, null, 2) + os.EOL
       await fsPromises.writeFile(jsonFilePath, fileNewContent)
       log.trace(`${jsonFilePath} written back`)
     }
