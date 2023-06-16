@@ -80,6 +80,7 @@ export class DataModel implements vscode.Disposable {
   }
 
   async createTree (): Promise<void> {
+    const log = this.log
     if (vscode.workspace.workspaceFolders != null) {
       const filteredWorkspaces = vscode.workspace.workspaceFolders.filter(
         (workspaceFolder) => workspaceFolder.uri.scheme === 'file'
@@ -98,6 +99,7 @@ export class DataModel implements vscode.Disposable {
           const exclude = folderConfiguration
             .get<string | string[]>('exclude', [])
           const excludeArray = Array.isArray(exclude) ? exclude : [exclude]
+          log.trace(`excludeArray ${excludeArray}`)
           const promise = this._findPackageJsonFilesRecursive(
             dataNodeWorkspaceFolder.workspaceFolder.uri.fsPath,
             this._maxSearchDepth,
@@ -122,18 +124,19 @@ export class DataModel implements vscode.Disposable {
     assert(folderPath)
     const log = this.log
 
-    // May be null.
-    log.trace(`check folder ${folderPath} `)
-
     if (this.cancellation.token.isCancellationRequested) {
       return
     }
 
     for (const pattern of exclude) {
       if (utils.testForExclusionPattern(folderPath, pattern)) {
+        log.trace(`excluded ${folderPath} ${pattern}`)
         return
       }
     }
+
+    // May be null.
+    log.trace(`check folder ${folderPath} `)
 
     const xpack = new Xpack(log, folderPath)
     const packageJson = await xpack.checkIfFolderHasPackageJson()
@@ -168,7 +171,7 @@ export class DataModel implements vscode.Disposable {
         await this.addConfigurations(
           xpackPackageJson.xpack.buildConfigurations, dataNodePackage)
       }
-      return
+      // return
     }
 
     if (depth <= 0) {
@@ -257,7 +260,7 @@ export class DataModel implements vscode.Disposable {
     fromJson: JsonActions | undefined,
     parent: DataNodeConfiguration | DataNodePackage
   ): Promise<void> {
-    const log = this.log
+    // const log = this.log
 
     if (fromJson !== undefined) {
       for (const actionName of Object.keys(fromJson)) {
@@ -284,7 +287,7 @@ export class DataModel implements vscode.Disposable {
           actionValue = await parent.xpmLiquidEngine.performSubstitutions(
             actionJsonValue, parent.xpmLiquidMap)
         } catch (err) {
-          log.trace(err)
+          // log.trace(err)
           actionValue = actionJsonValue
         }
         const dataNodeAction = parent.addAction(actionName,
