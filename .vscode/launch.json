@@ -32,6 +32,7 @@
       "outFiles": [
         "${workspaceFolder}/out/**/*.js"
       ],
+      "sourceMaps": true,
       "skipFiles": [
         "async_hooks.js",
         "inspector_async_hook.js"
