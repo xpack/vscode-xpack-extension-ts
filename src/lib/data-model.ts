@@ -99,7 +99,7 @@ export class DataModel implements vscode.Disposable {
           const exclude = folderConfiguration
             .get<string | string[]>('exclude', [])
           const excludeArray = Array.isArray(exclude) ? exclude : [exclude]
-          log.trace(`excludeArray ${excludeArray}`)
+          log.trace(`excludeArray [${excludeArray.join(',')}]`)
           const promise = this._findPackageJsonFilesRecursive(
             dataNodeWorkspaceFolder.workspaceFolder.uri.fsPath,
             this._maxSearchDepth,
