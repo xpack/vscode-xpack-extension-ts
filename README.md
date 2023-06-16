@@ -297,7 +297,7 @@ project template available from:
 
 ## Release Notes
 
-The latest release is **v0.5.1**, which,
+The latest release is **v0.5.0**, which,
 according to [semantic versioning](https://semver.org) rules,
 means it is still _in initial development_ phase.
 

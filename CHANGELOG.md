@@ -8,7 +8,7 @@ and close existing issues and pull requests.
 
 ## 2023-06-16
 
-* prepare v0.5.1
+* prepare v0.5.0
 * 3b7948d silence standard warning
 * e63a01a bump deps
 * 9557229 launch.json: add sourceMaps
