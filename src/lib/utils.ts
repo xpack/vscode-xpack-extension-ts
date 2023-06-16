@@ -14,7 +14,7 @@
 // ----------------------------------------------------------------------------
 
 import * as path from 'path'
-import * as minimatch from 'minimatch'
+import { minimatch } from 'minimatch'
 
 import * as vscode from 'vscode'
 
