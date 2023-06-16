@@ -6,8 +6,19 @@ Please check
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 and close existing issues and pull requests.
 
+## 2023-06-16
+
+* prepare v0.5.1
+* 3b7948d silence standard warning
+* e63a01a bump deps
+* 9557229 launch.json: add sourceMaps
+* 394560e #45: descend into xpacks
+
 ## 2023-02-16
 
+* bc0c2fa README update
+* fb5b770 0.4.22
+* a24c5ed prepare v0.4.22
 * a73cd0f tsconfig.json: revert to module: commonjs
 * 032f302 #38: accept comments in c_cpp_properties.json
 * 916365c package.json: add comment-json
