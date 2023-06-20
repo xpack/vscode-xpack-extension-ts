@@ -12,6 +12,7 @@
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}"
       ],
+      "sourceMaps": true,
       "outFiles": [
         "${workspaceFolder}/out/**/*.js"
       ],
@@ -29,10 +30,10 @@
         "--extensionDevelopmentPath=${workspaceFolder}",
         "${workspaceFolder}/tests/single-workspace"
       ],
+      "sourceMaps": true,
       "outFiles": [
         "${workspaceFolder}/out/**/*.js"
       ],
-      "sourceMaps": true,
       "skipFiles": [
         "async_hooks.js",
         "inspector_async_hook.js"
@@ -47,6 +48,7 @@
         "--extensionDevelopmentPath=${workspaceFolder}",
         "${workspaceFolder}/tests/multi-workspace"
       ],
+      "sourceMaps": true,
       "outFiles": [
         "${workspaceFolder}/out/**/*.js"
       ],
@@ -64,6 +66,25 @@
         "--extensionDevelopmentPath=${workspaceFolder}",
         "${workspaceFolder}/tests/multi-workspace/multi.code-workspace"
       ],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/out/**/*.js"
+      ],
+      "skipFiles": [
+        "async_hooks.js",
+        "inspector_async_hook.js"
+      ],
+      "preLaunchTask": "${defaultBuildTask}"
+    },
+    {
+      "name": "Run Extension sub-folder",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "${workspaceFolder}/tests/sub-folder-workspace"
+      ],
+      "sourceMaps": true,
       "outFiles": [
         "${workspaceFolder}/out/**/*.js"
       ],
@@ -81,6 +102,7 @@
         "--extensionDevelopmentPath=${workspaceFolder}",
         "${env:HOME}/Work/xpack-study-projects.git"
       ],
+      "sourceMaps": true,
       "outFiles": [
         "${workspaceFolder}/out/**/*.js"
       ],
@@ -98,6 +120,7 @@
         "--extensionDevelopmentPath=${workspaceFolder}",
         "${env:HOME}/Work/xpack-study-projects.git/blinky-rtos"
       ],
+      "sourceMaps": true,
       "outFiles": [
         "${workspaceFolder}/out/**/*.js"
       ],
@@ -115,6 +138,7 @@
         "--extensionDevelopmentPath=${workspaceFolder}",
         "/Users/ilg/tmp/nnn"
       ],
+      "sourceMaps": true,
       "outFiles": [
         "${workspaceFolder}/out/**/*.js"
       ],
@@ -128,6 +152,7 @@
         "--extensionDevelopmentPath=${workspaceFolder}",
         "--extensionTestsPath=${workspaceFolder}/out/test/suite/index"
       ],
+      "sourceMaps": true,
       "outFiles": [
         "${workspaceFolder}/out/test/**/*.js"
       ],
@@ -141,6 +166,7 @@
         "--extensionDevelopmentPath=${workspaceFolder}",
         "${workspaceFolder}/tests/inherit-workspace"
       ],
+      "sourceMaps": true,
       "outFiles": [
         "${workspaceFolder}/out/**/*.js"
       ],
