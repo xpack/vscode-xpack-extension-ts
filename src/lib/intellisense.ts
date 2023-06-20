@@ -42,7 +42,7 @@ import * as cpt from 'vscode-cpptools'
 import { Logger } from '@xpack/logger'
 
 import { ExtensionManager } from './manager'
-import { DataNodePackage } from './data-model'
+import { DataNodePackage, DataNodeWorkspaceFolder } from './data-model'
 
 // ----------------------------------------------------------------------------
 
@@ -212,65 +212,76 @@ export class IntelliSense implements vscode.Disposable {
   ): Promise<void> {
     const log = this.log
 
-    for (const dataNodeConfiguration of dataNodePackage.configurations) {
-      const globalConfigurationName = dataNodeConfiguration.name
+    const parentWorkspaceFolder: DataNodeWorkspaceFolder =
+      dataNodePackage.parent
 
-      if (dataNodeConfiguration.hidden) {
-        log.trace(`c/c++ configuration name: ${globalConfigurationName} hidden`)
-        continue
+    for (const childDataNodePackage of parentWorkspaceFolder.packages) {
+      for (const dataNodeConfiguration of childDataNodePackage.configurations) {
+        const globalConfigurationName =
+          childDataNodePackage.name !== ''
+            // For sub-folders, prefix the configuration name.
+            ? (childDataNodePackage.name + '/' + dataNodeConfiguration.name)
+            : dataNodeConfiguration.name
+
+        if (dataNodeConfiguration.hidden) {
+          log.trace(
+            `c/c++ configuration name: ${globalConfigurationName} hidden`)
+          continue
+        }
+
+        log.trace(`c/c++ configuration name: ${globalConfigurationName}`)
+
+        // First try to identify an existing configuration;
+        // if not found, create a new empty one.
+        const currentJsonConfiguration =
+          this.prepareCCppPropertiesConfiguration(
+            globalConfigurationName, jsonConfigurations)
+
+        // Get the variable value (via substitutions).
+        const buildFolderRelativePath =
+          await dataNodeConfiguration.getBuildFolderRelativePath()
+
+        // Use relative paths.
+        const newBaseFolderPath = '$' + '{workspaceFolder}'
+
+        const compileCommandsValue = path.join(
+          newBaseFolderPath,
+          childDataNodePackage.name, // May be empty
+          buildFolderRelativePath,
+          'compile_commands.json'
+        )
+
+        const compileCommandsFileAbsolutePath = path.join(
+          childDataNodePackage.folderPath,
+          buildFolderRelativePath,
+          'compile_commands.json')
+
+        // Based on feedback and tests, the dependency on CMake seems no
+        // longer necessary and was disabled, at least until a proper
+        // `ilg-vscode.xpack` provider will be added.
+        /*
+        if (currentJsonConfiguration.configurationProvider === undefined) {
+          // Configure the provider to the CMake one for now.
+          currentJsonConfiguration.configurationProvider =
+          'ms-vscode.cmake-tools' // 'ilg-vscode.xpack'
+        }
+        */
+
+        try {
+          // Will throw if the file does not exists.
+          await fsPromises.stat(compileCommandsFileAbsolutePath)
+
+          // If the file exists, configure the path to it.
+          currentJsonConfiguration.compileCommands = compileCommandsValue
+        } catch (err) {
+          // The `compile_commands.json` file does not exist yet,
+          // ensure that this property is not set, to avoid an
+          // warning from the C/C++ extension.
+          delete currentJsonConfiguration.compileCommands
+        }
+
+        log.trace(`c/c++ compileCommands: ${compileCommandsValue}`)
       }
-
-      log.trace(`c/c++ configuration name: ${globalConfigurationName}`)
-
-      // First try to identify an existing configuration;
-      // if not found, create a new empty one.
-      const currentJsonConfiguration =
-        this.prepareCCppPropertiesConfiguration(
-          globalConfigurationName, jsonConfigurations)
-
-      // Get the variable value (via substitutions).
-      const buildFolderRelativePath =
-        await dataNodeConfiguration.getBuildFolderRelativePath()
-
-      // Use relative paths.
-      const newBaseFolderPath = '$' + '{workspaceFolder}'
-
-      const compileCommandsValue = path.join(
-        newBaseFolderPath,
-        buildFolderRelativePath,
-        'compile_commands.json'
-      )
-
-      const compileCommandsFileAbsolutePath = path.join(
-        dataNodePackage.folderPath,
-        buildFolderRelativePath,
-        'compile_commands.json')
-
-      // Based on feedback and tests, the dependency on CMake seems no
-      // longer necessary and was disabled, at least until a proper
-      // `ilg-vscode.xpack` provider will be added.
-      /*
-      if (currentJsonConfiguration.configurationProvider === undefined) {
-        // Configure the provider to the CMake one for now.
-        currentJsonConfiguration.configurationProvider =
-        'ms-vscode.cmake-tools' // 'ilg-vscode.xpack'
-      }
-      */
-
-      try {
-        // Will throw if the file does not exists.
-        await fsPromises.stat(compileCommandsFileAbsolutePath)
-
-        // If the file exists, configure the path to it.
-        currentJsonConfiguration.compileCommands = compileCommandsValue
-      } catch (err) {
-        // The `compile_commands.json` file does not exist yet,
-        // ensure that this property is not set, to avoid an
-        // warning from the C/C++ extension.
-        delete currentJsonConfiguration.compileCommands
-      }
-
-      log.trace(`c/c++ compileCommands: ${compileCommandsValue}`)
     }
   }
 
