@@ -110,22 +110,16 @@ To automate the workflow, webpack can be started as a background
 task to convert the `out` folder into the `dist` folder:
 
 ```sh
-npm run webpack-dev
-```
-
-With the current version, an error is expected:
-
-```console
-WARNING in ./node_modules/liquidjs/dist/liquid.node.esm.js 393:15-36
-Critical dependency: the request of a dependency is an expression
+npm run webpack-dev-watch
 ```
 
 ### Start debug sessions
 
 Use the existing launchers.
 
-Note: the debug session requires the `dist` code, created by the
-`webpack-dev` task, the `out` folder created by the compiler is not enough.
+Note: the `dist` folder content is processed by `webpack` and the
+relationship to the original TS files is lost. Temporarily adjust
+`package.json` to point to the `out` folder.
 
 ## Language standard compliance
 
@@ -218,6 +212,17 @@ const isGlobal = inspectedValue !== undefined &&
 
 await npm.update('exclude', newArray, isGlobal)
 ```
+
+## Implementation details
+
+### Data model
+
+The extension recursively searches for `package.json` files, down to a given
+depth and possibly excluding some folders, in order to prepare a data model
+which is a tree of packages. For easier access, the configurations, commands
+actions are also identified and listed in separate arrays.
+
+TBD
 
 ## Standard style
 
