@@ -6,9 +6,18 @@ Please check
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 and close existing issues and pull requests.
 
+## 2023-06-20
+
+* d764b64 README-DEVELOPER update
+* 9de2ab5 .vscode/launch.json: add sourceMaps
+* 25575be #45: update cpp_properties for sub-packages
+
 ## 2023-06-16
 
-* prepare v0.5.0
+* 77da505 0.5.0 actually
+* ad1c130 0.5.0
+* c11c2c9 package.json: engines.vscode 1.79.1
+* fff0706 prepare v0.5.1
 * 3b7948d silence standard warning
 * e63a01a bump deps
 * 9557229 launch.json: add sourceMaps
