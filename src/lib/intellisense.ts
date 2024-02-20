@@ -23,7 +23,6 @@
 
 import * as assert from 'assert'
 import { promises as fsPromises } from 'fs'
-import * as os from 'os'
 import * as path from 'path'
 
 // ----------------------------------------------------------------------------
@@ -200,7 +199,7 @@ export class IntelliSense implements vscode.Disposable {
       dataNodePackage, json.configurations)
 
     if (json.configurations.length > 0) {
-      const fileNewContent = jsonc.stringify(json, null, 2) + os.EOL
+      const fileNewContent = jsonc.stringify(json, null, 2) + '\n'
       await fsPromises.writeFile(jsonFilePath, fileNewContent)
       log.trace(`${jsonFilePath} written back`)
     }
