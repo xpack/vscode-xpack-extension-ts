@@ -8,6 +8,8 @@ and close existing issues and pull requests.
 
 ## 2023-06-20
 
+* cce8ff7 0.5.1
+* e134d0e prepare 0.5.1
 * d764b64 README-DEVELOPER update
 * 9de2ab5 .vscode/launch.json: add sourceMaps
 * 25575be #45: update cpp_properties for sub-packages
