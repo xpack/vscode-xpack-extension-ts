@@ -31,7 +31,7 @@ import * as path from 'path'
 import * as jsonc from 'comment-json'
 
 // https://www.npmjs.com/package/make-dir
-import * as makeDir from 'make-dir'
+import { makeDirectory } from 'make-dir'
 
 import * as vscode from 'vscode'
 import * as cpt from 'vscode-cpptools'
@@ -183,7 +183,7 @@ export class IntelliSense implements vscode.Disposable {
       json = jc as unknown as JsonCCppProperties
     } catch (err) {
       // Ensure that the folder is there.
-      await makeDir(vscodeFolderPath)
+      await makeDirectory(vscodeFolderPath)
       json = {
         configurations: [],
         version: 4
