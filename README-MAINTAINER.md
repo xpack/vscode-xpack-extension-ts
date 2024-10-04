@@ -19,8 +19,8 @@ Before making the release, perform some checks and tweaks.
 ### Update npm packages
 
 - `npm outdated`
-- keep `@types/node` locked to the
-  [latest node.js LTS](https://www.npmjs.com/package/@types/node)
+- keep [`@types/node`](https://www.npmjs.com/package/@types/node) locked to the
+  [latest node.js LTS](https://nodejs.org/en/download/)
 - edit `package.json`  and `npm install`
 - repeat until everything is up to date
 
