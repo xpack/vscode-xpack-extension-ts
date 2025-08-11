@@ -5,71 +5,69 @@
 
 # xPack C/C++ Managed Build (beta)
 
-A VS Code extension to manage and build C/C++ projects with CMake, meson,
-etc, using the xPack tools.
+A Visual Studio Code extension to manage and build C/C++ projects with CMake, Meson,
+and other tools, using the xPack tools.
 
-It is intended as a replacement for the managed build system available
+This extension is intended as a replacement for the managed build system available
 in [Eclipse Embedded CDT](https://projects.eclipse.org/projects/iot.embed-cdt/).
 
 ## Features
 
-Manage typical **multi-configuration projects** (like _Debug/Release_), but
-also complex, **multi-platform**, **multi-architecture**, **multi-toolchain**
+Manage typical **multi-configuration projects** (such as _Debug/Release_), as well as
+complex, **multi-platform**, **multi-architecture**, and **multi-toolchain**
 projects, with an emphasis on **modern C/C++** and **embedded** applications.
 
 ## Overview
 
 The [xPack C/C++ Managed Build extension](https://xpack.github.io/vscode/)
-is an open source project hosted on
+is an open-source project hosted on
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts) and
 is part of the [xPack Reproducible Build Framework](https://xpack.github.io/).
 
-It can be installed from the VisualStudio Marketplace as
-[ilg-vscode.xpack](https://marketplace.visualstudio.com/items?itemName=ilg-vscode.xpack)
-and it pulls its own dependencies (like the C/C++).
+It can be installed from the Visual Studio Marketplace as
+[ilg-vscode.xpack](https://marketplace.visualstudio.com/items?itemName=ilg-vscode.xpack).
+All required dependencies (such as the C/C++ extension) are handled automatically.
 
-## Prerequisites (node/npm)
+## Prerequisites (Node.js/npm)
 
-VS Code 1.54 or later and a recent [xpm](https://xpack.github.io/xpm/),
-which is a portable [Node.js](https://nodejs.org/) command line application,
+Visual Studio Code 1.102 or later and a recent version of [xpm](https://xpack.github.io/xpm/),
+which is a portable [Node.js](https://nodejs.org/) command-line application,
 available from [npmjs.com](https://www.npmjs.com/package/xpm/).
 
 ```sh
 npm install --global xpm@latest
 ```
 
-For details please follow the instructions in the
-[install](https://xpack.github.io/install/) page.
+For further details, please follow the instructions on the
+[installation](https://xpack.github.io/install/) page.
 
 ## Quick Start
 
 TL;DR: **View** → **Command Palette...** →
 **xPack: Quick Start a Hello World project (C++, CMake)**
-(but better read the
+(however, it is recommended to read the
 [Quick Start](https://xpack.github.io/vscode/quick-start/) page).
 
-The simplest way to start with the VS Code **xPack C/C++ Managed Build**
-extension is to create a simple _Hello World_ project.
+The simplest way to begin with the VS Code **xPack C/C++ Managed Build**
+extension is to create a basic _Hello World_ project.
 
 Open the
 [Quick Start](https://xpack.github.io/vscode/quick-start/)
-page in a browser and follow the steps. In addition to being
-a fully functional project, the result can also be a good
+page in your browser and follow the steps. In addition to being
+a fully functional project, the result can serve as a solid
 starting point for more complex projects.
 
-## How it works
+## How it Works
 
-The **xPack Reproducible Build Framework** is not necessarily specific
-to VS Code, it is a set of portable CLI tools,
-neutral to any build system,
-which can basically
-invoke any 3rd party tools, old and new, to perform the actual build;
-it favours modern tools
-(like CMake and meson) which can
-generate a `compile_commands.json` file, since this
-greatly simplifies integration with indexers (like VS Code IntelliSense),
-but with some care can also be used with legacy tools
-like autotools and make.
+The **xPack Reproducible Build Framework** is not specific to VS Code; it is a set of portable CLI tools,
+agnostic to any build system,
+which can invoke any third-party tools, both legacy and modern, to perform the actual build.
+It favours modern tools
+(such as CMake and Meson) which can
+generate a `compile_commands.json` file, as this
+greatly simplifies integration with indexers (such as VS Code IntelliSense),
+but, with some care, can also be used with legacy tools
+such as autotools and make.
 
 Future versions of the xPack Reproducible Build Framework are planned to
 include an integrated build system generator, similar to that used in
@@ -78,16 +76,16 @@ Eclipse CDT.
 ## Disclaimer
 
 The xPack project does not introduce a new package format, but
-inherits from the simplicity of **npm**; it adds a few more definitions
-to `package.json`, but otherwise it uses exactly the same project
-format as **npm**; **xPacks are actually npm packages**, and can be
-stored in usual Git repositories, or even published on
+inherits the simplicity of **npm**; it adds a few additional definitions
+to `package.json`, but otherwise uses exactly the same project
+format as **npm**. **xPacks are actually npm packages**, and can be
+stored in standard Git repositories, or even published on
 [npmjs.com](https://www.npmjs.com/search?q=xpack)
 or compatible servers.
 
-## Concepts (configurations & actions)
+## Concepts (Configurations & Actions)
 
-Compared to typical CMake/meson projects, which in most cases use a
+Compared to typical CMake/Meson projects, which in most cases use a
 single build folder, an xPack Managed Build project is
 by design defined as
 
@@ -98,14 +96,14 @@ each using a separate build folder, and
 > each with its own set of named **actions**
 
 defined as sequences of commands (stored in JSON as
-arrays of string).
+arrays of strings).
 
 ![xPack Actions](assets/docs-images/xpack-actions.png)
 
 To avoid redundant definitions between configurations,
 the actions can use generic templates, with substitutions performed by the
 [LiquidJS](https://liquidjs.com) template engine, based on
-user defined string **properties**.
+user-defined string **properties**.
 
 A typical example of a project with two build configurations,
 using CMake, may look like:
@@ -209,23 +207,23 @@ xpm run test
 ```
 
 Note: this example does not require the presence of a compiler
-in the system, it includes a dependency to xPack GCC and a CMake
-toolchain description file using it, to prevent CMake picking
-any other unwanted compiler possibly present in the system.
+on the system, as it includes a dependency on xPack GCC and a CMake
+toolchain description file using it, to prevent CMake from selecting
+any other unwanted compiler that may be present.
 
-## VS Code configurations
+## VS Code Configurations
 
-The VS Code C/C++ extension keeps track of multiple configurations
+The VS Code C/C++ extension manages multiple configurations
 in the `.vscode/c_cpp_properties.json` file, and the xPack
 extension automatically maps the `package.json` build configurations
 to VS Code configurations.
 
 IntelliSense correctly renders the content for the _active_
-configurations, shown in the status bar.
+configuration, shown in the status bar.
 
 ![Active Configuration](assets/docs-images/switch-configs.png)
 
-## IntelliSense enabled only for top folders
+## IntelliSense Enabled Only for Top-Level Folders
 
 TL;DR: open separate projects/packages as separate workspace folders.
 
@@ -238,57 +236,57 @@ packages, IntelliSense will not be enabled.
 The correct solution is to open all packages as workspace folders, either
 separately or via a `*.code-workspace` file.
 
-## IntelliSense available only after the first build
+## IntelliSense Available Only After the First Build
 
 In order to correctly parse the project, for managed projects,
-IntelliSense needs a file called `compile_commands.json`.
+IntelliSense requires a file called `compile_commands.json`.
 One such file is expected in each build
 folder, and the system build generator
-(CMake/meson/etc) automatically creates these files when the
-project is prepared, like during the first build.
+(CMake/Meson/etc.) automatically creates these files when the
+project is prepared, such as during the first build.
 
-## Ignore the kits selection question
+## Ignore the Kits Selection Prompt
 
-Although not needed by the xPack extension, the CMake extension still
-insists on selecting a _kit_:
+Although not required by the xPack extension, the CMake extension still
+prompts for a _kit_:
 
 ![CMake kits](assets/docs-images/cmake-kits-unspecified.png)
 
-Select _Unspecified_, since kits are not used by the xPack extension.
+Select _Unspecified_, as kits are not used by the xPack extension.
 
 This issue is currently under consideration by the CMake Tools project
-and it is expected to be fixed in a future release.
+and is expected to be resolved in a future release.
 
 ## Known Issues
 
-- none so far
+- None at present.
 
-## Project templates
+## Project Templates
 
-Creating new projects is automated by using project templates.
+Creating new projects is automated using project templates.
 
-### Create a Hello World project
+### Create a Hello World Project
 
-The **Quick Start a Hello World project** presented above creates
+The **Quick Start a Hello World project** command described above creates
 a C++ project built with CMake.
 
-The full set of choices is available when executing the
-**xPack: Create a Hello World project**, which is an interactive
-applications requiring user input.
+The full set of options is available when executing the
+**xPack: Create a Hello World project** command, which is an interactive
+application requiring user input.
 
-The result is similar, but using different build tools or
-language (C vs C++).
+The result is similar, but may use different build tools or
+languages (C vs C++).
 
 When this command is invoked, VS Code instantiates the separate
 project template available from:
 
 - <https://github.com/xpack/hello-world-template-xpack/>
 
-### Create a Hello World QEMU semihosted project
+### Create a Hello World QEMU Semihosted Project
 
 In addition to native projects running on the host system, it is possible
-to create Arm Cortex-M, Arm Cortex-A (32/64-bit) and RISC-V (32/64-bit)
-bare metal projects running on QEMU.
+to create Arm Cortex-M, Arm Cortex-A (32/64-bit), and RISC-V (32/64-bit)
+bare-metal projects running on QEMU.
 
 When this command is invoked, VS Code instantiates the separate
 project template available from:
@@ -299,17 +297,17 @@ project template available from:
 
 The latest release is **v0.5.1**, which,
 according to [semantic versioning](https://semver.org) rules,
-means it is still _in initial development_ phase.
+means it is still in the _initial development_ phase.
 
-The xPack extension is functional and can be used for beta-testing,
-but anything **MAY**
-change at any time and the public API **SHOULD NOT** be considered stable.
+The xPack extension is functional and suitable for beta-testing,
+but anything **may**
+change at any time and the public API **should not** be considered stable.
 
-More details about each release can be found in the
+More details about each release can be found on the
 [releases](https://xpack.github.io/vscode/releases/) pages.
 
-## License
+## Licence
 
 The original content is released under the
-[MIT License](https://opensource.org/licenses/MIT), with all rights
+[MIT Licence](https://opensource.org/licenses/MIT), with all rights
 reserved to [Liviu Ionescu](https://github.com/ilg-ul/).
