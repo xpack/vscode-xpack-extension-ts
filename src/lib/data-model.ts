@@ -13,15 +13,16 @@
 
 // ----------------------------------------------------------------------------
 
-import * as assert from 'assert'
-import { Dirent, promises as fsPromises } from 'fs'
-import * as os from 'os'
-import * as path from 'path'
+import assert from 'node:assert'
+import * as fs from 'fs/promises'
+import { Dirent } from 'node:fs'
+import * as os from 'node:os'
+import * as path from 'node:path'
 
 import * as vscode from 'vscode'
 
 import { Logger } from '@xpack/logger'
-import { Xpack } from './xpack'
+import { Xpack } from './xpack.js'
 import {
   JsonActions,
   JsonBuildConfigurations,
@@ -32,9 +33,10 @@ import {
   buildFolderRelativePathPropertyName,
   JsonBuildConfiguration
   // JsonBuildConfiguration
-} from './definitions'
+} from './definitions.js'
 
-import * as utils from './utils'
+import * as utils from './utils.js'
+
 import { XpmLiquid, filterPath } from '@xpack/xpm-liquid'
 
 // ----------------------------------------------------------------------------
@@ -184,7 +186,7 @@ export class DataModel implements vscode.Disposable {
 
     // Recurse on children folders.
     const entries =
-      await fsPromises.readdir(folderPath, { withFileTypes: true })
+      await fs.readdir(folderPath, { withFileTypes: true })
 
     const filteredFolders: Dirent[] = entries.filter(entry =>
       entry.isDirectory() && !entry.name.startsWith('.') &&
@@ -279,8 +281,8 @@ export class DataModel implements vscode.Disposable {
         }
 
         const actionJsonValue: string = Array.isArray(fromJson[actionName])
-          ? (fromJson[actionName] as string[]).join(os.EOL)
-          : (fromJson[actionName] as string)
+          ? (fromJson[actionName]).join(os.EOL)
+          : (fromJson[actionName])
 
         let actionValue: string
         try {

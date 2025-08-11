@@ -20,25 +20,25 @@
  * (set via treeItem.contextValue)
  */
 
-import * as path from 'path'
+import * as path from 'node:path'
 
 import * as vscode from 'vscode'
 
 import { Logger } from '@xpack/logger'
 
-import { ExtensionManager } from './manager'
+import { ExtensionManager } from './manager.js'
 
 import {
   DataNodeAction,
   DataNodeCommand,
   DataNodeConfiguration,
   DataNodePackage
-} from './data-model'
+} from './data-model.js'
 
 import {
   XpackPackageJson,
   packageJsonFileName
-} from './definitions'
+} from './definitions.js'
 
 // ----------------------------------------------------------------------------
 
@@ -515,7 +515,7 @@ class TreeItemEmpty extends TreeItem {
 // ----------------------------------------------------------------------------
 
 /**
- * The data provider for the xPack Actions tree view.
+ * The data provider for the xpm Actions tree view.
  */
 export class XpackActionsTreeDataProvider implements
   vscode.TreeDataProvider<TreeItem> {

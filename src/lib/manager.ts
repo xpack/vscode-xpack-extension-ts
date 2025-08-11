@@ -17,21 +17,22 @@
 
 // ----------------------------------------------------------------------------
 
-import * as os from 'os'
+import * as os from 'node:os'
 
 import * as vscode from 'vscode'
 
 import { Logger } from '@xpack/logger'
-import * as utils from './utils'
+
+import * as utils from './utils.js'
 
 import {
   DataModel,
   DataNodeConfiguration
-} from './data-model'
+} from './data-model.js'
 
 import {
   AsyncVoidFunction
-} from './definitions'
+} from './definitions.js'
 
 // ----------------------------------------------------------------------------
 

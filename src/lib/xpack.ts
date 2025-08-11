@@ -13,18 +13,18 @@
 
 // ----------------------------------------------------------------------------
 
-import * as assert from 'assert'
-import { promises as fsPromises } from 'fs'
-import * as path from 'path'
+import assert from 'node:assert'
+import * as fs from 'fs/promises'
+import * as path from 'node:path'
 
 import { Logger } from '@xpack/logger'
 
-import * as utils from './utils'
+import * as utils from './utils.js'
 
 import {
   JsonBuildConfigurations,
   XpackPackageJson
-} from './definitions'
+} from './definitions.js'
 
 // ----------------------------------------------------------------------------
 
@@ -71,7 +71,7 @@ export class Xpack {
     const jsonPath = path.join(tmpPath, 'package.json')
 
     try {
-      const fileContent = await fsPromises.readFile(jsonPath)
+      const fileContent = await fs.readFile(jsonPath)
       assert(fileContent !== null)
       const packageJson = JSON.parse(fileContent.toString())
 

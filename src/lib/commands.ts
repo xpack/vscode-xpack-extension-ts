@@ -25,8 +25,8 @@
  * https://code.visualstudio.com/api/references/contribution-points#contributes.menus
  */
 
-import { promises as fsPromises } from 'fs'
-import * as os from 'os'
+import * as fs from 'fs/promises'
+import * as os from 'node:os'
 
 import * as vscode from 'vscode'
 
@@ -35,7 +35,7 @@ import { Logger } from '@xpack/logger'
 import {
   ExtensionManager,
   BuildConfigurationPick
-} from './manager'
+} from './manager.js'
 
 import {
   TreeItem,
@@ -43,16 +43,16 @@ import {
   TreeItemCommand,
   TreeItemConfiguration,
   TreeItemPackage
-} from './explorer'
+} from './explorer.js'
 
 import {
   JsonActions,
   JsonBuildConfigurations,
   MessageItemConfirmation,
   XpackPackageJson
-} from './definitions'
+} from './definitions.js'
 
-import * as utils from './utils'
+import * as utils from './utils.js'
 
 // ----------------------------------------------------------------------------
 
@@ -331,7 +331,7 @@ export class Commands implements vscode.Disposable {
     log.trace(packageJson)
 
     const fileNewContent = JSON.stringify(packageJson, null, 2) + os.EOL
-    await fsPromises.writeFile(treeItem.packageJsonPath, fileNewContent)
+    await fs.writeFile(treeItem.packageJsonPath, fileNewContent)
     log.trace(`${treeItem.packageJsonPath} written back`)
   }
 
@@ -382,7 +382,7 @@ export class Commands implements vscode.Disposable {
     log.trace(packageJson)
 
     const fileNewContent = JSON.stringify(packageJson, null, 2) + os.EOL
-    await fsPromises.writeFile(treeItemPackage.packageJsonPath, fileNewContent)
+    await fs.writeFile(treeItemPackage.packageJsonPath, fileNewContent)
     log.trace(`${treeItemPackage.packageJsonPath} written back`)
   }
 
@@ -424,7 +424,7 @@ export class Commands implements vscode.Disposable {
     delete actions[actionName]
 
     const fileNewContent = JSON.stringify(packageJson, null, 2) + os.EOL
-    await fsPromises.writeFile(treeItemPackage.packageJsonPath,
+    await fs.writeFile(treeItemPackage.packageJsonPath,
       fileNewContent)
     log.trace(`${treeItemPackage.packageJsonPath} written back`)
   }
@@ -465,7 +465,7 @@ export class Commands implements vscode.Disposable {
     log.trace(packageJson)
 
     const fileNewContent = JSON.stringify(packageJson, null, 2) + os.EOL
-    await fsPromises.writeFile(treeItem.parent.packageJsonPath,
+    await fs.writeFile(treeItem.parent.packageJsonPath,
       fileNewContent)
     log.trace(`${treeItem.parent.packageJsonPath} written back`)
   }
@@ -498,7 +498,7 @@ export class Commands implements vscode.Disposable {
     delete buildConfigurations[buildConfigurationName]
 
     const fileNewContent = JSON.stringify(packageJson, null, 2) + os.EOL
-    await fsPromises.writeFile(treeItem.parent.packageJsonPath,
+    await fs.writeFile(treeItem.parent.packageJsonPath,
       fileNewContent)
     log.trace(`${treeItem.parent.packageJsonPath} written back`)
   }
@@ -516,7 +516,7 @@ export class Commands implements vscode.Disposable {
     if (this._buildConfigurationPicks === undefined) {
       this._buildConfigurationPicks =
         this.manager.data.configurations.map(
-          (dataNode) => {
+          (dataNode: any) => {
             return new BuildConfigurationPick(dataNode)
           }
         )

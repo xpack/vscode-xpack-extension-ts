@@ -1,29 +1,5 @@
 {
   /* https://www.typescriptlang.org/tsconfig */
-  /* Most option copied from vscode.git/extensions/shared.tsconfig.json */
-  /* The maps are used for debugging only. */
-  "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "out",
-    "sourceMap": true,
-		"target": "es6",
-		"lib": [
-			"es6"
-		],
-    "module": "commonjs",
-    "moduleResolution": "node",
- 		"strict": true,
-		"alwaysStrict": true,
-		"noImplicitAny": true,
-		"noImplicitReturns": true,
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
-		"forceConsistentCasingInFileNames": true
-  },
-  "exclude": [
-    "src-inspiration",
-    "node_modules",
-    ".vscode-test",
-    "tests"
-  ]
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig-common.json",
 }

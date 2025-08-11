@@ -14,7 +14,7 @@ webpack.config.js
 README-*.md
 **/xpacks/**
 tests/**
-node_modules/**
+# node_modules/**
 out/**
 assets/docs-images/**
 .github/**

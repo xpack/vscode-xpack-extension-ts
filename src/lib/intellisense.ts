@@ -21,9 +21,9 @@
  * similar to vscode-cmake-tools integration.
  */
 
-import * as assert from 'assert'
-import { promises as fsPromises } from 'fs'
-import * as path from 'path'
+import assert from 'node:assert'
+import * as fs from 'fs/promises'
+import * as path from 'node:path'
 
 // ----------------------------------------------------------------------------
 
@@ -40,8 +40,8 @@ import * as cpt from 'vscode-cpptools'
 
 import { Logger } from '@xpack/logger'
 
-import { ExtensionManager } from './manager'
-import { DataNodePackage, DataNodeWorkspaceFolder } from './data-model'
+import { ExtensionManager } from './manager.js'
+import { DataNodePackage, DataNodeWorkspaceFolder } from './data-model.js'
 
 // ----------------------------------------------------------------------------
 
@@ -177,7 +177,7 @@ export class IntelliSense implements vscode.Disposable {
 
     let json: JsonCCppProperties
     try {
-      const fileContent = await fsPromises.readFile(jsonFilePath)
+      const fileContent = await fs.readFile(jsonFilePath)
       assert(fileContent !== null)
       const jc: jsonc.CommentJSONValue = jsonc.parse(fileContent.toString())
       json = jc as unknown as JsonCCppProperties
@@ -200,7 +200,7 @@ export class IntelliSense implements vscode.Disposable {
 
     if (json.configurations.length > 0) {
       const fileNewContent = jsonc.stringify(json, null, 2) + '\n'
-      await fsPromises.writeFile(jsonFilePath, fileNewContent)
+      await fs.writeFile(jsonFilePath, fileNewContent)
       log.trace(`${jsonFilePath} written back`)
     }
   }
@@ -268,7 +268,7 @@ export class IntelliSense implements vscode.Disposable {
 
         try {
           // Will throw if the file does not exists.
-          await fsPromises.stat(compileCommandsFileAbsolutePath)
+          await fs.stat(compileCommandsFileAbsolutePath)
 
           // If the file exists, configure the path to it.
           currentJsonConfiguration.compileCommands = compileCommandsValue

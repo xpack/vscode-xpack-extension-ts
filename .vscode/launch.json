@@ -14,7 +14,7 @@
       ],
       "sourceMaps": true,
       "outFiles": [
-        "${workspaceFolder}/out/**/*.js"
+        "${workspaceFolder}/dist/**/*.js"
       ],
       "skipFiles": [
         "async_hooks.js",
@@ -32,7 +32,7 @@
       ],
       "sourceMaps": true,
       "outFiles": [
-        "${workspaceFolder}/out/**/*.js"
+        "${workspaceFolder}/dist/**/*.js"
       ],
       "skipFiles": [
         "async_hooks.js",
@@ -50,7 +50,7 @@
       ],
       "sourceMaps": true,
       "outFiles": [
-        "${workspaceFolder}/out/**/*.js"
+        "${workspaceFolder}/dist/**/*.js"
       ],
       "skipFiles": [
         "async_hooks.js",
@@ -68,7 +68,7 @@
       ],
       "sourceMaps": true,
       "outFiles": [
-        "${workspaceFolder}/out/**/*.js"
+        "${workspaceFolder}/dist/**/*.js"
       ],
       "skipFiles": [
         "async_hooks.js",
@@ -86,7 +86,7 @@
       ],
       "sourceMaps": true,
       "outFiles": [
-        "${workspaceFolder}/out/**/*.js"
+        "${workspaceFolder}/dist/**/*.js"
       ],
       "skipFiles": [
         "async_hooks.js",
@@ -104,7 +104,7 @@
       ],
       "sourceMaps": true,
       "outFiles": [
-        "${workspaceFolder}/out/**/*.js"
+        "${workspaceFolder}/dist/**/*.js"
       ],
       "skipFiles": [
         "async_hooks.js",
@@ -122,7 +122,7 @@
       ],
       "sourceMaps": true,
       "outFiles": [
-        "${workspaceFolder}/out/**/*.js"
+        "${workspaceFolder}/dist/**/*.js"
       ],
       "skipFiles": [
         "async_hooks.js",
@@ -140,7 +140,7 @@
       ],
       "sourceMaps": true,
       "outFiles": [
-        "${workspaceFolder}/out/**/*.js"
+        "${workspaceFolder}/dist/**/*.js"
       ],
       "preLaunchTask": "${defaultBuildTask}"
     },
@@ -150,11 +150,11 @@
       "request": "launch",
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "--extensionTestsPath=${workspaceFolder}/out/test/suite/index"
+        "--extensionTestsPath=${workspaceFolder}/dist/test/suite/index"
       ],
       "sourceMaps": true,
       "outFiles": [
-        "${workspaceFolder}/out/test/**/*.js"
+        "${workspaceFolder}/dist/test/**/*.js"
       ],
       "preLaunchTask": "${defaultBuildTask}"
     },
@@ -168,7 +168,7 @@
       ],
       "sourceMaps": true,
       "outFiles": [
-        "${workspaceFolder}/out/**/*.js"
+        "${workspaceFolder}/dist/**/*.js"
       ],
       "skipFiles": [
         "async_hooks.js",

@@ -17,7 +17,7 @@ import * as vscode from 'vscode'
 
 import { Logger } from '@xpack/logger'
 
-import { ExtensionManager } from './manager'
+import { ExtensionManager } from './manager.js'
 
 // ----------------------------------------------------------------------------
 

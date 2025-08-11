@@ -13,12 +13,12 @@
 
 // ----------------------------------------------------------------------------
 
-import * as path from 'path'
+import * as path from 'node:path'
 import { minimatch } from 'minimatch'
 
 import * as vscode from 'vscode'
 
-import { XpackTaskDefinition } from './definitions'
+import { XpackTaskDefinition } from './definitions.js'
 
 // ----------------------------------------------------------------------------
 

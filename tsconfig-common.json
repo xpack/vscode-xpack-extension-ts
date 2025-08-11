@@ -1,0 +1,15 @@
+{
+  "extends": "@tsconfig/node20/tsconfig.json",
+  "compilerOptions": {
+    /* Visit https://aka.ms/tsconfig to read more about this file */
+    /* https://www.npmjs.com/package/@tsconfig/node20 */
+
+    "declaration": true,                              /* Generate .d.ts files from TypeScript and JavaScript files in your project. */
+    "declarationMap": true,                           /* Create sourcemaps for d.ts files. */
+    "sourceMap": true,                                /* Create source map files for emitted JavaScript files. */
+    // api-extractor reads the documentation from the compiled files.
+    // "removeComments": true,                        /* Disable emitting comments. */
+
+    "forceConsistentCasingInFileNames": true,         /* Ensure that casing is correct in imports. */
+  }
+}

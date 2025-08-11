@@ -25,8 +25,8 @@ import * as vscode from 'vscode'
 
 import { Logger } from '@xpack/logger'
 
-import { ExtensionManager } from './manager'
-import { DataNodeConfiguration } from './data-model'
+import { ExtensionManager } from './manager.js'
+import { DataNodeConfiguration } from './data-model.js'
 
 // ----------------------------------------------------------------------------
 
