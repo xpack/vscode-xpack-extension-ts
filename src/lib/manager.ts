@@ -9,8 +9,6 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  */
 
-/* eslint max-len: [ "error", 80, { "ignoreUrls": true } ] */
-
 // ----------------------------------------------------------------------------
 
 // This class is a direct dependency for all worker classes.
@@ -25,14 +23,9 @@ import { Logger } from '@xpack/logger'
 
 import * as utils from './utils.js'
 
-import {
-  DataModel,
-  DataNodeConfiguration
-} from './data-model.js'
+import { DataModel, DataNodeConfiguration } from './data-model.js'
 
-import {
-  AsyncVoidFunction
-} from './definitions.js'
+import { AsyncVoidFunction } from './definitions.js'
 
 // ----------------------------------------------------------------------------
 
@@ -46,7 +39,7 @@ export class ExtensionManager implements vscode.Disposable {
   callbacksRefresh: AsyncVoidFunction[] = []
 
   data: DataModel
-  dataCandidates: Set<DataModel> = new Set()
+  dataCandidates = new Set<DataModel>()
 
   watcherPackageJson: vscode.FileSystemWatcher | undefined
 
@@ -62,7 +55,7 @@ export class ExtensionManager implements vscode.Disposable {
   // --------------------------------------------------------------------------
   // Constructor.
 
-  constructor (context: vscode.ExtensionContext, log: Logger) {
+  constructor(context: vscode.ExtensionContext, log: Logger) {
     this.vscodeContext = context
     this.log = log
 
@@ -70,52 +63,48 @@ export class ExtensionManager implements vscode.Disposable {
     log.debug(`home: '${os.homedir()}'`)
 
     if (vscode.workspace.workspaceFolders != null) {
-      vscode.workspace.workspaceFolders.forEach(
-        (workspaceFolder) => {
-          log.debug(`workspace folder: ${workspaceFolder.uri.fsPath} ` +
-            `${workspaceFolder.uri.scheme}`)
-        }
-      )
+      vscode.workspace.workspaceFolders.forEach((workspaceFolder) => {
+        log.debug(
+          `workspace folder: ${workspaceFolder.uri.fsPath} ` +
+            workspaceFolder.uri.scheme
+        )
+      })
     }
 
-    this.maxSearchDepthLevel =
-      vscode.workspace.getConfiguration('xpack')
-        .get<number>('maxSearchDepthLevel', 3)
-    log.trace(`maxSearchDepthLevel = ${this.maxSearchDepthLevel}`)
+    this.maxSearchDepthLevel = vscode.workspace
+      .getConfiguration('xpack')
+      .get<number>('maxSearchDepthLevel', 3)
+    log.trace(`maxSearchDepthLevel = ${this.maxSearchDepthLevel.toString()}`)
     this.data = new DataModel(this.log, this.maxSearchDepthLevel)
   }
 
   // --------------------------------------------------------------------------
   // Methods.
 
-  hasLocalWorkspace (): boolean {
+  hasLocalWorkspace(): boolean {
     if (vscode.workspace.workspaceFolders != null) {
-      return vscode.workspace.workspaceFolders.some(
-        (workspaceFolder) => {
-          return (workspaceFolder.uri.scheme === 'file')
-        }
-      )
+      return vscode.workspace.workspaceFolders.some((workspaceFolder) => {
+        return workspaceFolder.uri.scheme === 'file'
+      })
     }
     return false
   }
 
-  addCallbackRefresh (func: AsyncVoidFunction): void {
+  addCallbackRefresh(func: AsyncVoidFunction): void {
     this.callbacksRefresh.push(func)
   }
 
-  async refresh (): Promise<void> {
+  async refresh(): Promise<void> {
     const log = this.log
 
-    log.trace('ExtensionManager.refresh()')
+    log.trace('Ex tensionManager.refresh()')
 
     // Mark all existing candidates as obsolete, such that
     // only the last one will survive.
-    this.dataCandidates.forEach(
-      (data) => {
-        log.debug('ExtensionManager.refresh() cancel previous')
-        data.cancellation.cancel()
-      }
-    )
+    this.dataCandidates.forEach((data) => {
+      log.debug('ExtensionManager.refresh() cancel previous')
+      data.cancellation.cancel()
+    })
     const data = new DataModel(this.log, this.maxSearchDepthLevel)
     this.dataCandidates.add(data)
 
@@ -144,12 +133,10 @@ export class ExtensionManager implements vscode.Disposable {
     await vscode.commands.executeCommand(
       'setContext',
       'xpack:showScriptExplorer',
-      (this.data.packages.length > 0)
-    )
-    log.debug('Explorer ' + (
       this.data.packages.length > 0
-        ? 'shown'
-        : 'hidden')
+    )
+    log.debug(
+      'Explorer ' + (this.data.packages.length > 0 ? 'shown' : 'hidden')
     )
 
     log.trace('ExtensionManager.refresh() completed')
@@ -157,28 +144,35 @@ export class ExtensionManager implements vscode.Disposable {
 
   // --------------------------------------------------------------------------
 
-  async updateConfigurationNpmExclude (): Promise<void> {
+  async updateConfigurationNpmExclude(): Promise<void> {
     const log = this.log
 
-    if (!vscode.workspace.getConfiguration('xpack')
-      .get<boolean>('autoUpdateNpmExclude', true)) {
+    if (
+      !vscode.workspace
+        .getConfiguration('xpack')
+        .get<boolean>('autoUpdateNpmExclude', true)
+    ) {
       return
     }
 
     const npm: vscode.WorkspaceConfiguration =
-     vscode.workspace.getConfiguration('npm')
+      vscode.workspace.getConfiguration('npm')
 
     const inspectedValue = npm.inspect('exclude')
     log.trace(inspectedValue)
-    const isGlobal = inspectedValue !== undefined &&
+    const isGlobal =
+      inspectedValue !== undefined &&
       inspectedValue.workspaceValue === undefined
 
     const oldValue: string | string[] | undefined = npm.get('exclude')
     log.trace(oldValue)
 
-    const oldArray = oldValue === undefined || oldValue === ''
-      ? []
-      : (Array.isArray(oldValue) ? oldValue : [oldValue])
+    const oldArray =
+      oldValue === undefined || oldValue === ''
+        ? []
+        : Array.isArray(oldValue)
+          ? oldValue
+          : [oldValue]
 
     const newValue = '**/xpacks/**'
     const alreadyIn = oldArray.some((value) => value === newValue)
@@ -193,7 +187,7 @@ export class ExtensionManager implements vscode.Disposable {
   // --------------------------------------------------------------------------
 
   // Currently not used.
-  setBuildConfiguration (treeNode: DataNodeConfiguration): void {
+  setBuildConfiguration(treeNode: DataNodeConfiguration): void {
     this.selectedBuildConfiguration = treeNode
 
     this.onSelectBuildConfiguration.fire(treeNode)
@@ -202,33 +196,29 @@ export class ExtensionManager implements vscode.Disposable {
   /**
    * Register listeners to refresh the explorer when packages change.
    */
-  registerPackageJsonWatchers (): void {
+  registerPackageJsonWatchers(): void {
     const log = this.log
 
     // Register only once.
-    if (this.watcherPackageJson === undefined &&
-      vscode.workspace.workspaceFolders !== undefined) {
+    if (
+      this.watcherPackageJson === undefined &&
+      vscode.workspace.workspaceFolders !== undefined
+    ) {
       log.trace('registerPackageJsonWatchers()')
       const watcherPackageJson =
-      vscode.workspace.createFileSystemWatcher('**/package.json')
-      watcherPackageJson.onDidChange(
-        async (e): Promise<void> => {
-          log.trace(`onDidChange() ${e.fsPath}`)
-          await this.refresh()
-        }
-      )
-      watcherPackageJson.onDidDelete(
-        async (e): Promise<void> => {
-          log.trace(`onDidDelete() ${e.fsPath}`)
-          await this.refresh()
-        }
-      )
-      watcherPackageJson.onDidCreate(
-        async (e): Promise<void> => {
-          log.trace(`onDidCreate() ${e.fsPath}`)
-          await this.refresh()
-        }
-      )
+        vscode.workspace.createFileSystemWatcher('**/package.json')
+      watcherPackageJson.onDidChange(async (e): Promise<void> => {
+        log.trace(`onDidChange() ${e.fsPath}`)
+        await this.refresh()
+      })
+      watcherPackageJson.onDidDelete(async (e): Promise<void> => {
+        log.trace(`onDidDelete() ${e.fsPath}`)
+        await this.refresh()
+      })
+      watcherPackageJson.onDidCreate(async (e): Promise<void> => {
+        log.trace(`onDidCreate() ${e.fsPath}`)
+        await this.refresh()
+      })
       this.vscodeContext.subscriptions.push(watcherPackageJson)
 
       this.watcherPackageJson = watcherPackageJson
@@ -238,27 +228,28 @@ export class ExtensionManager implements vscode.Disposable {
   /**
    * Register a watcher to detect when the workspace folders change.
    */
-  registerWorkspaceFoldersWatcher (): void {
+  registerWorkspaceFoldersWatcher(): void {
     const log = this.log
 
-    log.trace('registerWorkspaceFoldersWatcher()')
+    log.trace('registerWor kspaceFoldersWatcher()')
     const watcherWorkspaceFolders =
-    vscode.workspace.onDidChangeWorkspaceFolders(
-      async (e) => {
-        log.trace('onDidChangeWorkspaceFolders() ' +
-          `+${e.added.length} -${e.removed.length}`)
+      vscode.workspace.onDidChangeWorkspaceFolders(async (e) => {
+        log.trace(
+          'onDidChangeWorkspaceFolders() ' +
+            `+${e.added.length.toString()} -${e.removed.length.toString()}`
+        )
 
         this.registerPackageJsonWatchers()
         await this.refresh()
-      }
-    )
+      })
     this.vscodeContext.subscriptions.push(watcherWorkspaceFolders)
   }
 
   // --------------------------------------------------------------------------
 
-  async dispose (): Promise<void> {
+  async dispose(): Promise<void> {
     for (const element of this.subscriptions) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const object = element.dispose()
       if (utils.isPromise(object)) {
         await object
@@ -283,11 +274,9 @@ export class BuildConfigurationPick implements vscode.QuickPickItem {
   // --------------------------------------------------------------------------
   // Constructor.
 
-  constructor (
-    dataNode: DataNodeConfiguration
-  ) {
+  constructor(dataNode: DataNodeConfiguration) {
     this.label = dataNode.name
-    const relativePath = (dataNode.parent).name
+    const relativePath = dataNode.parent.name
     if (relativePath !== '') {
       this.description = `(${relativePath})`
     }

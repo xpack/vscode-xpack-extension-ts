@@ -224,23 +224,20 @@ actions are also identified and listed in separate arrays.
 
 TBD
 
-## Standard style
+## Prettier
+
+The project uses [prettier](https://prettier.io) to format the code.
+
+## Style checks
 
 As style, the project uses the TypeScript variant of
-[Standard Style](https://standardjs.com/#typescript),
+typescript-eslint](https://typescript-eslint.io),
 automatically checked at each commit via CI.
 
 Generally, to fit two editor windows side by side in a screen,
 all files should limit the line length to 80.
 
-```js
-/* eslint max-len: [ "error", 80, { "ignoreUrls": true } ] */
-// eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-```
-
-Known and accepted exceptions:
-
-- none
+There are no global exceptions; for specific exceptions, see the source code.
 
 To manually fix compliance with the style guide (where possible):
 
@@ -248,13 +245,12 @@ To manually fix compliance with the style guide (where possible):
 $ npm run fix
 
 > xpack@0.0.1 fix
-> ts-standard --fix src
+> eslint src
 ```
 
 ## TSDoc (TypeScript documentation)
 
 - <https://tsdoc.org>
-- <https://typedoc.org/guides/doccomments/>
 - <https://jsdoc.app/index.html>
 
 ## Bundling extensions

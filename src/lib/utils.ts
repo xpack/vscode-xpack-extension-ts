@@ -9,8 +9,6 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  */
 
-/* eslint max-len: [ "error", 80, { "ignoreUrls": true } ] */
-
 // ----------------------------------------------------------------------------
 
 import * as path from 'node:path'
@@ -32,14 +30,15 @@ import { XpackTaskDefinition } from './definitions.js'
  * @param p - The input path
  * @returns The normalized path
  */
-export function normalizePath (p: string): string {
+export function normalizePath(p: string): string {
   let norm = path.normalize(p)
   while (path.sep !== path.posix.sep && norm.includes(path.sep)) {
     norm = norm.replace(path.sep, path.posix.sep)
   }
   if (process.platform === 'win32' || process.platform === 'darwin') {
     norm = norm.toLocaleLowerCase()
-  } if (process.platform === 'darwin') {
+  }
+  if (process.platform === 'darwin') {
     norm = norm.normalize()
   }
   // Remove trailing slashes
@@ -58,7 +57,7 @@ export function normalizePath (p: string): string {
  * @param what - The value to insert in place of `needle`
  * @returns The modified string
  */
-export function replaceAll (str: string, needle: string, what: string): string {
+export function replaceAll(str: string, needle: string, what: string): string {
   const pattern = escapeStringForRegex(needle)
   const re = new RegExp(pattern, 'g')
   return str.replace(re, what)
@@ -67,21 +66,23 @@ export function replaceAll (str: string, needle: string, what: string): string {
 /**
  * Escape a string so it can be used as a regular expression
  */
-export function escapeStringForRegex (str: string): string {
+export function escapeStringForRegex(str: string): string {
   return str.replace(/([.*+?^=!:${}()|[\]/\\])/g, '\\$1')
 }
 
 // ----------------------------------------------------------------------------
 
-export async function createTask (
+export function createTask(
   xpmProgramName: string,
   commandArguments: string[],
-  scope: vscode.WorkspaceFolder | vscode.TaskScope.Global |
-  vscode.TaskScope.Workspace,
+  scope:
+    | vscode.WorkspaceFolder
+    | vscode.TaskScope.Global
+    | vscode.TaskScope.Workspace,
   folderPath: string,
   taskLabel: string,
   taskDefinition: XpackTaskDefinition
-): Promise<vscode.Task> {
+): vscode.Task {
   const execution: vscode.ShellExecution = new vscode.ShellExecution(
     xpmProgramName,
     commandArguments,
@@ -107,33 +108,36 @@ export async function createTask (
 
 // --------------------------------------------------------------------------
 
-export function isPrimitive (value: any): boolean {
-  return (typeof value !== 'object' && typeof value !== 'function') ||
-    value === null
+export function isPrimitive(value: unknown): boolean {
+  return (
+    (typeof value !== 'object' && typeof value !== 'function') || value === null
+  )
 }
 
-export function isJsonObject (value: any): boolean {
+export function isJsonObject(value: unknown): boolean {
   return value !== undefined && !isPrimitive(value) && !Array.isArray(value)
 }
 
-export function isNonEmptyJsonObject (value: any): boolean {
-  return isJsonObject(value) && (Object.keys(value).length > 0)
+export function isNonEmptyJsonObject(value: unknown): boolean {
+  return isJsonObject(value) && Object.keys(value as object).length > 0
 }
 
-export function isPromise (object: any): boolean {
-  return object !== undefined &&
+export function isPromise(object: unknown): boolean {
+  return (
+    object !== undefined &&
     Object.prototype.toString.call(object) === '[object Promise]'
+  )
 }
 
-export function isString (object: any): boolean {
+export function isString(object: unknown): boolean {
   return Object.prototype.toString.call(object) === '[object String]'
 }
 
-export function isBoolean (object: any): boolean {
+export function isBoolean(object: unknown): boolean {
   return typeof object === 'boolean'
 }
 
-export function testForExclusionPattern (
+export function testForExclusionPattern(
   path: string,
   pattern: string
 ): boolean {

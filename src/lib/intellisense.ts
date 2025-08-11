@@ -9,8 +9,6 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  */
 
-/* eslint max-len: [ "error", 80, { "ignoreUrls": true } ] */
-
 // ----------------------------------------------------------------------------
 
 /*
@@ -21,7 +19,7 @@
  * similar to vscode-cmake-tools integration.
  */
 
-import assert from 'node:assert'
+// import assert from 'node:assert'
 import * as fs from 'fs/promises'
 import * as path from 'node:path'
 
@@ -66,9 +64,7 @@ export class IntelliSense implements vscode.Disposable {
   // --------------------------------------------------------------------------
   // Static members & methods.
 
-  static async register (
-    manager: ExtensionManager
-  ): Promise<IntelliSense> {
+  static register(manager: ExtensionManager): IntelliSense {
     const _intellisense = new IntelliSense(manager)
     manager.subscriptions.push(_intellisense)
 
@@ -96,17 +92,15 @@ export class IntelliSense implements vscode.Disposable {
   // --------------------------------------------------------------------------
   // Constructor.
 
-  constructor (manager: ExtensionManager) {
+  constructor(manager: ExtensionManager) {
     this.manager = manager
     this.log = manager.log
 
     // const log = this.log
 
-    manager.addCallbackRefresh(
-      async () => {
-        await this.refresh()
-      }
-    )
+    manager.addCallbackRefresh(async () => {
+      await this.refresh()
+    })
 
     const context = this.manager.vscodeContext
 
@@ -118,7 +112,7 @@ export class IntelliSense implements vscode.Disposable {
   // Methods.
 
   // Currently not called.
-  async _register (): Promise<void> {
+  async _register(): Promise<void> {
     const log = this.log
 
     this._cppToolsAPI = await cpt.getCppToolsApi(cpt.Version.v4)
@@ -127,7 +121,8 @@ export class IntelliSense implements vscode.Disposable {
       // Cannot do this in the constructor, since it requires the API,
       // available only as async.
       this._cppToolsAPI.registerCustomConfigurationProvider(
-        this._configProvider)
+        this._configProvider
+      )
       log.trace('CustomConfigurationProvider registered')
 
       // TODO more inits
@@ -143,16 +138,14 @@ export class IntelliSense implements vscode.Disposable {
   /**
    * Update all `c_cpp_properties.json` files.
    */
-  async updateCppPropertiesJson (): Promise<void> {
+  async updateCppPropertiesJson(): Promise<void> {
     const log = this.log
 
     log.trace('IntelliSense.updateCppPropertiesJson()')
 
-    const promises: Array<Promise<void>> = []
-    this.manager.data.workspaceProjects.forEach(
-      (dataNodePackage) =>
-        promises.push(
-          this.updateWorkspaceProjectCCppProperties(dataNodePackage))
+    const promises: Promise<void>[] = []
+    this.manager.data.workspaceProjects.forEach((dataNodePackage) =>
+      promises.push(this.updateWorkspaceProjectCCppProperties(dataNodePackage))
     )
 
     await Promise.all(promises)
@@ -162,7 +155,7 @@ export class IntelliSense implements vscode.Disposable {
    * Update the `c_cpp_properties.json` file for a workspace folder.
    * - https://code.visualstudio.com/docs/cpp/c-cpp-properties-schema-reference
    */
-  async updateWorkspaceProjectCCppProperties (
+  async updateWorkspaceProjectCCppProperties(
     dataNodePackage: DataNodePackage
   ): Promise<void> {
     const log = this.log
@@ -170,33 +163,37 @@ export class IntelliSense implements vscode.Disposable {
     log.trace(dataNodePackage.folderPath)
 
     const vscodeFolderPath: string = path.join(
-      dataNodePackage.folderPath, '.vscode')
+      dataNodePackage.folderPath,
+      '.vscode'
+    )
 
     const jsonFilePath: string = path.join(
-      vscodeFolderPath, 'c_cpp_properties.json')
+      vscodeFolderPath,
+      'c_cpp_properties.json'
+    )
 
     let json: JsonCCppProperties
     try {
       const fileContent = await fs.readFile(jsonFilePath)
-      assert(fileContent !== null)
       const jc: jsonc.CommentJSONValue = jsonc.parse(fileContent.toString())
       json = jc as unknown as JsonCCppProperties
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       // Ensure that the folder is there.
       await makeDirectory(vscodeFolderPath)
       json = {
         configurations: [],
-        version: 4
+        version: 4,
       }
     }
 
-    if (json.configurations === undefined) {
-      // If it does not exist, add an empty array.
-      json.configurations = []
-    }
+    // If it does not exist, add an empty array.
+    json.configurations = []
 
     await this.updateCompileCommandsReferences(
-      dataNodePackage, json.configurations)
+      dataNodePackage,
+      json.configurations
+    )
 
     if (json.configurations.length > 0) {
       const fileNewContent = jsonc.stringify(json, null, 2) + '\n'
@@ -205,7 +202,7 @@ export class IntelliSense implements vscode.Disposable {
     }
   }
 
-  async updateCompileCommandsReferences (
+  async updateCompileCommandsReferences(
     dataNodePackage: DataNodePackage,
     jsonConfigurations: JsonCCppPropertiesConfiguration[]
   ): Promise<void> {
@@ -218,13 +215,14 @@ export class IntelliSense implements vscode.Disposable {
       for (const dataNodeConfiguration of childDataNodePackage.configurations) {
         const globalConfigurationName =
           childDataNodePackage.name !== ''
-            // For sub-folders, prefix the configuration name.
-            ? (childDataNodePackage.name + '/' + dataNodeConfiguration.name)
+            ? // For sub-folders, prefix the configuration name.
+              childDataNodePackage.name + '/' + dataNodeConfiguration.name
             : dataNodeConfiguration.name
 
         if (dataNodeConfiguration.hidden) {
           log.trace(
-            `c/c++ configuration name: ${globalConfigurationName} hidden`)
+            `c/c++ configuration name: ${globalConfigurationName} hidden`
+          )
           continue
         }
 
@@ -234,7 +232,9 @@ export class IntelliSense implements vscode.Disposable {
         // if not found, create a new empty one.
         const currentJsonConfiguration =
           this.prepareCCppPropertiesConfiguration(
-            globalConfigurationName, jsonConfigurations)
+            globalConfigurationName,
+            jsonConfigurations
+          )
 
         // Get the variable value (via substitutions).
         const buildFolderRelativePath =
@@ -253,7 +253,8 @@ export class IntelliSense implements vscode.Disposable {
         const compileCommandsFileAbsolutePath = path.join(
           childDataNodePackage.folderPath,
           buildFolderRelativePath,
-          'compile_commands.json')
+          'compile_commands.json'
+        )
 
         // Based on feedback and tests, the dependency on CMake seems no
         // longer necessary and was disabled, at least until a proper
@@ -272,6 +273,7 @@ export class IntelliSense implements vscode.Disposable {
 
           // If the file exists, configure the path to it.
           currentJsonConfiguration.compileCommands = compileCommandsValue
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (err) {
           // The `compile_commands.json` file does not exist yet,
           // ensure that this property is not set, to avoid an
@@ -294,7 +296,7 @@ export class IntelliSense implements vscode.Disposable {
    *
    * @returns Either an existing configuration or a new empty one.
    */
-  prepareCCppPropertiesConfiguration (
+  prepareCCppPropertiesConfiguration(
     configurationName: string,
     jsonConfigurations: JsonCCppPropertiesConfiguration[]
   ): JsonCCppPropertiesConfiguration {
@@ -307,7 +309,7 @@ export class IntelliSense implements vscode.Disposable {
 
     // If it does not exist, create a minimal named object...
     const currentJsonConfiguration: JsonCCppPropertiesConfiguration = {
-      name: configurationName
+      name: configurationName,
     }
     // ... and add it to the array.
     jsonConfigurations.push(currentJsonConfiguration)
@@ -317,33 +319,29 @@ export class IntelliSense implements vscode.Disposable {
 
   // --------------------------------------------------------------------------
 
-  registerCompileCommandsJsonWatchers (): void {
+  registerCompileCommandsJsonWatchers(): void {
     const log = this.log
 
     // Register only once.
-    if (this.watcherCompileCommandsJson === undefined &&
-      vscode.workspace.workspaceFolders !== undefined) {
+    if (
+      this.watcherCompileCommandsJson === undefined &&
+      vscode.workspace.workspaceFolders !== undefined
+    ) {
       log.trace('registerCompileCommandsJsonWatchers()')
       const watcherCompileCommandsJson =
         vscode.workspace.createFileSystemWatcher('**/compile_commands.json')
-      watcherCompileCommandsJson.onDidChange(
-        async (e): Promise<void> => {
-          log.trace(`onDidChange() ${e.fsPath}`)
-          await this.refreshCompileCommands(vscode.FileChangeType.Changed, e)
-        }
-      )
-      watcherCompileCommandsJson.onDidDelete(
-        async (e): Promise<void> => {
-          log.trace(`onDidDelete() ${e.fsPath}`)
-          await this.refreshCompileCommands(vscode.FileChangeType.Deleted, e)
-        }
-      )
-      watcherCompileCommandsJson.onDidCreate(
-        async (e): Promise<void> => {
-          log.trace(`onDidCreate() ${e.fsPath}`)
-          await this.refreshCompileCommands(vscode.FileChangeType.Created, e)
-        }
-      )
+      watcherCompileCommandsJson.onDidChange(async (e): Promise<void> => {
+        log.trace(`onDidChange() ${e.fsPath}`)
+        await this.refreshCompileCommands(vscode.FileChangeType.Changed, e)
+      })
+      watcherCompileCommandsJson.onDidDelete(async (e): Promise<void> => {
+        log.trace(`onDidDelete() ${e.fsPath}`)
+        await this.refreshCompileCommands(vscode.FileChangeType.Deleted, e)
+      })
+      watcherCompileCommandsJson.onDidCreate(async (e): Promise<void> => {
+        log.trace(`onDidCreate() ${e.fsPath}`)
+        await this.refreshCompileCommands(vscode.FileChangeType.Created, e)
+      })
 
       const context = this.manager.vscodeContext
       context.subscriptions.push(watcherCompileCommandsJson)
@@ -354,7 +352,7 @@ export class IntelliSense implements vscode.Disposable {
 
   // --------------------------------------------------------------------------
 
-  async refresh (): Promise<void> {
+  async refresh(): Promise<void> {
     const log = this.log
 
     log.trace('IntelliSense.refresh()')
@@ -362,7 +360,7 @@ export class IntelliSense implements vscode.Disposable {
     await this.updateCppPropertiesJson()
   }
 
-  async refreshCompileCommands (
+  async refreshCompileCommands(
     changeType: vscode.FileChangeType,
     uri: vscode.Uri
   ): Promise<void> {
@@ -377,12 +375,16 @@ export class IntelliSense implements vscode.Disposable {
       // where to update the `c_cpp_properties.json`.
       for (const node of this.manager.data.configurations) {
         const buildFolderRelativePath = await node.getBuildFolderRelativePath()
-        const compileCommandsFilePath = path.join(node.package.folderPath,
+        const compileCommandsFilePath = path.join(
+          node.package.folderPath,
           buildFolderRelativePath,
-          'compile_commands.json')
+          'compile_commands.json'
+        )
 
-        if (compileCommandsFilePath === uri.fsPath &&
-          node.package.folderRelativePath === '') {
+        if (
+          compileCommandsFilePath === uri.fsPath &&
+          node.package.folderRelativePath === ''
+        ) {
           // Process only workspace folders that include top packages.
           dataNodePackage = node.package
           break
@@ -396,7 +398,7 @@ export class IntelliSense implements vscode.Disposable {
 
   // --------------------------------------------------------------------------
 
-  dispose (): void {
+  dispose(): void {
     const log = this.log
 
     log.trace('IntelliSense.dispose()')
@@ -417,29 +419,30 @@ export class IntelliSense implements vscode.Disposable {
 // - canProvideBrowseConfiguration
 
 export class XpackCppConfigurationProvider
-implements cpt.CustomConfigurationProvider {
+  implements cpt.CustomConfigurationProvider
+{
   // --------------------------------------------------------------------------
   // Members.
 
   // Name and ID, as visible to cpptools.
   readonly name: string = 'xPack Tools'
-  extensionId: string = 'ilg-vscode.xpack'
+  extensionId = 'ilg-vscode.xpack'
 
-  private readonly _workspaceBrowseConfiguration:
-  cpt.WorkspaceBrowseConfiguration =
-      {
-        browsePath: []
-      }
+  // eslint-disable-next-line max-len
+  private readonly _workspaceBrowseConfiguration: cpt.WorkspaceBrowseConfiguration =
+    { browsePath: [] }
 
-  private readonly _workspaceBrowseConfigurations =
-    new Map<string, cpt.WorkspaceBrowseConfiguration>()
+  private readonly _workspaceBrowseConfigurations = new Map<
+    string,
+    cpt.WorkspaceBrowseConfiguration
+  >()
 
   readonly log: Logger
 
   // --------------------------------------------------------------------------
   // Constructor.
 
-  constructor (extensionManager: ExtensionManager) {
+  constructor(extensionManager: ExtensionManager) {
     this.log = extensionManager.log
     const log = this.log
 
@@ -449,59 +452,70 @@ implements cpt.CustomConfigurationProvider {
   // --------------------------------------------------------------------------
   // Methods.
 
-  async canProvideConfiguration (
+  canProvideConfiguration(
     _uri: vscode.Uri,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _token?: vscode.CancellationToken
-  ): Promise<boolean> {
+  ): Thenable<boolean> {
     const log = this.log
 
     log.trace(`canProvideConfiguration(${_uri.fsPath})`)
     // throw new Error('Method not implemented.')
-    return true
+    return Promise.resolve(true)
   }
 
-  async provideConfigurations (
+  provideConfigurations(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _uris: vscode.Uri[],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _token?: vscode.CancellationToken
-  ): Promise<cpt.SourceFileConfigurationItem[]> {
+  ): Thenable<cpt.SourceFileConfigurationItem[]> {
     const log = this.log
 
-    log.error('provideConfigurations() not implemented, ' +
-      'use \'ms-vscode.cmake-tools\'')
+    log.error(
+      'provideConfigurations() not implemented, ' +
+        "use 'ms-vscode.cmake-tools'"
+    )
     // throw new Error('Method not implemented.')
-    return []
+    return Promise.resolve([])
   }
 
-  async canProvideBrowseConfiguration (
+  canProvideBrowseConfiguration(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _token?: vscode.CancellationToken
-  ): Promise<boolean> {
-    return true
+  ): Thenable<boolean> {
+    return Promise.resolve(true)
   }
 
-  async provideBrowseConfiguration (
+  provideBrowseConfiguration(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _token?: vscode.CancellationToken
-  ): Promise<cpt.WorkspaceBrowseConfiguration | null> {
-    return this._workspaceBrowseConfiguration
+  ): Thenable<cpt.WorkspaceBrowseConfiguration | null> {
+    return Promise.resolve(this._workspaceBrowseConfiguration)
   }
 
-  async canProvideBrowseConfigurationsPerFolder (
+  canProvideBrowseConfigurationsPerFolder(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _token?: vscode.CancellationToken
-  ): Promise<boolean> {
-    return true
+  ): Thenable<boolean> {
+    return Promise.resolve(true)
   }
 
-  async provideFolderBrowseConfiguration (
+  provideFolderBrowseConfiguration(
     _uri: vscode.Uri,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _token?: vscode.CancellationToken
-  ): Promise<cpt.WorkspaceBrowseConfiguration | null> {
+  ): Thenable<cpt.WorkspaceBrowseConfiguration | null> {
     const log = this.log
 
     log.trace(`provideFolderBrowseConfiguration(${_uri.fsPath})`)
-    return this._workspaceBrowseConfigurations.get(_uri.fsPath) ??
-      this._workspaceBrowseConfiguration
+    return Promise.resolve(
+      this._workspaceBrowseConfigurations.get(_uri.fsPath) ??
+        this._workspaceBrowseConfiguration
+    )
   }
 
-  dispose (): void {
+  dispose(): void {
     const log = this.log
 
     log.trace('XpackCppConfigurationProvider.dispose()')
@@ -509,7 +523,7 @@ implements cpt.CustomConfigurationProvider {
 
   // --------------------------------------------------------------------------
 
-  refresh (): void {
+  refresh(): void {
     // Nothing yet.
   }
 }

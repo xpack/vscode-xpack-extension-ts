@@ -9,8 +9,6 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  */
 
-/* eslint max-len: [ "error", 80, { "ignoreUrls": true } ] */
-
 // ----------------------------------------------------------------------------
 
 import * as vscode from 'vscode'
@@ -31,9 +29,7 @@ export class Hover implements vscode.Disposable {
   // --------------------------------------------------------------------------
   // Static members & methods.
 
-  static async register (
-    manager: ExtensionManager
-  ): Promise<Hover> {
+  static register(manager: ExtensionManager): Hover {
     const _hover = new Hover(manager)
     manager.subscriptions.push(_hover)
 
@@ -55,7 +51,7 @@ export class Hover implements vscode.Disposable {
   // --------------------------------------------------------------------------
   // Constructor.
 
-  constructor (readonly manager: ExtensionManager) {
+  constructor(readonly manager: ExtensionManager) {
     this.log = manager.log
 
     const log = this.log
@@ -64,20 +60,21 @@ export class Hover implements vscode.Disposable {
 
     const context: vscode.ExtensionContext = manager.vscodeContext
 
-    manager.addCallbackRefresh(
-      async () => {
-        this._hoverProvider.refresh()
-      }
-    )
+    // eslint-disable-next-line @typescript-eslint/require-await
+    manager.addCallbackRefresh(async () => {
+      this._hoverProvider.refresh()
+    })
 
     const packageJsonSelector: vscode.DocumentSelector = {
       language: 'json',
       scheme: 'file',
-      pattern: '**/package.json'
+      pattern: '**/package.json',
     }
     context.subscriptions.push(
       vscode.languages.registerHoverProvider(
-        packageJsonSelector, this._hoverProvider)
+        packageJsonSelector,
+        this._hoverProvider
+      )
     )
 
     log.trace('hover provider registered')
@@ -86,7 +83,7 @@ export class Hover implements vscode.Disposable {
   // --------------------------------------------------------------------------
   // Methods.
 
-  dispose (): void {
+  dispose(): void {
     const log = this.log
 
     log.trace('Hover.dispose()')
@@ -107,7 +104,7 @@ export class XpackHoverProvider implements vscode.HoverProvider {
   // --------------------------------------------------------------------------
   // Constructor.
 
-  constructor (manager: ExtensionManager) {
+  constructor(manager: ExtensionManager) {
     this.manager = manager
     this.log = manager.log
   }
@@ -129,9 +126,10 @@ export class XpackHoverProvider implements vscode.HoverProvider {
    *
    * @override
    */
-  provideHover (
+  provideHover(
     _document: vscode.TextDocument,
     _position: vscode.Position,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.Hover> {
     const log = this.log
@@ -141,7 +139,7 @@ export class XpackHoverProvider implements vscode.HoverProvider {
     return null
   }
 
-  refresh (): void {
+  refresh(): void {
     const log = this.log
 
     log.trace('XpackHoverProvider.refresh()')

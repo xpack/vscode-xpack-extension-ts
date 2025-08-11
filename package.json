@@ -3,7 +3,11 @@
   "displayName": "xPack C/C++ Managed Build Tools",
   "description": "Manage and build C/C++ projects with CMake, meson, etc using the xPack tools.",
   "version": "0.5.3-pre",
+  "main": "./dist/extension.js",
   "type": "module",
+  "files": [
+    "dist/"
+  ],
   "publisher": "ilg-vscode",
   "license": "MIT",
   "categories": [
@@ -48,8 +52,11 @@
   },
   "scripts": {
     "compile-watch": "tsc -watch -p src",
-    "fix": "echo ts-standard --fix src",
-    "compile": "tsc -p src",
+    "compile": "tsc --build --verbose src",
+    "api-extractor": "api-extractor run --local --verbose",
+    "prettier": "prettier src --write",
+    "lint": "eslint src",
+    "fix": "eslint --fix src",
     "npm-install ": "npm install",
     "npm-outdated": "npm outdated",
     "npm-update": "npm update",
@@ -58,15 +65,15 @@
     "postversion": "git push origin --all && git push origin --tags",
     "package": "vsce ls && vsce package --githubBranch master",
     "git-log": "git log --pretty='%cd * %h %s' --date=short",
-    "lint": "echo ts-standard src",
     "prepare": "npm run compile && npm run lint",
     "pretest": "npm run compile && npm run lint",
     "test": "echo 'Tests not yet implemented'",
     "vscode:prepublish": "npm run fix && npm run compile",
     "publish": "vsce publish --githubBranch master",
-    "clean": "rm -rf dist",
-    "deep-clean": "rm -rf dist node_modules package-lock.json",
-    "npm-version": "echo $(which node) $(node --version) && echo $(which npm) $(npm --version)"
+    "clean": "del-cli dist",
+    "deep-clean": "del-cli dist node_modules package-lock.json",
+    "dumpconf": "env | sort | uniq",
+    "show-version": "echo $(which node) $(node --version) && echo $(which npm) $(npm --version)"
   },
   "dependencies": {
     "@xpack/logger": "^5.0.4",
@@ -77,18 +84,28 @@
     "vscode-cpptools": "^7.1.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.33.0",
+    "@microsoft/api-extractor": "^7.52.10",
     "@tsconfig/node20": "^20.1.6",
     "@types/node": "24.x",
     "@types/vscode": "^1.102.0",
     "@vscode/test-electron": "^2.5.2",
     "@vscode/vsce": "^3.6.0",
+    "del-cli": "^6.0.0",
+    "eslint": "^9.33.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.6.2",
+    "ts-node": "^10.9.2",
     "ts-loader": "^9.5.2",
-    "ts-standard": "^12.0.2",
     "typescript": "^5.9.2",
-    "webpack": "^5.101.0",
-    "webpack-cli": "^6.0.1"
+    "typescript-eslint": "^8.39.1"
   },
-  "main": "./dist/extension.js",
+  "prettier": {
+    "printWidth": 80,
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
   "activationEvents": [
     "onLanguage:json",
     "workspaceContains:**/package.json"

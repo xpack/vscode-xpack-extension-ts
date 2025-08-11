@@ -9,11 +9,9 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  */
 
-/* eslint max-len: [ "error", 80, { "ignoreUrls": true } ] */
-
 // ----------------------------------------------------------------------------
 
-import assert from 'node:assert'
+// import assert from 'node:assert'
 import * as fs from 'fs/promises'
 import * as path from 'node:path'
 
@@ -22,15 +20,15 @@ import { Logger } from '@xpack/logger'
 import * as utils from './utils.js'
 
 import {
+  JsonBuildConfiguration,
   JsonBuildConfigurations,
-  XpackPackageJson
+  PackageJson,
+  XpackPackageJson,
 } from './definitions.js'
 
 // ----------------------------------------------------------------------------
 
-interface PendingConfigurations {
-  [buildConfigurationName: string]: boolean
-}
+type PendingConfigurations = Record<string, boolean>
 
 // Helper class for processing xPacks.
 
@@ -39,15 +37,15 @@ export class Xpack {
   // Members.
 
   folderPath?: string
-  packageJson?: any
-  packageJsonOriginal?: any
+  packageJson?: XpackPackageJson
+  packageJsonOriginal?: XpackPackageJson
 
   readonly log: Logger
 
   // --------------------------------------------------------------------------
   // Constructor.
 
-  constructor (log: Logger, folderPath: string | undefined = undefined) {
+  constructor(log: Logger, folderPath: string | undefined = undefined) {
     this.log = log
     this.folderPath = folderPath
   }
@@ -55,9 +53,9 @@ export class Xpack {
   // --------------------------------------------------------------------------
   // Methods.
 
-  async checkIfFolderHasPackageJson (
+  async checkIfFolderHasPackageJson(
     folderPath?: string
-  ): Promise<any | null> {
+  ): Promise<PackageJson | null> {
     let tmpPath: string | undefined
     if (folderPath !== undefined) {
       tmpPath = folderPath
@@ -72,8 +70,8 @@ export class Xpack {
 
     try {
       const fileContent = await fs.readFile(jsonPath)
-      assert(fileContent !== null)
-      const packageJson = JSON.parse(fileContent.toString())
+      // assert(fileContent !== null)
+      const packageJson = JSON.parse(fileContent.toString()) as XpackPackageJson
 
       // If not called with explicit path, remember the resulted json.
       if (folderPath === undefined) {
@@ -82,18 +80,18 @@ export class Xpack {
         return this.packageJson
       }
       return packageJson
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       if (folderPath === undefined) {
-        this.packageJsonOriginal = null
-        this.packageJson = null
+        this.packageJsonOriginal = undefined
+        this.packageJson = undefined
       }
       return null
     }
   }
 
-  isPackage (json: any = this.packageJson): boolean {
-    if (json === undefined || json === null || json.name === undefined ||
-      json.version === undefined) {
+  isPackage(json: PackageJson | undefined | null = this.packageJson): boolean {
+    if (json?.name === undefined || json.version === undefined) {
       return false
     }
     const name = json.name.trim()
@@ -107,33 +105,37 @@ export class Xpack {
     return true
   }
 
-  isXpack (json: any = this.packageJson): boolean {
+  isXpack(json: PackageJson | undefined = this.packageJson): boolean {
     if (!this.isPackage(json)) {
       return false
     }
-    if (json.xpack === undefined) {
+    if (json?.xpack === undefined) {
       return false
     }
     return true
   }
 
-  hasXpackActions (json: any = this.packageJson): boolean {
+  hasXpackActions(
+    json: XpackPackageJson | undefined = this.packageJson
+  ): boolean {
     if (!this.isXpack(json)) {
       return false
     }
     try {
-      if (json.xpack.actions !== undefined) {
+      if (json?.xpack.actions !== undefined) {
         return true
       }
-      if (json.xpack.buildConfigurations !== undefined) {
+      if (json?.xpack.buildConfigurations !== undefined) {
         // Don't use a lambda, to return directly from the loop.
         for (const name of Object.keys(json.xpack.buildConfigurations)) {
-          const buildConfiguration: any = json.xpack.buildConfigurations[name]
+          const buildConfiguration: JsonBuildConfiguration =
+            json.xpack.buildConfigurations[name]
           if (buildConfiguration.actions !== undefined) {
             return true
           }
         }
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       // In case xpack is not an option to get its properties.
     }
@@ -146,10 +148,10 @@ export class Xpack {
    * @param packageJson
    * @returns The updated packageJson.
    */
-  processInheritance (packageJson: XpackPackageJson): XpackPackageJson {
+  processInheritance(packageJson: XpackPackageJson): XpackPackageJson {
     // Start with a shallow copy of the original.
     const newPackageJson: XpackPackageJson = {
-      ...packageJson
+      ...packageJson,
     }
 
     if (!Object.prototype.hasOwnProperty.call(newPackageJson, 'xpack')) {
@@ -158,7 +160,7 @@ export class Xpack {
 
     // Add a shallow copy of the xpack property.
     newPackageJson.xpack = {
-      ...packageJson.xpack
+      ...packageJson.xpack,
     }
 
     // There are no build configurations, done.
@@ -171,8 +173,9 @@ export class Xpack {
 
     const pendingConfigurations: PendingConfigurations = {}
 
-    for (const buildConfigurationName of
-      Object.keys(packageJson.xpack.buildConfigurations)) {
+    for (const buildConfigurationName of Object.keys(
+      packageJson.xpack.buildConfigurations
+    )) {
       this.processBuildConfigurationInheritanceRecursive(
         buildConfigurationName,
         packageJson.xpack.buildConfigurations,
@@ -184,7 +187,7 @@ export class Xpack {
     return newPackageJson
   }
 
-  private processBuildConfigurationInheritanceRecursive (
+  private processBuildConfigurationInheritanceRecursive(
     buildConfigurationName: string,
     sourceBuildConfigurations: JsonBuildConfigurations,
     destinationBuildConfigurations: JsonBuildConfigurations,
@@ -193,8 +196,12 @@ export class Xpack {
     const log = this.log
 
     // Already processed.
-    if (Object.prototype.hasOwnProperty.call(
-      destinationBuildConfigurations, buildConfigurationName)) {
+    if (
+      Object.prototype.hasOwnProperty.call(
+        destinationBuildConfigurations,
+        buildConfigurationName
+      )
+    ) {
       return
     }
 
@@ -207,22 +214,26 @@ export class Xpack {
       } else if (Array.isArray(source.inherit)) {
         for (const value of source.inherit) {
           if (utils.isString(value)) {
-            parentNames.push(value)
+            parentNames.push(value as string)
           } else {
-            log.error('Build configuration inherit can be only' +
-            ` string or string array (${buildConfigurationName})`)
+            log.error(
+              'Build configuration inherit can be only' +
+                ` string or string array (${buildConfigurationName})`
+            )
           }
         }
       } else {
-        log.error('Build configuration inherit can be only string or' +
-        ` string array (${buildConfigurationName})`)
+        log.error(
+          'Build configuration inherit can be only string or' +
+            ` string array (${buildConfigurationName})`
+        )
       }
     }
 
     if (parentNames.length === 0) {
       // Has no parents, copy as is.
       destinationBuildConfigurations[buildConfigurationName] = {
-        ...source
+        ...source,
       }
       return
     }
@@ -231,7 +242,7 @@ export class Xpack {
       log.error(`Circular inheritance in ${buildConfigurationName}`)
 
       destinationBuildConfigurations[buildConfigurationName] = {
-        ...source
+        ...source,
       }
 
       pendingConfigurations[buildConfigurationName] = false
@@ -246,7 +257,8 @@ export class Xpack {
       if (!utils.isJsonObject(sourceBuildConfigurations[parentName])) {
         log.error(
           `'${parentName}' not a valid build configuration name` +
-          ` (${buildConfigurationName})`)
+            ` (${buildConfigurationName})`
+        )
 
         // Not stored as parent.
         continue
@@ -272,35 +284,35 @@ export class Xpack {
       properties: {},
       actions: {},
       dependencies: {},
-      devDependencies: {}
+      devDependencies: {},
     }
 
     for (const parent of parents) {
       if (Object.prototype.hasOwnProperty.call(parent, 'properties')) {
         destination.properties = {
           ...destination.properties,
-          ...parent.properties
+          ...parent.properties,
         }
       }
 
       if (Object.prototype.hasOwnProperty.call(parent, 'actions')) {
         destination.actions = {
           ...destination.actions,
-          ...parent.actions
+          ...parent.actions,
         }
       }
 
       if (Object.prototype.hasOwnProperty.call(parent, 'dependencies')) {
         destination.dependencies = {
           ...destination.dependencies,
-          ...parent.dependencies
+          ...parent.dependencies,
         }
       }
 
       if (Object.prototype.hasOwnProperty.call(parent, 'devDependencies')) {
         destination.devDependencies = {
           ...destination.devDependencies,
-          ...parent.devDependencies
+          ...parent.devDependencies,
         }
       }
     }

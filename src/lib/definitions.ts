@@ -9,8 +9,6 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  */
 
-/* eslint max-len: [ "error", 80, { "ignoreUrls": true } ] */
-
 // ----------------------------------------------------------------------------
 
 import * as vscode from 'vscode'
@@ -20,49 +18,49 @@ import * as vscode from 'vscode'
 
 export type LogLevelKey = 'trace' | 'debug' | 'info' | 'warning' | 'error'
 
-export type AsyncVoidFunction = (() => Promise<void>)
+export type AsyncVoidFunction = () => Promise<void>
 
 export type JsonActionValue = string | string[]
 
 export type JsonPropertyValue = string
 
-export interface JsonProperties {
-  [propertyName: string]: JsonPropertyValue
-}
+export type JsonProperties = Record<string, JsonPropertyValue>
 
-export interface JsonBuildConfigurationInherits {
-  [buildConfigurationName: string]: string
-}
+export type JsonBuildConfigurationInherits = Record<string, string>
 
-export interface JsonActions {
-  [actionName: string]: JsonActionValue
-}
+export type JsonActions = Record<string, JsonActionValue>
 
 export interface JsonBuildConfiguration {
   inherit?: JsonBuildConfigurationInherits | string
   hidden?: boolean
   properties?: JsonProperties
   actions?: JsonActions
-  dependencies?: any
-  devDependencies?: any
+  dependencies?: Record<string, string>
+  devDependencies?: Record<string, string>
 }
 
-export interface JsonBuildConfigurations {
-  [buildConfigurationName: string]: JsonBuildConfiguration
+export type JsonBuildConfigurations = Record<string, JsonBuildConfiguration>
+
+export interface PackageJson {
+  name?: string
+  version?: string
+  scripts?: Record<string, string>
+  dependencies?: Record<string, string>
+  devDependencies?: Record<string, string>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any // Allow any additional property
 }
 
-export interface XpackPackageJson {
-  name: string
-  version: string
-  dependencies?: any
-  devDependencies?: any
-  xpack: {
-    properties?: JsonProperties
-    actions?: JsonActions
-    dependencies?: any
-    devDependencies?: any
-    buildConfigurations?: JsonBuildConfigurations
-  }
+export interface JsonXpack {
+  properties?: JsonProperties
+  actions?: JsonActions
+  dependencies?: Record<string, string>
+  devDependencies?: Record<string, string>
+  buildConfigurations?: JsonBuildConfigurations
+}
+
+export interface XpackPackageJson extends PackageJson {
+  xpack: JsonXpack
 }
 
 /**
@@ -87,8 +85,7 @@ export interface MessageItemConfirmation extends vscode.MessageItem {
 // ----------------------------------------------------------------------------
 // Constants.
 
-export const packageJsonFileName: string = 'package.json'
-export const buildFolderRelativePathPropertyName: string =
-  'buildFolderRelativePath'
+export const packageJsonFileName = 'package.json'
+export const buildFolderRelativePathPropertyName = 'buildFolderRelativePath'
 
 // ----------------------------------------------------------------------------

@@ -9,8 +9,6 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  */
 
-/* eslint max-len: [ "error", 80, { "ignoreUrls": true } ] */
-
 // ----------------------------------------------------------------------------
 
 // The module 'vscode' contains the VS Code extensibility API.
@@ -42,14 +40,15 @@ let _manager: ExtensionManager
  * VS Code calls this function according to the `activationEvents`
  * property in `package.json`.
  */
-export async function activate (
+export async function activate(
   context: vscode.ExtensionContext
 ): Promise<void> {
-  const loglevel = vscode.workspace.getConfiguration('xpack')
+  const loglevel = vscode.workspace
+    .getConfiguration('xpack')
     .get<LogLevelKey>('loggingLevel', 'info')
 
   const log = new Logger({
-    level: loglevel
+    level: loglevel,
   })
 
   log.debug('"ilg-vscode.xpack" activated')
@@ -69,16 +68,16 @@ export async function activate (
 
   // await _extensionManager.findXpackFolderPaths()
 
-  await TaskProvider.register(_manager)
-  await Explorer.register(_manager)
-  await Commands.register(_manager)
+  TaskProvider.register(_manager)
+  Explorer.register(_manager)
+  Commands.register(_manager)
 
   // Not yet implemented.
   // await Hover.register(_manager)
 
   // For now use the C/C++ status bar to select the configuration.
   // await StatusBar.register(_extensionManager)
-  const intelliSense = await IntelliSense.register(_manager)
+  const intelliSense = IntelliSense.register(_manager)
 
   intelliSense.registerCompileCommandsJsonWatchers()
 
@@ -95,7 +94,7 @@ export async function activate (
  * VS Code calls this function, usually when shutting down, but also
  * when the extension in disabled or uninstalled.
  */
-export async function deactivate (): Promise<void> {
+export async function deactivate(): Promise<void> {
   await _manager.dispose()
 
   const log = _manager.log

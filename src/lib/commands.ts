@@ -9,8 +9,6 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  */
 
-/* eslint max-len: [ "error", 80, { "ignoreUrls": true } ] */
-
 // ----------------------------------------------------------------------------
 
 /**
@@ -32,27 +30,26 @@ import * as vscode from 'vscode'
 
 import { Logger } from '@xpack/logger'
 
-import {
-  ExtensionManager,
-  BuildConfigurationPick
-} from './manager.js'
+import { ExtensionManager, BuildConfigurationPick } from './manager.js'
 
 import {
   TreeItem,
   TreeItemAction,
   TreeItemCommand,
   TreeItemConfiguration,
-  TreeItemPackage
+  TreeItemPackage,
 } from './explorer.js'
 
 import {
   JsonActions,
   JsonBuildConfigurations,
+  JsonXpack,
   MessageItemConfirmation,
-  XpackPackageJson
+  XpackPackageJson,
 } from './definitions.js'
 
 import * as utils from './utils.js'
+import { DataNodeConfiguration } from './data-model.js'
 
 // ----------------------------------------------------------------------------
 
@@ -64,9 +61,7 @@ export class Commands implements vscode.Disposable {
   // Static members & methods.
 
   // Factory method pattern.
-  static async register (
-    extensionManager: ExtensionManager
-  ): Promise<Commands> {
+  static register(extensionManager: ExtensionManager): Commands {
     const _commands = new Commands(extensionManager)
     extensionManager.subscriptions.push(_commands)
 
@@ -89,45 +84,36 @@ export class Commands implements vscode.Disposable {
   // --------------------------------------------------------------------------
   // Constructor.
 
-  constructor (manager: ExtensionManager) {
+  constructor(manager: ExtensionManager) {
     this.manager = manager
     this.log = manager.log
 
-    manager.addCallbackRefresh(
-      async () => {
-        this.refresh()
-      }
-    )
+    // eslint-disable-next-line @typescript-eslint/require-await
+    manager.addCallbackRefresh(async () => {
+      this.refresh()
+    })
 
     const context: vscode.ExtensionContext = manager.vscodeContext
 
     context.subscriptions.push(
       vscode.commands.registerCommand(
         'xpack.treeViewRefresh',
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         this.refreshTreeView,
         this
       )
     )
     context.subscriptions.push(
-      vscode.commands.registerCommand(
-        'xpack.runCommand',
-        this.runCommand,
-        this
-      )
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      vscode.commands.registerCommand('xpack.runCommand', this.runCommand, this)
     )
     context.subscriptions.push(
-      vscode.commands.registerCommand(
-        'xpack.runAction',
-        this.runAction,
-        this
-      )
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      vscode.commands.registerCommand('xpack.runAction', this.runAction, this)
     )
     context.subscriptions.push(
-      vscode.commands.registerCommand(
-        'xpack.copyAction',
-        this.copyAction,
-        this
-      )
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      vscode.commands.registerCommand('xpack.copyAction', this.copyAction, this)
     )
 
     // context.subscriptions.push(
@@ -140,20 +126,19 @@ export class Commands implements vscode.Disposable {
     context.subscriptions.push(
       vscode.commands.registerCommand(
         'xpack.addConfiguration',
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         this.addConfiguration,
         this
       )
     )
     context.subscriptions.push(
-      vscode.commands.registerCommand(
-        'xpack.addAction',
-        this.addAction,
-        this
-      )
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      vscode.commands.registerCommand('xpack.addAction', this.addAction, this)
     )
     context.subscriptions.push(
       vscode.commands.registerCommand(
         'xpack.removeAction',
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         this.removeAction,
         this
       )
@@ -161,6 +146,7 @@ export class Commands implements vscode.Disposable {
     context.subscriptions.push(
       vscode.commands.registerCommand(
         'xpack.duplicateConfiguration',
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         this.duplicateConfiguration,
         this
       )
@@ -168,6 +154,7 @@ export class Commands implements vscode.Disposable {
     context.subscriptions.push(
       vscode.commands.registerCommand(
         'xpack.removeConfiguration',
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         this.removeConfiguration,
         this
       )
@@ -176,6 +163,7 @@ export class Commands implements vscode.Disposable {
     context.subscriptions.push(
       vscode.commands.registerCommand(
         'xpack.createProjectEmpty',
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         this.createProjectEmpty,
         this
       )
@@ -183,6 +171,7 @@ export class Commands implements vscode.Disposable {
     context.subscriptions.push(
       vscode.commands.registerCommand(
         'xpack.createProjectHelloQuick',
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         this.createProjectHelloQuick,
         this
       )
@@ -190,6 +179,7 @@ export class Commands implements vscode.Disposable {
     context.subscriptions.push(
       vscode.commands.registerCommand(
         'xpack.createProjectHello',
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         this.createProjectHello,
         this
       )
@@ -198,6 +188,7 @@ export class Commands implements vscode.Disposable {
     context.subscriptions.push(
       vscode.commands.registerCommand(
         'xpack.createProjectHelloQemu',
+        // eslint-disable-next-line @typescript-eslint/unbound-method
         this.createProjectHelloQemu,
         this
       )
@@ -210,7 +201,7 @@ export class Commands implements vscode.Disposable {
   /**
    * Refresh the explorer tree view.
    */
-  async refreshTreeView (): Promise<void> {
+  async refreshTreeView(): Promise<void> {
     const log = this.log
 
     log.trace('Command.refreshTreeView()')
@@ -223,15 +214,15 @@ export class Commands implements vscode.Disposable {
    * @param treeItem - When invoked by the tree viewer it gets the
    * TreeItem where the invocation occurred.
    */
-  async runCommand (treeItem: TreeItem): Promise<void> {
+  async runCommand(treeItem: TreeItem): Promise<void> {
     const log = this.log
 
     log.trace('Command.runCommand()')
     if (treeItem instanceof TreeItemCommand) {
-      if (treeItem.task === undefined) {
-        log.debug('runCommand(): inconsistent treeItem, no task')
-        return
-      }
+      // if (treeItem.task === undefined) {
+      //   log.debug('runCommand(): inconsistent treeItem, no task')
+      //   return
+      // }
       log.trace(treeItem.task.execution)
       await treeItem.runTask()
     } else {
@@ -248,15 +239,15 @@ export class Commands implements vscode.Disposable {
    * Errors trigger a generic message, and the exceptions are not
    * reflected in the output, so better use log messages.
    */
-  async runAction (treeItem: TreeItem): Promise<void> {
+  async runAction(treeItem: TreeItem): Promise<void> {
     const log = this.log
 
     log.trace('Command.runAction()')
     if (treeItem instanceof TreeItemAction) {
-      if (treeItem.task === undefined) {
-        log.debug('runAction(): inconsistent treeItem, no task')
-        return
-      }
+      // if (treeItem.task === undefined) {
+      //   log.debug('runAction(): inconsistent treeItem, no task')
+      //   return
+      // }
       log.trace(treeItem.task.execution)
       await treeItem.runTask()
     } else {
@@ -264,15 +255,15 @@ export class Commands implements vscode.Disposable {
     }
   }
 
-  async copyAction (treeItem: TreeItem): Promise<void> {
+  async copyAction(treeItem: TreeItem): Promise<void> {
     const log = this.log
 
     log.trace('Command.copyAction()')
     if (treeItem instanceof TreeItemAction) {
-      if (treeItem.task === undefined) {
-        log.debug('copyAction(): inconsistent treeItem, no task')
-        return
-      }
+      // if (treeItem.task === undefined) {
+      //   log.debug('copyAction(): inconsistent treeItem, no task')
+      //   return
+      // }
       log.trace(treeItem.task.execution)
       let command = `xpm run ${treeItem.name}`
       if (treeItem.parent instanceof TreeItemConfiguration) {
@@ -294,7 +285,7 @@ export class Commands implements vscode.Disposable {
     }
   }
 
-  async addConfiguration (treeItem: TreeItem): Promise<void> {
+  async addConfiguration(treeItem: TreeItem): Promise<void> {
     const log = this.log
 
     if (treeItem instanceof TreeItemPackage) {
@@ -305,7 +296,7 @@ export class Commands implements vscode.Disposable {
 
     const configurationName = await vscode.window.showInputBox({
       prompt: 'New configuration name',
-      placeHolder: 'Prefer capitalised words, dash separated'
+      placeHolder: 'Prefer capitalised words, dash separated',
     })
     if (configurationName === undefined) {
       return
@@ -316,17 +307,20 @@ export class Commands implements vscode.Disposable {
     if (packageJson.xpack.buildConfigurations === undefined) {
       packageJson.xpack.buildConfigurations = {}
     } else {
-      if (packageJson.xpack.buildConfigurations[configurationName] !==
-        undefined) {
+      if (
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        packageJson.xpack.buildConfigurations[configurationName] !== undefined
+      ) {
         await vscode.window.showErrorMessage(
           `Configuration '${configurationName}' ` +
-          'already present, choose a different name.')
+            'already present, choose a different name.'
+        )
         return
       }
     }
     packageJson.xpack.buildConfigurations[configurationName] = {
       properties: {},
-      actions: {}
+      actions: {},
     }
     log.trace(packageJson)
 
@@ -335,7 +329,7 @@ export class Commands implements vscode.Disposable {
     log.trace(`${treeItem.packageJsonPath} written back`)
   }
 
-  async addAction (treeItem: TreeItem): Promise<void> {
+  async addAction(treeItem: TreeItem): Promise<void> {
     const log = this.log
 
     let treeItemPackage
@@ -351,7 +345,7 @@ export class Commands implements vscode.Disposable {
 
     const actionName = await vscode.window.showInputBox({
       prompt: 'Enter the name of the new action',
-      placeHolder: 'Prefer lowercase words, dash separated'
+      placeHolder: 'Prefer lowercase words, dash separated',
     })
     if (actionName === undefined) {
       return
@@ -360,20 +354,23 @@ export class Commands implements vscode.Disposable {
 
     const packageJson: XpackPackageJson = treeItemPackage.dataNode.packageJson
 
-    let fromJson = packageJson.xpack
+    let fromJson: JsonXpack = packageJson.xpack
     if (treeItem instanceof TreeItemConfiguration) {
-      const jsonConfigurations: JsonBuildConfigurations =
-        packageJson.xpack.buildConfigurations as JsonBuildConfigurations
-      fromJson = jsonConfigurations[treeItem.name]
+      const jsonConfigurations: JsonBuildConfigurations | undefined =
+        packageJson.xpack.buildConfigurations
+      if (jsonConfigurations !== undefined) {
+        fromJson = jsonConfigurations[treeItem.name]
+      }
     }
     if (fromJson.actions === undefined) {
       fromJson.actions = {}
     } else {
-      if (fromJson.actions[actionName] !==
-        undefined) {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      if (fromJson.actions[actionName] !== undefined) {
         await vscode.window.showErrorMessage(
           `Action '${actionName}' ` +
-          'already present, choose a different name.')
+            'already present, choose a different name.'
+        )
         return
       }
     }
@@ -386,7 +383,7 @@ export class Commands implements vscode.Disposable {
     log.trace(`${treeItemPackage.packageJsonPath} written back`)
   }
 
-  async removeAction (treeItem: TreeItem): Promise<void> {
+  async removeAction(treeItem: TreeItem): Promise<void> {
     const log = this.log
 
     if (treeItem instanceof TreeItemAction) {
@@ -396,40 +393,46 @@ export class Commands implements vscode.Disposable {
     }
 
     const actionName: string = treeItem.name
-    const chosen = await vscode.window
-      .showInformationMessage<MessageItemConfirmation>(
-      `Do you really want to remove action '${actionName}'?`,
-      { modal: true },
-      { title: 'Remove', isConfirmed: true }
-    )
-    if (chosen === undefined || !chosen.isConfirmed) {
+    const chosen =
+      await vscode.window.showInformationMessage<MessageItemConfirmation>(
+        `Do you really want to remove action '${actionName}'?`,
+        { modal: true },
+        { title: 'Remove', isConfirmed: true }
+      )
+    if (!chosen?.isConfirmed) {
       return
     }
 
     const treeItemPackage: TreeItemPackage = treeItem.parent.package
 
     const packageJson: XpackPackageJson = treeItemPackage.dataNode.packageJson
-    let actions: JsonActions = packageJson.xpack.actions as JsonActions
+    let actions: JsonActions | undefined = packageJson.xpack.actions
     if (treeItem.parent instanceof TreeItemConfiguration) {
       const buildConfigurationName = treeItem.parent.name
 
-      const buildConfigurations =
-      packageJson.xpack.buildConfigurations as JsonBuildConfigurations
+      const buildConfigurations = packageJson.xpack.buildConfigurations
 
-      actions =
-        buildConfigurations[buildConfigurationName].actions as JsonActions
+      if (buildConfigurations?.[buildConfigurationName] !== undefined) {
+        actions = buildConfigurations[buildConfigurationName].actions
+      } else {
+        await vscode.window.showErrorMessage(
+          `Build configuration '${buildConfigurationName}' not found.`
+        )
+        return
+      }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-    delete actions[actionName]
+    if (actions !== undefined) {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+      delete actions[actionName]
+    }
 
     const fileNewContent = JSON.stringify(packageJson, null, 2) + os.EOL
-    await fs.writeFile(treeItemPackage.packageJsonPath,
-      fileNewContent)
+    await fs.writeFile(treeItemPackage.packageJsonPath, fileNewContent)
     log.trace(`${treeItemPackage.packageJsonPath} written back`)
   }
 
-  async duplicateConfiguration (treeItem: TreeItem): Promise<void> {
+  async duplicateConfiguration(treeItem: TreeItem): Promise<void> {
     const log = this.log
 
     if (treeItem instanceof TreeItemConfiguration) {
@@ -440,7 +443,7 @@ export class Commands implements vscode.Disposable {
 
     const configurationName = await vscode.window.showInputBox({
       prompt: 'Enter the name of the new configuration',
-      placeHolder: 'Prefer capitalised words, dash separated'
+      placeHolder: 'Prefer capitalised words, dash separated',
     })
     if (configurationName === undefined) {
       return
@@ -448,29 +451,32 @@ export class Commands implements vscode.Disposable {
     log.trace(configurationName)
 
     const packageJson: XpackPackageJson = treeItem.parent.dataNode.packageJson
-    const buildConfigurations =
-      packageJson.xpack.buildConfigurations as JsonBuildConfigurations
+    const buildConfigurations = packageJson.xpack.buildConfigurations
 
-    if (buildConfigurations[configurationName] !== undefined) {
-      await vscode.window.showErrorMessage(
+    if (buildConfigurations !== undefined) {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      if (buildConfigurations[configurationName] !== undefined) {
+        await vscode.window.showErrorMessage(
           `Configuration '${configurationName}' ` +
-          'already present, choose a different name.')
-      return
-    }
+            'already present, choose a different name.'
+        )
+        return
+      }
 
-    const sourceBuildConfiguration = buildConfigurations[treeItem.dataNode.name]
-    buildConfigurations[configurationName] = {
-      ...sourceBuildConfiguration
-    }
-    log.trace(packageJson)
+      const sourceBuildConfiguration =
+        buildConfigurations[treeItem.dataNode.name]
+      buildConfigurations[configurationName] = {
+        ...sourceBuildConfiguration,
+      }
+      log.trace(packageJson)
 
-    const fileNewContent = JSON.stringify(packageJson, null, 2) + os.EOL
-    await fs.writeFile(treeItem.parent.packageJsonPath,
-      fileNewContent)
-    log.trace(`${treeItem.parent.packageJsonPath} written back`)
+      const fileNewContent = JSON.stringify(packageJson, null, 2) + os.EOL
+      await fs.writeFile(treeItem.parent.packageJsonPath, fileNewContent)
+      log.trace(`${treeItem.parent.packageJsonPath} written back`)
+    }
   }
 
-  async removeConfiguration (treeItem: TreeItem): Promise<void> {
+  async removeConfiguration(treeItem: TreeItem): Promise<void> {
     const log = this.log
 
     if (treeItem instanceof TreeItemConfiguration) {
@@ -480,26 +486,27 @@ export class Commands implements vscode.Disposable {
     }
 
     const buildConfigurationName = treeItem.dataNode.name
-    const chosen = await vscode.window
-      .showInformationMessage<MessageItemConfirmation>(
-      `Do you really want to remove configuration '${buildConfigurationName}'?`,
-      { modal: true },
-      { title: 'Remove', isConfirmed: true }
-    )
-    if (chosen === undefined || !chosen.isConfirmed) {
+    const chosen =
+      await vscode.window.showInformationMessage<MessageItemConfirmation>(
+        'Do you really want to remove configuration ' +
+          `'${buildConfigurationName}'?`,
+        { modal: true },
+        { title: 'Remove', isConfirmed: true }
+      )
+    if (!chosen?.isConfirmed) {
       return
     }
 
     const packageJson: XpackPackageJson = treeItem.parent.dataNode.packageJson
-    const buildConfigurations =
-      packageJson.xpack.buildConfigurations as JsonBuildConfigurations
+    const buildConfigurations = packageJson.xpack.buildConfigurations
 
-    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-    delete buildConfigurations[buildConfigurationName]
+    if (buildConfigurations !== undefined) {
+      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+      delete buildConfigurations[buildConfigurationName]
+    }
 
     const fileNewContent = JSON.stringify(packageJson, null, 2) + os.EOL
-    await fs.writeFile(treeItem.parent.packageJsonPath,
-      fileNewContent)
+    await fs.writeFile(treeItem.parent.packageJsonPath, fileNewContent)
     log.trace(`${treeItem.parent.packageJsonPath} written back`)
   }
 
@@ -508,24 +515,22 @@ export class Commands implements vscode.Disposable {
   /**
    * Select the build configuration. Currently Not used.
    */
-  async selectBuildConfiguration (): Promise<void> {
+  async selectBuildConfiguration(): Promise<void> {
     const log = this.log
 
     log.trace('Command.selectBuildConfiguration()')
 
-    if (this._buildConfigurationPicks === undefined) {
-      this._buildConfigurationPicks =
-        this.manager.data.configurations.map(
-          (dataNode: any) => {
-            return new BuildConfigurationPick(dataNode)
-          }
-        )
-    }
+    this._buildConfigurationPicks ??= this.manager.data.configurations.map(
+      (dataNode: DataNodeConfiguration) => {
+        return new BuildConfigurationPick(dataNode)
+      }
+    )
     const pick = await vscode.window.showQuickPick<BuildConfigurationPick>(
       this._buildConfigurationPicks,
       {
-        placeHolder: 'Select the build configuration for IntelliSense ' +
-          '(not yet functional)'
+        placeHolder:
+          'Select the build configuration for IntelliSense ' +
+          '(not yet functional)',
       }
     )
 
@@ -535,7 +540,7 @@ export class Commands implements vscode.Disposable {
     }
   }
 
-  async createProjectEmpty (): Promise<void> {
+  async createProjectEmpty(): Promise<void> {
     const log = this.log
 
     log.trace('Command.createProjectEmpty()')
@@ -543,55 +548,53 @@ export class Commands implements vscode.Disposable {
     await this._createXpmProject(['init'])
   }
 
-  async createProjectHelloQuick (): Promise<void> {
+  async createProjectHelloQuick(): Promise<void> {
     const log = this.log
 
     log.trace('Command.createProjectHelloQuick()')
 
-    await this._createXpmProject(
-      [
-        'init',
-        '--template', '@xpack/hello-world-template@latest',
-        '--property', 'language=cpp'
-      ]
-    )
+    await this._createXpmProject([
+      'init',
+      '--template',
+      '@xpack/hello-world-template@latest',
+      '--property',
+      'language=cpp',
+    ])
   }
 
-  async createProjectHello (): Promise<void> {
+  async createProjectHello(): Promise<void> {
     const log = this.log
 
     log.trace('Command.createProjectHello()')
 
-    await this._createXpmProject(
-      [
-        'init',
-        '--template', '@xpack/hello-world-template@latest'
-      ]
-    )
+    await this._createXpmProject([
+      'init',
+      '--template',
+      '@xpack/hello-world-template@latest',
+    ])
   }
 
-  async createProjectHelloQemu (): Promise<void> {
+  async createProjectHelloQemu(): Promise<void> {
     const log = this.log
 
     log.trace('Command.createProjectHelloQemu()')
 
-    await this._createXpmProject(
-      [
-        'init',
-        '--template', '@micro-os-plus/hello-world-qemu-template@latest'
-      ]
-    )
+    await this._createXpmProject([
+      'init',
+      '--template',
+      '@micro-os-plus/hello-world-qemu-template@latest',
+    ])
   }
 
-  async _createXpmProject (commandArguments: string[]): Promise<void> {
+  async _createXpmProject(commandArguments: string[]): Promise<void> {
     const log = this.log
 
     log.trace('Command._createProject()')
 
     const homeUri = vscode.Uri.file(os.homedir())
     const defaultUri =
-      (vscode.workspace.workspaceFolders != null) &&
-        vscode.workspace.workspaceFolders.length > 0
+      vscode.workspace.workspaceFolders != null &&
+      vscode.workspace.workspaceFolders.length > 0
         ? vscode.Uri.file(vscode.workspace.workspaceFolders[0].uri.fsPath)
         : homeUri
 
@@ -600,7 +603,7 @@ export class Commands implements vscode.Disposable {
       canSelectFiles: false,
       canSelectFolders: true,
       canSelectMany: false,
-      defaultUri
+      defaultUri,
     })
 
     if (uris === undefined) {
@@ -612,7 +615,7 @@ export class Commands implements vscode.Disposable {
     const xpmProgramName = 'xpm'
     const taskLabel = [xpmProgramName, ...commandArguments].join(' ')
 
-    const task = await utils.createTask(
+    const task = utils.createTask(
       xpmProgramName,
       commandArguments,
       vscode.TaskScope.Workspace,
@@ -626,9 +629,10 @@ export class Commands implements vscode.Disposable {
     // https://code.visualstudio.com/api/references/vscode-api#tasks
     // onDidEndTaskProcess: Event<TaskProcessEndEvent>
 
-    const start = (vscode.workspace.workspaceFolders !== undefined)
-      ? vscode.workspace.workspaceFolders.length
-      : 0
+    const start =
+      vscode.workspace.workspaceFolders !== undefined
+        ? vscode.workspace.workspaceFolders.length
+        : 0
     vscode.workspace.updateWorkspaceFolders(start, 0, { uri: uris[0] })
 
     log.trace(code)
@@ -636,7 +640,7 @@ export class Commands implements vscode.Disposable {
 
   // --------------------------------------------------------------------------
 
-  refresh (): void {
+  refresh(): void {
     const log = this.log
 
     log.trace('Commands.refresh()')
@@ -646,7 +650,7 @@ export class Commands implements vscode.Disposable {
 
   // --------------------------------------------------------------------------
 
-  dispose (): void {
+  dispose(): void {
     const log = this.log
 
     log.trace('Commands.dispose()')

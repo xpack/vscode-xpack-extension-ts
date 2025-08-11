@@ -9,8 +9,6 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  */
 
-/* eslint max-len: [ "error", 80, { "ignoreUrls": true } ] */
-
 // ----------------------------------------------------------------------------
 
 // This extension contribute tasks using a
@@ -34,9 +32,7 @@ export class TaskProvider implements vscode.TaskProvider, vscode.Disposable {
   // Static members & methods.
 
   // Factory method pattern.
-  static async register (
-    manager: ExtensionManager
-  ): Promise<TaskProvider> {
+  static register(manager: ExtensionManager): TaskProvider {
     const _taskProvider = new TaskProvider(manager)
     manager.subscriptions.push(_taskProvider)
 
@@ -59,17 +55,16 @@ export class TaskProvider implements vscode.TaskProvider, vscode.Disposable {
   // --------------------------------------------------------------------------
   // Constructor.
 
-  constructor (manager: ExtensionManager) {
+  constructor(manager: ExtensionManager) {
     this.manager = manager
     this.log = manager.log
 
     const log = this.log
 
-    manager.addCallbackRefresh(
-      async () => {
-        this.refresh()
-      }
-    )
+    // eslint-disable-next-line @typescript-eslint/require-await
+    manager.addCallbackRefresh(async () => {
+      this.refresh()
+    })
 
     const context = this.manager.vscodeContext
     const taskProvider = vscode.tasks.registerTaskProvider('xPack', this)
@@ -81,33 +76,25 @@ export class TaskProvider implements vscode.TaskProvider, vscode.Disposable {
   // --------------------------------------------------------------------------
   // Methods.
 
-  async provideTasks (
-    token: vscode.CancellationToken
-  ): Promise<vscode.Task[]> {
-    if (this._tasks === undefined) {
-      this._tasks = await this.addTasks(token)
-    }
+  provideTasks(token: vscode.CancellationToken): vscode.Task[] {
+    this._tasks ??= this.addTasks(token)
 
     return this._tasks
   }
 
-  async resolveTask (
+  resolveTask(
     task: vscode.Task,
     token: vscode.CancellationToken
-  ): Promise<vscode.Task | undefined> {
+  ): vscode.Task | undefined {
     if (token.isCancellationRequested) {
       return undefined
     }
-    if (task === undefined) {
-      return undefined
-    } else {
-      throw new Error('Method not yet implemented.')
-    }
+    throw new Error('Method not yet implemented.')
   }
 
   // --------------------------------------------------------------------------
 
-  refresh (): void {
+  refresh(): void {
     const log = this.log
 
     log.trace('Tasks.refresh()')
@@ -117,9 +104,7 @@ export class TaskProvider implements vscode.TaskProvider, vscode.Disposable {
 
   // --------------------------------------------------------------------------
 
-  async addTasks (
-    token: vscode.CancellationToken
-  ): Promise<vscode.Task[]> {
+  addTasks(token: vscode.CancellationToken): vscode.Task[] {
     const tasks: vscode.Task[] = []
 
     if (token.isCancellationRequested) {
@@ -132,7 +117,7 @@ export class TaskProvider implements vscode.TaskProvider, vscode.Disposable {
     return tasks
   }
 
-  dispose (): void {
+  dispose(): void {
     const log = this.log
 
     log.trace('TaskProvider.dispose()')

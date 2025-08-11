@@ -9,8 +9,6 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  */
 
-/* eslint max-len: [ "error", 80, { "ignoreUrls": true } ] */
-
 // ----------------------------------------------------------------------------
 
 // NOT YET USED! (the C/C++ status item is used for now)
@@ -35,9 +33,7 @@ export class StatusBar implements vscode.Disposable {
   // Static members & methods.
 
   // Factory method pattern.
-  static async register (
-    manager: ExtensionManager
-  ): Promise<StatusBar> {
+  static register(manager: ExtensionManager): StatusBar {
     const _statusBar = new StatusBar(manager)
     manager.subscriptions.push(_statusBar)
 
@@ -60,7 +56,7 @@ export class StatusBar implements vscode.Disposable {
   // --------------------------------------------------------------------------
   // Constructor.
 
-  constructor (manager: ExtensionManager) {
+  constructor(manager: ExtensionManager) {
     this.manager = manager
     this.log = manager.log
 
@@ -69,34 +65,32 @@ export class StatusBar implements vscode.Disposable {
     const context: vscode.ExtensionContext = manager.vscodeContext
     const subscriptions = context.subscriptions
 
-    manager.addCallbackRefresh(
-      async () => {
-        this.refresh()
-      }
-    )
+    // eslint-disable-next-line @typescript-eslint/require-await
+    manager.addCallbackRefresh(async () => {
+      this.refresh()
+    })
 
     // https://code.visualstudio.com/api/references/vscode-api#StatusBarItem
-    const statusBarItem =
-      vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left)
+    const statusBarItem = vscode.window.createStatusBarItem(
+      vscode.StatusBarAlignment.Left
+    )
     statusBarItem.hide()
 
     subscriptions.push(statusBarItem)
 
     this._statusBarItem = statusBarItem
 
-    manager.onSelectBuildConfiguration.event(
-      (dataNode) => {
-        log.trace(dataNode, 'received')
+    manager.onSelectBuildConfiguration.event((dataNode) => {
+      log.trace(dataNode, 'received')
 
-        this.refresh(dataNode)
-      }
-    )
+      this.refresh(dataNode)
+    })
   }
 
   // --------------------------------------------------------------------------
   // Methods.
 
-  refresh (dataNode?: DataNodeConfiguration): void {
+  refresh(dataNode?: DataNodeConfiguration): void {
     const log = this.log
 
     log.trace('StatusBar.refresh()')
@@ -131,7 +125,7 @@ export class StatusBar implements vscode.Disposable {
     }
   }
 
-  dispose (): void {
+  dispose(): void {
     const log = this.log
 
     log.trace('StatusBar.dispose()')
@@ -140,4 +134,5 @@ export class StatusBar implements vscode.Disposable {
 
   // --------------------------------------------------------------------------
 }
+
 // ----------------------------------------------------------------------------
