@@ -3,13 +3,16 @@
 [![license](https://img.shields.io/github/license/xpack/vscode-xpack-extension-ts.svg)](https://github.com/xpack/vscode-xpack-extension-ts/blob/xpack/LICENSE)
 [![TS-Standard - Typescript Standard Style Guide](https://badgen.net/badge/code%20style/ts-standard/blue?icon=typescript)](https://github.com/standard/ts-standard)
 
-# xPack C/C++ Managed Build (beta)
+# xPack C/C++ Managed Build
 
-A Visual Studio Code extension to manage and build C/C++ projects with CMake, Meson,
-and other tools, using the xPack tools.
+A Visual Studio Code extension for managing and building C/C++ projects with CMake, Meson,
+and other tools, utilising the xPack tools.
 
 This extension is intended as a replacement for the managed build system available
 in [Eclipse Embedded CDT](https://projects.eclipse.org/projects/iot.embed-cdt/).
+Features related to the automatic generation of build configurations, similar to
+Eclipse managed builds, will be available in a future release and will be based on
+[xcdl](https://xpack.github.io/xcdl/).
 
 ## Features
 
@@ -22,7 +25,7 @@ projects, with an emphasis on **modern C/C++** and **embedded** applications.
 The [xPack C/C++ Managed Build extension](https://xpack.github.io/vscode/)
 is an open-source project hosted on
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts) and
-is part of the [xPack Reproducible Build Framework](https://xpack.github.io/).
+forms part of the [xPack Reproducible Build Framework](https://xpack.github.io/).
 
 It can be installed from the Visual Studio Marketplace as
 [ilg-vscode.xpack](https://marketplace.visualstudio.com/items?itemName=ilg-vscode.xpack).
@@ -54,7 +57,7 @@ extension is to create a basic _Hello World_ project.
 Open the
 [Quick Start](https://xpack.github.io/vscode/quick-start/)
 page in your browser and follow the steps. In addition to being
-a fully functional project, the result can serve as a solid
+a fully functional project, the result can serve as an excellent
 starting point for more complex projects.
 
 ## How it Works
@@ -295,16 +298,15 @@ project template available from:
 
 ## Release Notes
 
-The latest release is **v0.5.1**, which,
+The latest release is **v1.0.1**, which,
 according to [semantic versioning](https://semver.org) rules,
-means it is still in the _initial development_ phase.
+means it is in the _production_ phase.
 
-The xPack extension is functional and suitable for beta-testing,
-but anything **may**
-change at any time and the public API **should not** be considered stable.
+The xPack extension is functional, but further improvements are to be
+expected in future releases.
 
 More details about each release can be found on the
-[releases](https://xpack.github.io/vscode/releases/) pages.
+[releases](https://xpack.github.io/web-archive-jekyll/vscode/releases/) pages.
 
 ## Licence
 

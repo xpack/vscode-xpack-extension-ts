@@ -7,7 +7,7 @@
 [![GitHub pulls](https://img.shields.io/github/issues-pr/xpack/vscode-xpack-extension-ts.svg)](https://github.com/xpack/vscode-xpack-extension-ts/pulls)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/984cdd1e0ee24ff58ab9f941427ae2e3)](https://www.codacy.com/gh/xpack/vscode-xpack-extension-ts/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=xpack/vscode-xpack-extension-ts&amp;utm_campaign=Badge_Grade)
 
-# Developer info
+# Developer Information
 
 This page documents the prerequisites and procedures used during the
 development of the VS Code **xPack C/C++ Managed Build** extension.
@@ -16,13 +16,13 @@ This project is written in TypeScript, as recommended for VS Code extensions.
 
 ## Prerequisites
 
-Briefly, the prerequisites are:
+The prerequisites are:
 
 - npm
-- a recent [xpm](https://xpack.github.io/xpm/), which is a portable
-[Node.js](https://nodejs.org/) command line application
-- an instance of Visual Studio Code with a specific set of extensions
-- a marketplace publisher access token; `vsce login ilg-vscode`
+- A recent [xpm](https://xpack.github.io/xpm/), which is a portable
+  [Node.js](https://nodejs.org/) command-line application
+- An instance of Visual Studio Code with a specific set of extensions
+- A marketplace publisher access token; `vsce login ilg-vscode`
 
 ### Install xpm
 
@@ -30,9 +30,9 @@ Briefly, the prerequisites are:
 npm install --global xpm@latest
 ```
 
-### Prepare a separate instance of VS Code
+### Prepare a Separate Instance of VS Code
 
-To avoid interferences with other extensions in the regular VS Code
+To avoid interference with other extensions in your regular VS Code
 configuration, it is recommended to use a custom folder and a separate
 set of extensions:
 
@@ -59,15 +59,15 @@ code \
 
 `ms-vscode.makefile-tools` may also be useful.
 
-On Windows, use the Git console, which is more or less a regular shell.
+On Windows, use the Git console, which is similar to a regular shell.
 
-### Clone the project repository
+### Clone the Project Repository
 
 The project is hosted on GitHub:
 
 - <https://github.com/xpack/vscode-xpack-extension-ts.git>
 
-To clone the `master` branch, use:
+To clone the `master` branch:
 
 ```sh
 mkdir ${HOME}/Work/vscode-extensions
@@ -76,7 +76,7 @@ git clone \
   https://github.com/xpack/vscode-xpack-extension-ts.git vscode-xpack-extension-ts.git
 ```
 
-For development, to clone the `develop` branch, use:
+For development, to clone the `develop` branch:
 
 ```sh
 git clone \
@@ -92,17 +92,17 @@ code \
   ${HOME}/Work/vscode-extensions/vscode-xpack-extension-ts.git
 ```
 
-### Update VS Code settings
+### Update VS Code Settings
 
 TBD
 
-### Satisfy dependencies
+### Satisfy Dependencies
 
 ```sh
 npm install
 ```
 
-### Start the webpack-dev background task
+### Start the webpack-dev Background Task
 
 The xPack extension uses webpack to make the distribution more compact.
 
@@ -113,37 +113,37 @@ task to convert the `out` folder into the `dist` folder:
 npm run webpack-dev-watch
 ```
 
-### Start debug sessions
+### Start Debug Sessions
 
-Use the existing launchers.
+Use the existing launch configurations.
 
 Note: the `dist` folder content is processed by `webpack` and the
-relationship to the original TS files is lost. Temporarily adjust
-`package.json` to point to the `out` folder.
+relationship to the original TypeScript files is lost. Temporarily adjust
+`package.json` to point to the `out` folder if needed.
 
-## Language standard compliance
+## Language Standard Compliance
 
-The current version is TypeScript 4:
+The current version uses TypeScript 4:
 
 - <https://www.typescriptlang.org>
 - <https://www.typescriptlang.org/docs/handbook>
 
-## VS Code extension API
+## VS Code Extension API
 
 The API used to implement VS Code extensions:
 
 - <https://code.visualstudio.com/api/>
 
-### package.json contributions
+### package.json Contributions
 
-The VS Code extensions require some definitions stored in the
+VS Code extensions require definitions stored in the
 `contributes` property of `package.json`.
 
 #### `contributes.commands`
 
-All commands are listed here, but not all commands are equal,
-those that must be shown in Command Palette better have the `category`
-defined, while those that go in menus probably better have the icons.
+All commands are listed here, but not all commands are equal.
+Those that must be shown in the Command Palette should have the `category`
+defined, while those that go in menus should have icons.
 
 - <https://code.visualstudio.com/api/references/contribution-points#contributes.commands>
 
@@ -166,11 +166,11 @@ top/beginning of a menu.
 These are the commands associated with the items in the view tree.
 
 - `inline` groups are shown in the item line
-- `navigation` groups are shown as right click.
+- `navigation` groups are shown as right-click options
 
-Node: the `when` expressions do not accept parenthesis, so to enable
+Note: the `when` expressions do not accept parentheses, so to enable
 commands for multiple items, repeat the command with all different
-`viewItem`.
+`viewItem` values.
 
 #### `contributes.configuration`
 
@@ -180,8 +180,8 @@ Scope:
 
 - `application` (all instances of VS Code and can only be configured
   in user settings)
-- `machine` (user or remote settings, like installation path which
-  shouldn't be shared across machines)
+- `machine` (user or remote settings, such as installation path which
+  should not be shared across machines)
 - `machine-overridable` (can be overridden by workspace or folder)
 - **`window`** (user, workspace, or remote settings; default)
 - `resource` (files and folders, and can be configured in all settings
@@ -190,20 +190,20 @@ Scope:
 
 ### Documentation
 
-- [contribution points](https://code.visualstudio.com/api/references/contribution-points/)
-- [activation events](https://code.visualstudio.com/api/references/activation-events/)
-- [extension manifest](https://code.visualstudio.com/api/references/extension-manifest/)
-- [built-in commands](https://code.visualstudio.com/api/references/commands/)
-- [when clause contexts](https://code.visualstudio.com/api/references/when-clause-contexts/)
-- [product icon references](https://code.visualstudio.com/api/references/icons-in-labels/)
+- [Contribution points](https://code.visualstudio.com/api/references/contribution-points/)
+- [Activation events](https://code.visualstudio.com/api/references/activation-events/)
+- [Extension manifest](https://code.visualstudio.com/api/references/extension-manifest/)
+- [Built-in commands](https://code.visualstudio.com/api/references/commands/)
+- [When clause contexts](https://code.visualstudio.com/api/references/when-clause-contexts/)
+- [Product icon references](https://code.visualstudio.com/api/references/icons-in-labels/)
 
-### Read configuration values
+### Read Configuration Values
 
 ```js
 vscode.workspace.getConfiguration('xpack').get<number>('maxSearchDepthLevel', 3)
 ```
 
-### Write configuration values
+### Write Configuration Values
 
 ```js
 const inspectedValue = npm.inspect('exclude')
@@ -213,29 +213,29 @@ const isGlobal = inspectedValue !== undefined &&
 await npm.update('exclude', newArray, isGlobal)
 ```
 
-## Implementation details
+## Implementation Details
 
-### Data model
+### Data Model
 
 The extension recursively searches for `package.json` files, down to a given
 depth and possibly excluding some folders, in order to prepare a data model
-which is a tree of packages. For easier access, the configurations, commands
-actions are also identified and listed in separate arrays.
+which is a tree of packages. For easier access, the configurations, commands,
+and actions are also identified and listed in separate arrays.
 
 TBD
 
 ## Prettier
 
-The project uses [prettier](https://prettier.io) to format the code.
+The project uses [Prettier](https://prettier.io) to format the code.
 
-## Style checks
+## Style Checks
 
-As style, the project uses the TypeScript variant of
-typescript-eslint](https://typescript-eslint.io),
+The project uses the TypeScript variant of
+[eslint](https://typescript-eslint.io),
 automatically checked at each commit via CI.
 
-Generally, to fit two editor windows side by side in a screen,
-all files should limit the line length to 80.
+To fit two editor windows side by side on a screen,
+all files should limit the line length to 80 characters.
 
 There are no global exceptions; for specific exceptions, see the source code.
 
@@ -248,11 +248,11 @@ $ npm run fix
 > eslint src
 ```
 
-## TSDoc (TypeScript documentation)
+## TSDoc (TypeScript Documentation)
 
 - <https://tsdoc.org>
 - <https://jsdoc.app/index.html>
 
-## Bundling extensions
+## Bundling Extensions
 
 - <https://code.visualstudio.com/api/working-with-extensions/bundling-extension/>

@@ -6,128 +6,124 @@
 [![GitHub issues](https://img.shields.io/github/issues/xpack/vscode-xpack-extension-ts.svg)](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 [![GitHub pulls](https://img.shields.io/github/issues-pr/xpack/vscode-xpack-extension-ts.svg)](https://github.com/xpack/vscode-xpack-extension-ts/pulls)
 
-# Maintainer info
+# Maintainer Information
 
-This page complements the developer page and documents the
-maintenance procedures related to making release for the
+This page complements the developer documentation and outlines the
+maintenance procedures for releasing the
 VS Code **xPack C/C++ Managed Build** extension.
 
-## Prepare the release
+## Preparing a Release
 
-Before making the release, perform some checks and tweaks.
+Before making a release, perform the following checks and updates.
 
-### Update npm packages
+### Update npm Packages
 
-- `npm outdated`
-- keep [`@types/node`](https://www.npmjs.com/package/@types/node) locked to the
-  [latest node.js LTS](https://nodejs.org/en/download/)
-- edit `package.json`  and `npm install`
-- repeat until everything is up to date
+- Run `npm outdated` to check for outdated packages.
+- Keep [`@types/node`](https://www.npmjs.com/package/@types/node) pinned to the
+  [latest Node.js LTS](https://nodejs.org/en/download/).
+- Edit `package.json` as required and run `npm install`.
+- Repeat until all dependencies are up to date.
 
-### Check Git
+### Check Git Status
 
-In this Git repo:
+Within this Git repository:
 
-- in the `develop` branch
-- push everything
-- if needed, merge the `master` branch
+- Ensure you are on the `develop` branch.
+- Push all local changes.
+- If necessary, merge the `master` branch into `develop`.
 
-### Determine the next version
+### Determine the Next Version
 
-Use the semantic versioning semantics.
+Follow semantic versioning conventions to select the next version.
 
-### Fix possible open issues
+### Resolve Open Issues
 
-Check GitHub issues and pull requests:
+Review GitHub issues and pull requests:
 
 - <https://github.com/xpack/vscode-xpack-extension-ts/issues/>
 
 ### Update Release Notes in `README.md`
 
-- add a new entry in the Release Notes section
-- check the rest of the file and update if needed, to reflect the new features
-- update version in `README-MAINTAINER.md`
+- Add a new entry in the Release Notes section.
+- Review and update the remainder of the file as necessary to reflect new features.
+- Update the version in `README-MAINTAINER.md`.
 
 ## Update `CHANGELOG.md`
 
-- check the latest commits `npm run git-log`
-- open the `CHANGELOG.md` file
-- check if all previous fixed issues are in
-- commit with a message like _prepare v1.0.0_
+- Review recent commits using `npm run git-log`.
+- Open the `CHANGELOG.md` file.
+- Ensure all previously fixed issues are documented.
+- Commit with a message such as _prepare v1.0.1_.
 
-## Prepare a new blog post with the release
+## Prepare a New Blog Post for the Release
 
-In the `xpack/web-jekyll` GitHub repo:
+In the `xpack/web-jekyll` GitHub repository:
 
-- select the `develop` branch
-- add a new file to `_posts/releases/vscode-xpack`
-- name the file like `2022-07-28-vscode-xpack-v0-5-1-released.md`
-- name the post like: **VS Code xPack extension v1.0.0 released**
-- update the `date:` field with the current date
-- update the **Changes** sections
+- Switch to the `develop` branch.
+- Add a new file to `_posts/releases/vscode-xpack`.
+- Name the file in the format `YYYY-MM-DD-vscode-xpack-vX-Y-Z-released.md`.
+- Title the post: **VS Code xPack extension v1.0.1 released**
+- Update the `date:` field with the current date.
+- Update the **Changes** section.
 
-If any, refer to closed
+Reference any closed
 [issues](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
-as:
+as follows:
 
 ```markdown
 - [#1] ...
 ```
 
-- commit with a message like **VS Code xPack extension v1.0.0 released**
-- push
-- wait for the CI job to complete (<https://github.com/xpack/web-jekyll/actions>)
+- Commit with a message such as **VS Code xPack extension v1.0.1 released**.
+- Push the changes.
+- Wait for the CI job to complete (<https://github.com/xpack/web-jekyll/actions>).
 
-Check if the page shows at:
+Check that the page appears at:
 
 - <https://xpack.github.io/web-archive-jekyll/vscode/releases/>
 
-## Publish to Marketplace
+## Publish to the Marketplace
 
-- terminate **all** running tasks (**Terminal** → **Terminate Task...**)
-- select the `develop` branch
-- commit everything
-- `npm run fix`
-- in the develop branch, commit all changes
-- `npm run test` (TODO)
-- `npm run package`; check the list of packaged files, possibly
-  update `.vscodeignore`
-- `npm version patch` (bug fixes), `npm version minor` (compatible API
-  additions), `npm version major` (incompatible API changes)
-- a post-version scripts should push all changes to GitHub; this should
-  also trigger CI (to be implemented)
-- `npm run package`; again, to have an up-to-date `.vsix`
-- **wait for CI tests to complete** (TODO)
-- `npm run publish`
-- after the confirmation eMail arrives, check
+- Terminate **all** running tasks (**Terminal** → **Terminate Task...**).
+- Ensure you are on the `develop` branch.
+- Commit all changes.
+- Run `npm run fix`.
+- Commit all changes in the develop branch.
+- Run `npm run test` (to be implemented).
+- Run `npm run package`; review the list of packaged files and update `.vscodeignore` if necessary.
+- Use `npm version patch` (for bug fixes), `npm version minor` (for compatible API additions), or `npm version major` (for incompatible API changes).
+- The post-version script should push all changes to GitHub and trigger CI (to be implemented).
+- Run `npm run package` again to ensure `.vsix` is up to date.
+- **Wait for CI tests to complete** (to be implemented).
+- Run `npm run publish`.
+- After receiving the confirmation email, verify the extension at:
   - <https://marketplace.visualstudio.com/items?itemName=ilg-vscode.xpack>
   - <https://marketplace.visualstudio.com/manage/publishers/ilg-vscode/extensions/xpack/hub/>
 
-### Test
+### Testing
 
-On a separate VS Code, install the extension and check if it works.
+On a separate VS Code installation, install the extension and verify its functionality.
 
 ### Merge into `master`
 
-In this Git repo:
+Within this Git repository:
 
-- select the `master` branch
-- merge `develop`
-- push all branches
+- Switch to the `master` branch.
+- Merge the `develop` branch.
+- Push all branches.
 
 ## Share on X/Twitter
 
-- in a separate browser windows, open [X/Twitter](https://twitter.com/)
-- using the `@xpack_project` account
-- paste the release name like **VS Code xPack extension v1.0.0 released**
-- paste the link to the Web page
-  [release](https://xpack.github.io/web-archive-jekyll/vscode/releases/)
-- click the **Tweet** button
+- In a separate browser window, open [X/Twitter](https://twitter.com/).
+- Using the `@xpack_project` account:
+  - Post the release name, e.g., **VS Code xPack extension v1.0.1 released**.
+  - Include a link to the [release web page](https://xpack.github.io/web-archive-jekyll/vscode/releases/).
+  - Click the **Tweet** button.
 
-## Links
+## Useful Links
 
 - [Extension Manifest](https://code.visualstudio.com/api/references/extension-manifest/)
-- [Packaging extensions](https://code.visualstudio.com/api/working-with-extensions/publishing-extension#packaging-extensions)
-- [Marketplace publisher](https://marketplace.visualstudio.com/manage/publishers/ilg-vscode/)
+- [Packaging Extensions](https://code.visualstudio.com/api/working-with-extensions/publishing-extension#packaging-extensions)
+- [Marketplace Publisher](https://marketplace.visualstudio.com/manage/publishers/ilg-vscode/)
 - [Marketplace: xPack C/C++ Managed Build Tools](https://marketplace.visualstudio.com/manage/publishers/ilg-vscode/extensions/xpack/hub?_a=acquisition)
-- [Azure DevOps organization](https://dev.azure.com/xpack-org/)
+- [Azure DevOps Organisation](https://dev.azure.com/xpack-org/)
