@@ -5,9 +5,6 @@
   "version": "0.5.3-pre",
   "main": "./dist/extension.js",
   "type": "module",
-  "files": [
-    "dist/"
-  ],
   "publisher": "ilg-vscode",
   "license": "MIT",
   "categories": [
