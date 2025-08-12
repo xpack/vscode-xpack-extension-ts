@@ -6,8 +6,29 @@ Please check
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 and close existing issues and pull requests.
 
+## 2025-08-12
+
+* 29bd5e1 package.json remove files
+
+## 2025-08-11
+
+* 5c9784c eslint fixes
+* a79cf8c update for node modules, no webpack
+* 2fe68fa README rephrase
+* fb782a3 package.nls.json rename xpm actions
+
+## 2024-10-04
+
+* 63f8deb update makeDirectory from make-dir
+* 95f8fa1 bump deps for 1.94
+
 ## 2023-06-20
 
+* 12d8245 0.5.2
+* 5d97378 package.json: engine 1.86.0
+* 26e85e1 prepare v0.5.2
+* 7399852 #41: use LF including on Windows
+* 61e4507 package.json: bump deps
 * cce8ff7 0.5.1
 * e134d0e prepare 0.5.1
 * d764b64 README-DEVELOPER update
