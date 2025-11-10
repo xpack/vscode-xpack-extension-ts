@@ -402,7 +402,7 @@ export class TreeItemAction extends TreeItemRunnable {
 
     this.actionValue = actionValue
 
-    this.iconPath = new vscode.ThemeIcon('wrench')
+    this.iconPath = new vscode.ThemeIcon('tools')
     this.tooltip = this.actionValue.join('\n')
     this.contextValue = 'action'
   }
