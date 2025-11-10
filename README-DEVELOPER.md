@@ -37,11 +37,11 @@ configuration, it is recommended to use a custom folder and a separate
 set of extensions:
 
 ```sh
-mkdir ${HOME}/Work/vscode-extensions/code-portable-data-develop
+mkdir ${HOME}/Work/vscode-extensions/code-portable-data-development
 cd ${HOME}/Work/vscode-extensions
 
 code \
---extensions-dir ${HOME}/Work/vscode-extensions/code-portable-data-develop \
+--extensions-dir ${HOME}/Work/vscode-extensions/code-portable-data-development \
 --install-extension ms-vscode.cpptools  \
 --install-extension ms-vscode.cmake-tools \
 --install-extension twxs.cmake \
@@ -53,7 +53,7 @@ code \
 --install-extension standard.vscode-standard \
 
 code \
---extensions-dir ${HOME}/Work/vscode-extensions/code-portable-data-develop \
+--extensions-dir ${HOME}/Work/vscode-extensions/code-portable-data-development \
 --list-extensions --show-versions
 ```
 
@@ -76,11 +76,11 @@ git clone \
   https://github.com/xpack/vscode-xpack-extension-ts.git vscode-xpack-extension-ts.git
 ```
 
-For development, to clone the `develop` branch:
+For development, to clone the `` branch:
 
 ```sh
 git clone \
-  --branch develop \
+  --branch  \
   https://github.com/xpack/vscode-xpack-extension-ts.git vscode-xpack-extension-ts.git
 ```
 
@@ -88,7 +88,7 @@ git clone \
 
 ```sh
 code \
-  --extensions-dir ${HOME}/Work/vscode-extensions/code-portable-data-develop \
+  --extensions-dir ${HOME}/Work/vscode-extensions/code-portable-data-development \
   ${HOME}/Work/vscode-extensions/vscode-xpack-extension-ts.git
 ```
 
