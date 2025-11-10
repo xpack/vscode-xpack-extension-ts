@@ -97,7 +97,7 @@ export class ExtensionManager implements vscode.Disposable {
   async refresh(): Promise<void> {
     const log = this.log
 
-    log.trace('Ex tensionManager.refresh()')
+    log.trace('ExtensionManager.refresh()')
 
     // Mark all existing candidates as obsolete, such that
     // only the last one will survive.

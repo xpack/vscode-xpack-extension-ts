@@ -15,16 +15,16 @@
 
 declare module '@xpack/logger' {
   export class Logger {
-    constructor (params: unknown)
+    constructor(params: unknown)
 
-    always (...args: unknown[]): void
-    error (...args: unknown[]): void
-    output (...args: unknown[]): void
-    warn (...args: unknown[]): void
-    info (...args: unknown[]): void
-    verbose (...args: unknown[]): void
-    debug (...args: unknown[]): void
-    trace (...args: unknown[]): void
+    always(...args: unknown[]): void
+    error(...args: unknown[]): void
+    output(...args: unknown[]): void
+    warn(...args: unknown[]): void
+    info(...args: unknown[]): void
+    verbose(...args: unknown[]): void
+    debug(...args: unknown[]): void
+    trace(...args: unknown[]): void
   }
 }
 
