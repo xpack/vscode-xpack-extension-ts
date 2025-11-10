@@ -28,9 +28,9 @@ Before making a release, perform the following checks and updates.
 
 Within this Git repository:
 
-- Ensure you are on the `` branch.
+- Ensure you are on the `develop` branch.
 - Push all local changes.
-- If necessary, merge the `master` branch into ``.
+- If necessary, merge the `master` branch into `develop`.
 
 ### Determine the Next Version
 
@@ -59,7 +59,7 @@ Review GitHub issues and pull requests:
 
 In the `xpack/web-jekyll` GitHub repository:
 
-- Switch to the `` branch.
+- Switch to the `develop` branch.
 - Add a new file to `_posts/releases/vscode-xpack`.
 - Name the file in the format `YYYY-MM-DD-vscode-xpack-vX-Y-Z-released.md`.
 - Title the post: **VS Code xPack extension v1.0.1 released**
@@ -85,10 +85,10 @@ Check that the page appears at:
 ## Publish to the Marketplace
 
 - Terminate **all** running tasks (**Terminal** → **Terminate Task...**).
-- Ensure you are on the `` branch.
+- Ensure you are on the `develop` branch.
 - Commit all changes.
 - Run `npm run fix`.
-- Commit all changes in the `` branch.
+- Commit all changes in the develop branch.
 - Run `npm run test` (to be implemented).
 - Run `npm run package`; review the list of packaged files and update `.vscodeignore` if necessary.
 - Use `npm version patch` (for bug fixes), `npm version minor` (for compatible API additions), or `npm version major` (for incompatible API changes).
@@ -109,7 +109,7 @@ On a separate VS Code installation, install the extension and verify its functio
 Within this Git repository:
 
 - Switch to the `master` branch.
-- Merge the `` branch.
+- Merge the `develop` branch.
 - Push all branches.
 
 ## Share on X/Twitter
