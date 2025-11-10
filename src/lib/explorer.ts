@@ -31,13 +31,17 @@ import {
   DataNodeCommand,
   DataNodeConfiguration,
   DataNodePackage,
+  DataNodeWorkspaceFolder,
 } from './data-model.js'
 
 import { XpackPackageJson, packageJsonFileName } from './definitions.js'
 
 // ----------------------------------------------------------------------------
 
-type ActionsTree = TreeItemPackage[] | TreeItemEmpty[]
+type ActionsTree =
+  | TreeItemWorkspaceFolder[]
+  | TreeItemPackage[]
+  | TreeItemEmpty[]
 type TreeItemRunnableParent = TreeItemPackage | TreeItemConfiguration
 type TreeItemPackageChild =
   | TreeItemCommand
@@ -152,6 +156,30 @@ export class TreeItem extends vscode.TreeItem implements vscode.Disposable {
   dispose(): void {
     this.name = undefined as unknown as string
     this.parent = undefined as unknown as TreeItem
+  }
+}
+
+// ----------------------------------------------------------------------------
+
+export class TreeItemWorkspaceFolder extends TreeItem {
+  // --------------------------------------------------------------------------
+  // Members.
+  packages: TreeItemPackage[] = []
+
+  constructor(dataNode: DataNodeWorkspaceFolder) {
+    super(
+      dataNode.folderName,
+      vscode.TreeItemCollapsibleState.Expanded,
+      dataNode.folderName
+    )
+  }
+
+  get children(): TreeItem[] {
+    return this.packages
+  }
+
+  addPackage(treeItemPackage: TreeItemPackage) {
+    this.packages.push(treeItemPackage)
   }
 }
 
@@ -541,8 +569,6 @@ export class XpackActionsTreeDataProvider
 
     log.trace('XpackActionsTreeDataProvider._createTree()')
 
-    const tree: TreeItemPackage[] = []
-
     // Basically replicate the data model tree created by the manager.
 
     if (this.manager.data.packages.length === 0) {
@@ -550,17 +576,49 @@ export class XpackActionsTreeDataProvider
       return [new TreeItemEmpty('No xPacks identified.')]
     }
 
-    this.manager.data.packages.forEach((dataNodePackage) => {
+    if (this.manager.data.workspaceFolders.length > 1) {
+      // If multiple workspace folders, the tree has aditional levels.
+      const tree: TreeItemWorkspaceFolder[] = []
+      this.manager.data.workspaceFolders.forEach((dataNodeWorkspaceFolder) => {
+        const treeItemWorkspaceFolder = new TreeItemWorkspaceFolder(
+          dataNodeWorkspaceFolder
+        )
+        tree.push(treeItemWorkspaceFolder)
+        this._addPackages(
+          dataNodeWorkspaceFolder.packages,
+          treeItemWorkspaceFolder
+        )
+      })
+      log.trace('items tree created with', tree.length, 'folders')
+      return tree
+    } else {
+      // If a single workspace folder, the tree lists only packages.
+      const tree: TreeItemPackage[] = []
+      this.manager.data.packages.forEach((dataNodePackage) => {
+        const treeItemPackage = new TreeItemPackage(dataNodePackage)
+        tree.push(treeItemPackage)
+
+        this._addCommands(dataNodePackage.commands, treeItemPackage)
+        this._addActions(dataNodePackage.actions, treeItemPackage)
+        this._addConfigurations(dataNodePackage.configurations, treeItemPackage)
+      })
+      log.trace('items tree created with', tree.length, 'pacakges')
+      return tree
+    }
+  }
+
+  private _addPackages(
+    dataNodePackages: DataNodePackage[],
+    parentTreeItem: TreeItemWorkspaceFolder
+  ): void {
+    dataNodePackages.forEach((dataNodePackage) => {
       const treeItemPackage = new TreeItemPackage(dataNodePackage)
-      tree.push(treeItemPackage)
+      parentTreeItem.addPackage(treeItemPackage)
 
       this._addCommands(dataNodePackage.commands, treeItemPackage)
       this._addActions(dataNodePackage.actions, treeItemPackage)
       this._addConfigurations(dataNodePackage.configurations, treeItemPackage)
     })
-
-    log.trace('items tree created')
-    return tree
   }
 
   private _addCommands(

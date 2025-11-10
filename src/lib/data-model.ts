@@ -482,7 +482,7 @@ export class DataNodeWorkspaceFolder extends DataNode {
     this.workspaceFolder = workspaceFolder
 
     log.trace(
-      'DataNodeWorkspace ' +
+      'DataNodeWorkspaceFolder ' +
         `${workspaceFolder.name} ${workspaceFolder.index.toString()}`
     )
   }
@@ -493,6 +493,10 @@ export class DataNodeWorkspaceFolder extends DataNode {
   // eslint-disable-next-line @typescript-eslint/class-literal-property-style
   get parent(): null {
     return null
+  }
+
+  get folderName(): string {
+    return this.workspaceFolder.name
   }
 
   // --------------------------------------------------------------------------
