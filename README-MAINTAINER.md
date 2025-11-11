@@ -58,7 +58,7 @@ Review GitHub issues and pull requests:
 
 ## Prepare a New Blog Post for the Release
 
-In the `xpack/web-jekyll` GitHub repository:
+In the `xpack/web-archive-jekyll.git` GitHub repository:
 
 - Switch to the `development` branch.
 - Add a new file to `_posts/releases/vscode-xpack`.
