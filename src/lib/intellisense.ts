@@ -212,6 +212,7 @@ export class IntelliSense implements vscode.Disposable {
       dataNodePackage.parent
 
     for (const childDataNodePackage of parentWorkspaceFolder.packages) {
+      // eslint-disable-next-line max-len
       for (const dataNodeConfiguration of childDataNodePackage.xpmConfigurations) {
         const globalConfigurationName =
           childDataNodePackage.name !== ''
