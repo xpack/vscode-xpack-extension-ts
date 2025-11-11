@@ -6,8 +6,31 @@ Please check
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 and close existing issues and pull requests.
 
+## 2025-11-11
+
+* v1.1.0 prepared
+* 2e49df9 intellisense.ts silence eslint
+* 128d891 re-work commands
+* 1936850 launch.json add xpack-dev-tools workspace
+* 0ba70ad #50: show npm scripts in the xpack tree
+
+## 2025-11-10
+
+* 1f4f432 package*.json bump deps
+* e4d2a97 tests add empty settings.json
+* 3906a36 cosmetics
+* 6a32a94 change xpm actions icon to tools
+* d51a0c1 #49: show folders in xpm actions tree
+* 8cbbdb5 update READMEs for development
+* 1cb8444 Revert "add development branch"
+* f59879f add development branch
+
 ## 2025-08-12
 
+2025-08-12 * a806e6a 1.0.1
+2025-08-12 * e8bcbd0 prepare 1.0.1
+2025-08-12 * d72cb7c 1.0.0
+2025-08-12 * 8e20046 prepare 1.0.0
 * 29bd5e1 package.json remove files
 
 ## 2025-08-11
