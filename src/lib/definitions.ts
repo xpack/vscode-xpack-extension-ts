@@ -30,13 +30,17 @@ export type JsonBuildConfigurationInherits = Record<string, string>
 
 export type JsonActions = Record<string, JsonActionValue>
 
+export type JsonScripts = Record<string, string>
+
+export type JsonDependencies = Record<string, string>
+
 export interface JsonBuildConfiguration {
   inherit?: JsonBuildConfigurationInherits | string
   hidden?: boolean
   properties?: JsonProperties
   actions?: JsonActions
-  dependencies?: Record<string, string>
-  devDependencies?: Record<string, string>
+  dependencies?: JsonDependencies
+  devDependencies?: JsonDependencies
 }
 
 export type JsonBuildConfigurations = Record<string, JsonBuildConfiguration>
@@ -44,9 +48,9 @@ export type JsonBuildConfigurations = Record<string, JsonBuildConfiguration>
 export interface PackageJson {
   name?: string
   version?: string
-  scripts?: Record<string, string>
-  dependencies?: Record<string, string>
-  devDependencies?: Record<string, string>
+  scripts?: JsonScripts
+  dependencies?: JsonDependencies
+  devDependencies?: JsonDependencies
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any // Allow any additional property
 }
@@ -54,8 +58,8 @@ export interface PackageJson {
 export interface JsonXpack {
   properties?: JsonProperties
   actions?: JsonActions
-  dependencies?: Record<string, string>
-  devDependencies?: Record<string, string>
+  dependencies?: JsonDependencies
+  devDependencies?: JsonDependencies
   buildConfigurations?: JsonBuildConfigurations
 }
 

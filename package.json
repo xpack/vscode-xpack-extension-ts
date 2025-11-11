@@ -136,13 +136,18 @@
         "category": "xPack"
       },
       {
+        "command": "xpack.runNpmScript",
+        "title": "%command.runNpmScript%",
+        "icon": "$(run)"
+      },
+      {
         "command": "xpack.runCommand",
         "title": "%command.runCommand%",
         "icon": "$(run)"
       },
       {
-        "command": "xpack.runAction",
-        "title": "%command.runAction%",
+        "command": "xpack.runXpmAction",
+        "title": "%command.runXpmAction%",
         "icon": "$(run)"
       },
       {
@@ -208,6 +213,16 @@
       ],
       "view/item/context": [
         {
+          "command": "xpack.runNpmScript",
+          "when": "view == xPackActions && viewItem == script",
+          "group": "inline"
+        },
+        {
+          "command": "xpack.runNpmScript",
+          "when": "view == xPackActions && viewItem == script",
+          "group": "navigation"
+        },
+        {
           "command": "xpack.runCommand",
           "when": "view == xPackActions && viewItem == command",
           "group": "inline"
@@ -218,12 +233,12 @@
           "group": "navigation"
         },
         {
-          "command": "xpack.runAction",
+          "command": "xpack.runXpmAction",
           "when": "view == xPackActions && viewItem == action",
           "group": "inline"
         },
         {
-          "command": "xpack.runAction",
+          "command": "xpack.runXpmAction",
           "when": "view == xPackActions && viewItem == action",
           "group": "navigation"
         },

@@ -100,7 +100,7 @@ export class StatusBar implements vscode.Disposable {
       const extensionManager: ExtensionManager = this.manager
 
       const buildConfigurations: DataNodeConfiguration[] =
-        extensionManager.data.configurations
+        extensionManager.data.xpmConfigurations
       if (buildConfigurations.length > 0) {
         configuration = buildConfigurations[0]
       }

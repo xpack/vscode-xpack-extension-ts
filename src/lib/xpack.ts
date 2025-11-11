@@ -105,7 +105,7 @@ export class Xpack {
     return true
   }
 
-  isXpack(json: PackageJson | undefined = this.packageJson): boolean {
+  isXpmPackage(json: PackageJson | undefined = this.packageJson): boolean {
     if (!this.isPackage(json)) {
       return false
     }
@@ -115,22 +115,39 @@ export class Xpack {
     return true
   }
 
-  hasXpackActions(
+  hasNpmScripts(json: PackageJson | undefined = this.packageJson): boolean {
+    if (json?.scripts !== undefined && Object.keys(json.scripts).length > 0) {
+      return true
+    }
+
+    return false
+  }
+
+  hasXpmActions(
     json: XpackPackageJson | undefined = this.packageJson
   ): boolean {
-    if (!this.isXpack(json)) {
+    if (!this.isXpmPackage(json)) {
       return false
     }
     try {
-      if (json?.xpack.actions !== undefined) {
+      if (
+        json?.xpack.actions !== undefined &&
+        Object.keys(json.xpack.actions).length > 0
+      ) {
         return true
       }
-      if (json?.xpack.buildConfigurations !== undefined) {
+      if (
+        json?.xpack.buildConfigurations !== undefined &&
+        Object.keys(json.xpack.buildConfigurations).length > 0
+      ) {
         // Don't use a lambda, to return directly from the loop.
         for (const name of Object.keys(json.xpack.buildConfigurations)) {
           const buildConfiguration: JsonBuildConfiguration =
             json.xpack.buildConfigurations[name]
-          if (buildConfiguration.actions !== undefined) {
+          if (
+            buildConfiguration.actions !== undefined &&
+            Object.keys(buildConfiguration.actions).length > 0
+          ) {
             return true
           }
         }

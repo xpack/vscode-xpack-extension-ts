@@ -73,7 +73,7 @@ export function escapeStringForRegex(str: string): string {
 // ----------------------------------------------------------------------------
 
 export function createTask(
-  xpmProgramName: string,
+  programName: string,
   commandArguments: string[],
   scope:
     | vscode.WorkspaceFolder
@@ -84,12 +84,12 @@ export function createTask(
   taskDefinition: XpackTaskDefinition
 ): vscode.Task {
   const execution: vscode.ShellExecution = new vscode.ShellExecution(
-    xpmProgramName,
+    programName,
     commandArguments,
     { cwd: folderPath }
   )
 
-  const taskPrefix = 'xPack'
+  const taskPrefix = programName
 
   const problemMatchers = undefined
   const task = new vscode.Task(
@@ -100,7 +100,7 @@ export function createTask(
     execution,
     problemMatchers
   )
-  task.detail = [xpmProgramName, ...commandArguments].join(' ')
+  task.detail = [programName, ...commandArguments].join(' ')
   // Tasks are not disposable, no need to add them to any subscriptions.
 
   return task

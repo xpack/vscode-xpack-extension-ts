@@ -34,10 +34,11 @@ import { ExtensionManager, BuildConfigurationPick } from './manager.js'
 
 import {
   TreeItem,
-  TreeItemAction,
+  TreeItemXpmAction,
   TreeItemCommand,
   TreeItemConfiguration,
   TreeItemPackage,
+  TreeItemNpmScript,
 } from './explorer.js'
 
 import {
@@ -104,12 +105,24 @@ export class Commands implements vscode.Disposable {
       )
     )
     context.subscriptions.push(
+      vscode.commands.registerCommand(
+        'xpack.runNpmScript',
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        this.runNpmScript,
+        this
+      )
+    )
+    context.subscriptions.push(
       // eslint-disable-next-line @typescript-eslint/unbound-method
       vscode.commands.registerCommand('xpack.runCommand', this.runCommand, this)
     )
     context.subscriptions.push(
-      // eslint-disable-next-line @typescript-eslint/unbound-method
-      vscode.commands.registerCommand('xpack.runAction', this.runAction, this)
+      vscode.commands.registerCommand(
+        'xpack.runXpmAction',
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        this.runXpmAction,
+        this
+      )
     )
     context.subscriptions.push(
       // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -209,6 +222,31 @@ export class Commands implements vscode.Disposable {
   }
 
   /**
+   * Run a npm script.
+   *
+   * @param treeItem - When invoked by the tree viewer it gets the
+   * TreeItem where the invocation occurred.
+   *
+   * Errors trigger a generic message, and the exceptions are not
+   * reflected in the output, so better use log messages.
+   */
+  async runNpmScript(treeItem: TreeItem): Promise<void> {
+    const log = this.log
+
+    log.trace('Command.runNpmScript()')
+    if (treeItem instanceof TreeItemNpmScript) {
+      // if (treeItem.task === undefined) {
+      //   log.debug('runXpmAction(): inconsistent treeItem, no task')
+      //   return
+      // }
+      log.trace(treeItem.task.execution)
+      await treeItem.runTask()
+    } else {
+      log.debug('runNpmScript(): treeItem not yet implemented')
+    }
+  }
+
+  /**
    * Run a command.
    *
    * @param treeItem - When invoked by the tree viewer it gets the
@@ -231,7 +269,7 @@ export class Commands implements vscode.Disposable {
   }
 
   /**
-   * Run an action.
+   * Run an xpm action.
    *
    * @param treeItem - When invoked by the tree viewer it gets the
    * TreeItem where the invocation occurred.
@@ -239,19 +277,19 @@ export class Commands implements vscode.Disposable {
    * Errors trigger a generic message, and the exceptions are not
    * reflected in the output, so better use log messages.
    */
-  async runAction(treeItem: TreeItem): Promise<void> {
+  async runXpmAction(treeItem: TreeItem): Promise<void> {
     const log = this.log
 
-    log.trace('Command.runAction()')
-    if (treeItem instanceof TreeItemAction) {
+    log.trace('Command.runXpmAction()')
+    if (treeItem instanceof TreeItemXpmAction) {
       // if (treeItem.task === undefined) {
-      //   log.debug('runAction(): inconsistent treeItem, no task')
+      //   log.debug('runXpmAction(): inconsistent treeItem, no task')
       //   return
       // }
       log.trace(treeItem.task.execution)
       await treeItem.runTask()
     } else {
-      log.debug('runAction(): treeItem not yet implemented')
+      log.debug('runXpmAction(): treeItem not yet implemented')
     }
   }
 
@@ -259,7 +297,7 @@ export class Commands implements vscode.Disposable {
     const log = this.log
 
     log.trace('Command.copyAction()')
-    if (treeItem instanceof TreeItemAction) {
+    if (treeItem instanceof TreeItemXpmAction) {
       // if (treeItem.task === undefined) {
       //   log.debug('copyAction(): inconsistent treeItem, no task')
       //   return
@@ -303,7 +341,8 @@ export class Commands implements vscode.Disposable {
     }
     log.trace(configurationName)
 
-    const packageJson: XpackPackageJson = treeItem.dataNode.packageJson
+    const packageJson: XpackPackageJson = treeItem.dataNode
+      .packageJson as XpackPackageJson
     if (packageJson.xpack.buildConfigurations === undefined) {
       packageJson.xpack.buildConfigurations = {}
     } else {
@@ -352,7 +391,8 @@ export class Commands implements vscode.Disposable {
     }
     log.trace(actionName)
 
-    const packageJson: XpackPackageJson = treeItemPackage.dataNode.packageJson
+    const packageJson: XpackPackageJson = treeItemPackage.dataNode
+      .packageJson as XpackPackageJson
 
     let fromJson: JsonXpack = packageJson.xpack
     if (treeItem instanceof TreeItemConfiguration) {
@@ -386,7 +426,7 @@ export class Commands implements vscode.Disposable {
   async removeAction(treeItem: TreeItem): Promise<void> {
     const log = this.log
 
-    if (treeItem instanceof TreeItemAction) {
+    if (treeItem instanceof TreeItemXpmAction) {
       log.trace(`removeAction() '${treeItem.name}'`)
     } else {
       return
@@ -405,7 +445,8 @@ export class Commands implements vscode.Disposable {
 
     const treeItemPackage: TreeItemPackage = treeItem.parent.package
 
-    const packageJson: XpackPackageJson = treeItemPackage.dataNode.packageJson
+    const packageJson: XpackPackageJson = treeItemPackage.dataNode
+      .packageJson as XpackPackageJson
     let actions: JsonActions | undefined = packageJson.xpack.actions
     if (treeItem.parent instanceof TreeItemConfiguration) {
       const buildConfigurationName = treeItem.parent.name
@@ -450,7 +491,8 @@ export class Commands implements vscode.Disposable {
     }
     log.trace(configurationName)
 
-    const packageJson: XpackPackageJson = treeItem.parent.dataNode.packageJson
+    const packageJson: XpackPackageJson = treeItem.parent.dataNode
+      .packageJson as XpackPackageJson
     const buildConfigurations = packageJson.xpack.buildConfigurations
 
     if (buildConfigurations !== undefined) {
@@ -497,7 +539,8 @@ export class Commands implements vscode.Disposable {
       return
     }
 
-    const packageJson: XpackPackageJson = treeItem.parent.dataNode.packageJson
+    const packageJson: XpackPackageJson = treeItem.parent.dataNode
+      .packageJson as XpackPackageJson
     const buildConfigurations = packageJson.xpack.buildConfigurations
 
     if (buildConfigurations !== undefined) {
@@ -520,7 +563,7 @@ export class Commands implements vscode.Disposable {
 
     log.trace('Command.selectBuildConfiguration()')
 
-    this._buildConfigurationPicks ??= this.manager.data.configurations.map(
+    this._buildConfigurationPicks ??= this.manager.data.xpmConfigurations.map(
       (dataNode: DataNodeConfiguration) => {
         return new BuildConfigurationPick(dataNode)
       }

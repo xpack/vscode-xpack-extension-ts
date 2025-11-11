@@ -212,7 +212,7 @@ export class IntelliSense implements vscode.Disposable {
       dataNodePackage.parent
 
     for (const childDataNodePackage of parentWorkspaceFolder.packages) {
-      for (const dataNodeConfiguration of childDataNodePackage.configurations) {
+      for (const dataNodeConfiguration of childDataNodePackage.xpmConfigurations) {
         const globalConfigurationName =
           childDataNodePackage.name !== ''
             ? // For sub-folders, prefix the configuration name.
@@ -373,7 +373,7 @@ export class IntelliSense implements vscode.Disposable {
 
       // Iterate through all configurations and identify the workspace folder
       // where to update the `c_cpp_properties.json`.
-      for (const node of this.manager.data.configurations) {
+      for (const node of this.manager.data.xpmConfigurations) {
         const buildFolderRelativePath = await node.getBuildFolderRelativePath()
         const compileCommandsFilePath = path.join(
           node.package.folderPath,
