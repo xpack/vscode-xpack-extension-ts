@@ -77,6 +77,24 @@
       "preLaunchTask": "${defaultBuildTask}"
     },
     {
+      "name": "Run Extension Workspace xpack-dev-tools",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "/Users/ilg/MyProjects/xpack-dev-tools.github/xpacks.code-workspace"
+      ],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js"
+      ],
+      "skipFiles": [
+        "async_hooks.js",
+        "inspector_async_hook.js"
+      ],
+      "preLaunchTask": "${defaultBuildTask}"
+    },
+    {
       "name": "Run Extension sub-folder",
       "type": "extensionHost",
       "request": "launch",
