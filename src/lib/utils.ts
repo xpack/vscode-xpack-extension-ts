@@ -16,7 +16,7 @@ import { minimatch } from 'minimatch'
 
 import * as vscode from 'vscode'
 
-import { XpackTaskDefinition } from './definitions.js'
+import { PackageJson, XpackTaskDefinition } from './definitions.js'
 
 // ----------------------------------------------------------------------------
 
@@ -120,6 +120,13 @@ export function isJsonObject(value: unknown): boolean {
 
 export function isNonEmptyJsonObject(value: unknown): boolean {
   return isJsonObject(value) && Object.keys(value as object).length > 0
+}
+
+export function hasDependencies(value: unknown): boolean {
+  return (
+    isNonEmptyJsonObject((value as PackageJson).dependencies) ||
+    isNonEmptyJsonObject((value as PackageJson).devDependencies)
+  )
 }
 
 export function isPromise(object: unknown): boolean {

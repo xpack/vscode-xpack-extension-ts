@@ -32,6 +32,7 @@ import {
   buildFolderRelativePathPropertyName,
   JsonBuildConfiguration,
   PackageJson,
+  JsonXpack,
   // JsonBuildConfiguration
 } from './definitions.js'
 
@@ -163,6 +164,7 @@ export class DataModel implements vscode.Disposable {
         }
 
         if (xpack.hasNpmScripts()) {
+          this.addNpmCommands(packageJson, dataNodePackage)
           this.addNpmScripts(packageJson.scripts, dataNodePackage)
         }
 
@@ -176,7 +178,7 @@ export class DataModel implements vscode.Disposable {
           const xpackPackageJson: XpackPackageJson =
             packageJson as XpackPackageJson
 
-          this.addXpmCommands(xpackPackageJson, dataNodePackage)
+          this.addXpmCommands(xpackPackageJson.xpack, dataNodePackage)
           await this.addXpmActions(
             xpackPackageJson.xpack.actions,
             dataNodePackage
@@ -238,25 +240,28 @@ export class DataModel implements vscode.Disposable {
       return
     }
 
-    const task = this.createTaskForCommand('npm install', '', parent.package)
-    this.tasks.push(task)
-
     let scripts: JsonScripts | undefined
     if (parent instanceof DataNodePackage) {
-      if (!utils.isNonEmptyJsonObject(fromJson.devDependencies)) {
+      if (!utils.hasDependencies(fromJson)) {
+        // There are no npm dependencies to install.
         return
       }
       scripts = fromJson.scripts
     } else {
       throw new Error('Internal error, unknown parent.')
     }
-    if (scripts?.install !== undefined) {
-      // An action with the explicit name `install` is present;
+
+    if (scripts && ('install' in scripts || 'npm-install' in scripts)) {
+      // An action with the explicit name `install` or `npm-install` is present;
       // do not show the default command.
-    } else {
-      const dataNodeCommand = parent.addCommand('npm install', task)
-      this.commands.push(dataNodeCommand)
+      return
     }
+
+    const task = this.createTaskForCommand('npm install', '', parent.package)
+    this.tasks.push(task)
+
+    const dataNodeCommand = parent.addCommand('npm install', task)
+    this.commands.push(dataNodeCommand)
   }
 
   addNpmScripts(
@@ -288,13 +293,35 @@ export class DataModel implements vscode.Disposable {
   }
 
   addXpmCommands(
-    fromJson: XpackPackageJson | JsonBuildConfiguration,
+    fromJson: JsonXpack | JsonBuildConfiguration,
     parent: DataNodeConfiguration | DataNodePackage
   ): void {
     const configurationName =
       parent instanceof DataNodeConfiguration ? parent.name : ''
 
     if (this.cancellation.token.isCancellationRequested) {
+      return
+    }
+
+    let actions: JsonActions | undefined
+    if (parent instanceof DataNodeConfiguration) {
+      if (!utils.hasDependencies(fromJson)) {
+        // There are no xpm dependencies to install.
+        return
+      }
+      actions = (fromJson as JsonBuildConfiguration).actions
+    } else if (parent instanceof DataNodePackage) {
+      if (!utils.hasDependencies(fromJson)) {
+        return
+      }
+      actions = (fromJson as JsonXpack).actions
+    } else {
+      throw new Error('Internal error, unknown parent.')
+    }
+
+    if (actions && ('install' in actions || 'xpm-install' in actions)) {
+      // An action with the explicit name `install` or `xpm-install` is present;
+      // do not show the default command.
       return
     }
 
@@ -305,31 +332,8 @@ export class DataModel implements vscode.Disposable {
     )
     this.tasks.push(task)
 
-    let actions: JsonActions | undefined
-    if (parent instanceof DataNodeConfiguration) {
-      if (!utils.isNonEmptyJsonObject(fromJson.devDependencies)) {
-        return
-      }
-      actions = (fromJson as JsonBuildConfiguration).actions
-    } else if (parent instanceof DataNodePackage) {
-      if (
-        !utils.isNonEmptyJsonObject(
-          (fromJson as XpackPackageJson).xpack.devDependencies
-        )
-      ) {
-        return
-      }
-      actions = (fromJson as XpackPackageJson).xpack.actions
-    } else {
-      throw new Error('Internal error, unknown parent.')
-    }
-    if (actions?.install !== undefined) {
-      // An action with the explicit name `install` is present;
-      // do not show the default command.
-    } else {
-      const dataNodeCommand = parent.addCommand('xpm install', task)
-      this.commands.push(dataNodeCommand)
-    }
+    const dataNodeCommand = parent.addCommand('xpm install', task)
+    this.commands.push(dataNodeCommand)
   }
 
   async addXpmActions(
