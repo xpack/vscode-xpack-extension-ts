@@ -2,7 +2,7 @@
   "name": "xpack",
   "displayName": "xPack C/C++ Managed Build Tools",
   "description": "Manage and build C/C++ projects with CMake, meson, etc using the xPack tools.",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "main": "./dist/extension.js",
   "type": "module",
   "publisher": "ilg-vscode",
