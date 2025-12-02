@@ -17,14 +17,14 @@ import * as path from 'node:path'
 
 import { Logger } from '@xpack/logger'
 
-import * as utils from './utils.js'
-
-import {
+import type {
+  JsonNpmPackage,
+  JsonXpmPackage,
   JsonBuildConfiguration,
   JsonBuildConfigurations,
-  PackageJson,
-  XpackPackageJson,
-} from './definitions.js'
+} from '@xpack/xpm-liquid'
+
+import * as utils from './utils.js'
 
 // ----------------------------------------------------------------------------
 
@@ -37,8 +37,8 @@ export class Xpack {
   // Members.
 
   folderPath?: string
-  packageJson?: XpackPackageJson
-  packageJsonOriginal?: XpackPackageJson
+  packageJson?: JsonXpmPackage
+  packageJsonOriginal?: JsonXpmPackage
 
   readonly log: Logger
 
@@ -55,7 +55,7 @@ export class Xpack {
 
   async checkIfFolderHasPackageJson(
     folderPath?: string
-  ): Promise<PackageJson | null> {
+  ): Promise<JsonNpmPackage | null> {
     let tmpPath: string | undefined
     if (folderPath !== undefined) {
       tmpPath = folderPath
@@ -71,7 +71,7 @@ export class Xpack {
     try {
       const fileContent = await fs.readFile(jsonPath)
       // assert(fileContent !== null)
-      const packageJson = JSON.parse(fileContent.toString()) as XpackPackageJson
+      const packageJson = JSON.parse(fileContent.toString()) as JsonXpmPackage
 
       // If not called with explicit path, remember the resulted json.
       if (folderPath === undefined) {
@@ -90,7 +90,9 @@ export class Xpack {
     }
   }
 
-  isPackage(json: PackageJson | undefined | null = this.packageJson): boolean {
+  isPackage(
+    json: JsonNpmPackage | undefined | null = this.packageJson
+  ): boolean {
     if (json?.name === undefined || json.version === undefined) {
       return false
     }
@@ -105,7 +107,7 @@ export class Xpack {
     return true
   }
 
-  isXpmPackage(json: PackageJson | undefined = this.packageJson): boolean {
+  isXpmPackage(json: JsonNpmPackage | undefined = this.packageJson): boolean {
     if (!this.isPackage(json)) {
       return false
     }
@@ -115,7 +117,7 @@ export class Xpack {
     return true
   }
 
-  hasNpmScripts(json: PackageJson | undefined = this.packageJson): boolean {
+  hasNpmScripts(json: JsonNpmPackage | undefined = this.packageJson): boolean {
     if (json?.scripts !== undefined && Object.keys(json.scripts).length > 0) {
       return true
     }
@@ -123,9 +125,7 @@ export class Xpack {
     return false
   }
 
-  hasXpmActions(
-    json: XpackPackageJson | undefined = this.packageJson
-  ): boolean {
+  hasXpmActions(json: JsonXpmPackage | undefined = this.packageJson): boolean {
     if (!this.isXpmPackage(json)) {
       return false
     }
@@ -165,9 +165,9 @@ export class Xpack {
    * @param packageJson
    * @returns The updated packageJson.
    */
-  processInheritance(packageJson: XpackPackageJson): XpackPackageJson {
+  processInheritance(packageJson: JsonXpmPackage): JsonXpmPackage {
     // Start with a shallow copy of the original.
-    const newPackageJson: XpackPackageJson = {
+    const newPackageJson: JsonXpmPackage = {
       ...packageJson,
     }
 

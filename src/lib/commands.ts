@@ -30,6 +30,13 @@ import * as vscode from 'vscode'
 
 import { Logger } from '@xpack/logger'
 
+import {
+  JsonXpmPackage,
+  JsonBuildConfigurations,
+  JsonXpack,
+  JsonActions,
+} from '@xpack/xpm-liquid'
+
 import { ExtensionManager, BuildConfigurationPick } from './manager.js'
 
 import {
@@ -41,13 +48,7 @@ import {
   TreeItemNpmScript,
 } from './explorer.js'
 
-import {
-  JsonActions,
-  JsonBuildConfigurations,
-  JsonXpack,
-  MessageItemConfirmation,
-  XpackPackageJson,
-} from './definitions.js'
+import { MessageItemConfirmation } from './definitions.js'
 
 import * as utils from './utils.js'
 import { DataNodeConfiguration } from './data-model.js'
@@ -341,8 +342,8 @@ export class Commands implements vscode.Disposable {
     }
     log.trace(configurationName)
 
-    const packageJson: XpackPackageJson = treeItem.dataNode
-      .packageJson as XpackPackageJson
+    const packageJson: JsonXpmPackage = treeItem.dataNode
+      .packageJson as JsonXpmPackage
     if (packageJson.xpack.buildConfigurations === undefined) {
       packageJson.xpack.buildConfigurations = {}
     } else {
@@ -391,8 +392,8 @@ export class Commands implements vscode.Disposable {
     }
     log.trace(actionName)
 
-    const packageJson: XpackPackageJson = treeItemPackage.dataNode
-      .packageJson as XpackPackageJson
+    const packageJson: JsonXpmPackage = treeItemPackage.dataNode
+      .packageJson as JsonXpmPackage
 
     let fromJson: JsonXpack = packageJson.xpack
     if (treeItem instanceof TreeItemConfiguration) {
@@ -445,8 +446,8 @@ export class Commands implements vscode.Disposable {
 
     const treeItemPackage: TreeItemPackage = treeItem.parent.package
 
-    const packageJson: XpackPackageJson = treeItemPackage.dataNode
-      .packageJson as XpackPackageJson
+    const packageJson: JsonXpmPackage = treeItemPackage.dataNode
+      .packageJson as JsonXpmPackage
     let actions: JsonActions | undefined = packageJson.xpack.actions
     if (treeItem.parent instanceof TreeItemConfiguration) {
       const buildConfigurationName = treeItem.parent.name
@@ -491,8 +492,8 @@ export class Commands implements vscode.Disposable {
     }
     log.trace(configurationName)
 
-    const packageJson: XpackPackageJson = treeItem.parent.dataNode
-      .packageJson as XpackPackageJson
+    const packageJson: JsonXpmPackage = treeItem.parent.dataNode
+      .packageJson as JsonXpmPackage
     const buildConfigurations = packageJson.xpack.buildConfigurations
 
     if (buildConfigurations !== undefined) {
@@ -539,8 +540,8 @@ export class Commands implements vscode.Disposable {
       return
     }
 
-    const packageJson: XpackPackageJson = treeItem.parent.dataNode
-      .packageJson as XpackPackageJson
+    const packageJson: JsonXpmPackage = treeItem.parent.dataNode
+      .packageJson as JsonXpmPackage
     const buildConfigurations = packageJson.xpack.buildConfigurations
 
     if (buildConfigurations !== undefined) {

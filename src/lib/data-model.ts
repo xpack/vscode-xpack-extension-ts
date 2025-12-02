@@ -20,19 +20,21 @@ import * as path from 'node:path'
 import * as vscode from 'vscode'
 
 import { Logger } from '@xpack/logger'
+import {
+  JsonNpmPackage,
+  JsonXpmPackage,
+  JsonScripts,
+  JsonProperties,
+  JsonBuildConfiguration,
+  JsonBuildConfigurations,
+  JsonXpack,
+  JsonActions,
+} from '@xpack/xpm-liquid'
+
 import { Xpack } from './xpack.js'
 import {
-  JsonActions,
-  JsonScripts,
-  JsonBuildConfigurations,
   XpackTaskDefinition,
-  XpackPackageJson,
-  // JsonActionValue,
-  JsonProperties,
   buildFolderRelativePathPropertyName,
-  JsonBuildConfiguration,
-  PackageJson,
-  JsonXpack,
   // JsonBuildConfiguration
 } from './definitions.js'
 
@@ -175,8 +177,7 @@ export class DataModel implements vscode.Disposable {
             dataNodePackage.package.isPackageJsonDirty = true
           }
 
-          const xpackPackageJson: XpackPackageJson =
-            packageJson as XpackPackageJson
+          const xpackPackageJson: JsonXpmPackage = packageJson as JsonXpmPackage
 
           this.addXpmCommands(xpackPackageJson.xpack, dataNodePackage)
           await this.addXpmActions(
@@ -235,7 +236,7 @@ export class DataModel implements vscode.Disposable {
     await Promise.all(promises)
   }
 
-  addNpmCommands(fromJson: PackageJson, parent: DataNodePackage): void {
+  addNpmCommands(fromJson: JsonNpmPackage, parent: DataNodePackage): void {
     if (this.cancellation.token.isCancellationRequested) {
       return
     }
@@ -608,7 +609,7 @@ export class DataNodeWorkspaceFolder extends DataNode {
   // --------------------------------------------------------------------------
   // Methods.
 
-  addPackage(folderPath: string, packageJson: PackageJson): DataNodePackage {
+  addPackage(folderPath: string, packageJson: JsonNpmPackage): DataNodePackage {
     const dataNodePackage = new DataNodePackage(
       folderPath,
       packageJson,
@@ -651,7 +652,7 @@ export class DataNodePackage extends DataNode {
   /**
    * The parsed package.json
    */
-  packageJson: PackageJson
+  packageJson: JsonNpmPackage
 
   isPackageJsonDirty = false
 
@@ -689,7 +690,7 @@ export class DataNodePackage extends DataNode {
 
   constructor(
     folderPath: string,
-    packageJson: PackageJson,
+    packageJson: JsonNpmPackage,
     parent: DataNodeWorkspaceFolder,
     log: Logger
   ) {
@@ -800,7 +801,7 @@ export class DataNodePackage extends DataNode {
     })
     this.xpmConfigurations = undefined as unknown as DataNodeConfiguration[]
 
-    this.packageJson = undefined as unknown as XpackPackageJson
+    this.packageJson = undefined as unknown as JsonXpmPackage
 
     this.xpmLiquidEngine = undefined as unknown as XpmLiquid
     this.xpmLiquidMap = undefined as unknown as XpmLiquidMap

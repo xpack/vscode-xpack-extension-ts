@@ -20,53 +20,6 @@ export type LogLevelKey = 'trace' | 'debug' | 'info' | 'warning' | 'error'
 
 export type AsyncVoidFunction = () => Promise<void>
 
-export type JsonActionValue = string | string[]
-
-export type JsonPropertyValue = string
-
-export type JsonProperties = Record<string, JsonPropertyValue>
-
-export type JsonBuildConfigurationInherits = Record<string, string>
-
-export type JsonActions = Record<string, JsonActionValue>
-
-export type JsonScripts = Record<string, string>
-
-export type JsonDependencies = Record<string, string>
-
-export interface JsonBuildConfiguration {
-  inherit?: JsonBuildConfigurationInherits | string
-  hidden?: boolean
-  properties?: JsonProperties
-  actions?: JsonActions
-  dependencies?: JsonDependencies
-  devDependencies?: JsonDependencies
-}
-
-export type JsonBuildConfigurations = Record<string, JsonBuildConfiguration>
-
-export interface PackageJson {
-  name?: string
-  version?: string
-  scripts?: JsonScripts
-  dependencies?: JsonDependencies
-  devDependencies?: JsonDependencies
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any // Allow any additional property
-}
-
-export interface JsonXpack {
-  properties?: JsonProperties
-  actions?: JsonActions
-  dependencies?: JsonDependencies
-  devDependencies?: JsonDependencies
-  buildConfigurations?: JsonBuildConfigurations
-}
-
-export interface XpackPackageJson extends PackageJson {
-  xpack: JsonXpack
-}
-
 /**
  * This type reflects the properties of the `xpack` task definition
  * in `package.json`.

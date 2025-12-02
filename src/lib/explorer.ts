@@ -24,6 +24,8 @@ import * as vscode from 'vscode'
 
 import { Logger } from '@xpack/logger'
 
+import { JsonNpmPackage, JsonXpmPackage } from '@xpack/xpm-liquid'
+
 import { ExtensionManager } from './manager.js'
 
 import {
@@ -35,11 +37,7 @@ import {
   DataNodeWorkspaceFolder,
 } from './data-model.js'
 
-import {
-  PackageJson,
-  XpackPackageJson,
-  packageJsonFileName,
-} from './definitions.js'
+import { packageJsonFileName } from './definitions.js'
 
 // ----------------------------------------------------------------------------
 
@@ -218,7 +216,7 @@ export class TreeItemPackage extends TreeItem {
     this.packageJsonPath = path.join(dataNode.folderPath, packageJsonFileName)
     this.dataNode = dataNode
 
-    const packageJson: PackageJson = dataNode.packageJson
+    const packageJson: JsonNpmPackage = dataNode.packageJson
     const packageName: string = packageJson.name ?? 'name?'
     const packageVersion: string = packageJson.version ?? 'version?'
 
@@ -506,8 +504,8 @@ export class TreeItemConfiguration extends TreeItem {
     this.dataNode = dataNode
     this.parent = parent
 
-    const packageJson: XpackPackageJson = parent.dataNode
-      .packageJson as XpackPackageJson
+    const packageJson: JsonXpmPackage = parent.dataNode
+      .packageJson as JsonXpmPackage
     const packageName: string = packageJson.name ?? 'name?'
     const packageVersion: string = packageJson.version ?? 'version?'
 
