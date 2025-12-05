@@ -29,6 +29,8 @@ import {
   JsonBuildConfigurations,
   JsonXpack,
   JsonActions,
+  XpmLiquidData,
+  XpmLiquidSubstitutionMap,
 } from '@xpack/xpm-liquid'
 
 import { Xpack } from './xpack.js'
@@ -40,7 +42,7 @@ import {
 
 import * as utils from './utils.js'
 
-import { XpmLiquid, XpmLiquidMap, filterPath } from '@xpack/xpm-liquid'
+import { XpmLiquid, filterPath } from '@xpack/xpm-liquid'
 
 // ----------------------------------------------------------------------------
 
@@ -177,22 +179,35 @@ export class DataModel implements vscode.Disposable {
             dataNodePackage.package.isPackageJsonDirty = true
           }
 
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           const xpackPackageJson: JsonXpmPackage = packageJson as JsonXpmPackage
 
+          const liquidData = new XpmLiquidData({
+            log: log,
+            packageJson: xpackPackageJson,
+          })
+
           this.addXpmCommands(xpackPackageJson.xpack, dataNodePackage)
-          await this.addXpmActions(
-            xpackPackageJson.xpack.actions,
-            dataNodePackage
-          )
+
+          // await this.addXpmActions(
+          //   xpackPackageJson.xpack.actions,
+          //   dataNodePackage
+          // )
+
+          if (liquidData.topActions.hasActions()) {
+            await this.addXpmTopActions(liquidData, dataNodePackage)
+          }
 
           await this.addXpmConfigurations(
             xpackPackageJson.xpack.buildConfigurations,
             dataNodePackage
           )
+
+          if (liquidData.hasBuildConfigurations()) {
+            await this.addXpmBuildConfigurations(liquidData, dataNodePackage)
+          }
         }
       }
-
-      // return
     }
 
     if (depth <= 0) {
@@ -239,7 +254,7 @@ export class DataModel implements vscode.Disposable {
   addNpmCommands(fromJson: JsonNpmPackage, parent: DataNodePackage): void {
     if (this.cancellation.token.isCancellationRequested) {
       return
-    }
+    }hasTopActions
 
     let scripts: JsonScripts | undefined
     if (parent instanceof DataNodePackage) {
@@ -337,16 +352,44 @@ export class DataModel implements vscode.Disposable {
     this.commands.push(dataNodeCommand)
   }
 
+  async addXpmTopActions(liquidData: XpmLiquidData, parent: DataNodePackage) {
+    const log = this.log
+
+    for (const actionName of liquidData.topActions.getActionNames()) {
+      log.trace(actionName)
+      const task = this.createTaskForAction(actionName, '', parent.package)
+
+      if (this.cancellation.token.isCancellationRequested) {
+        return
+      }
+
+      const actionCommands =
+        await (liquidData.topActions.getAction(actionName)).getCommands()
+
+      const dataNodeAction = parent.addXpmAction(
+        actionName,
+        actionCommands,
+        task
+      )
+
+      // Also collect an array of actions
+      this.xpmActions.push(dataNodeAction)
+
+      this.tasks.push(task)
+    }
+  }
+
   async addXpmActions(
     fromJson: JsonActions | undefined,
     parent: DataNodeConfiguration | DataNodePackage
   ): Promise<void> {
     // const log = this.log
 
+    const configurationName =
+      parent instanceof DataNodeConfiguration ? parent.name : ''
+
     if (fromJson !== undefined) {
       for (const actionName of Object.keys(fromJson)) {
-        const configurationName =
-          parent instanceof DataNodeConfiguration ? parent.name : ''
         const task = this.createTaskForAction(
           actionName,
           configurationName,
@@ -413,6 +456,17 @@ export class DataModel implements vscode.Disposable {
         // Keep a separate array with all build configurations.
         this.xpmConfigurations.push(dataNodeConfiguration)
       }
+    }
+  }
+
+  async addXpmBuildConfigurations(
+    liquidData: XpmLiquidData,
+    parent: DataNodePackage
+  ) {
+    const log = this.log
+
+    for (const actionName of liquidData.listBuildConfigurationsNames()) {
+      log.trace(actionName)
     }
   }
 
@@ -683,7 +737,7 @@ export class DataNodePackage extends DataNode {
   /**
    * The map with properties used by the Liquid engine to perform substitutions.
    */
-  xpmLiquidMap: XpmLiquidMap
+  xpmLiquidMap: XpmLiquidSubstitutionMap
 
   // --------------------------------------------------------------------------
   // Constructor.
@@ -804,7 +858,7 @@ export class DataNodePackage extends DataNode {
     this.packageJson = undefined as unknown as JsonXpmPackage
 
     this.xpmLiquidEngine = undefined as unknown as XpmLiquid
-    this.xpmLiquidMap = undefined as unknown as XpmLiquidMap
+    this.xpmLiquidMap = undefined as unknown as XpmLiquidSubstitutionMap
 
     this.parent = undefined as unknown as DataNodeWorkspaceFolder
 
@@ -834,7 +888,7 @@ export class DataNodeConfiguration extends DataNode {
   xpmActions: DataNodeXpmAction[] = []
 
   xpmLiquidEngine: XpmLiquid
-  xpmLiquidMap: XpmLiquidMap
+  xpmLiquidMap: XpmLiquidSubstitutionMap
 
   // --------------------------------------------------------------------------
   // Constructor.
@@ -930,7 +984,7 @@ export class DataNodeConfiguration extends DataNode {
     this.xpmActions = undefined as unknown as DataNodeXpmAction[]
 
     this.xpmLiquidEngine = undefined as unknown as XpmLiquid
-    this.xpmLiquidMap = undefined as unknown as XpmLiquidMap
+    this.xpmLiquidMap = undefined as unknown as XpmLiquidSubstitutionMap
 
     this.parent = undefined as unknown as DataNodePackage
 
