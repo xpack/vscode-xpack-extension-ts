@@ -73,7 +73,7 @@
     "show-version": "echo $(which node) $(node --version) && echo $(which npm) $(npm --version)"
   },
   "dependencies": {
-    "@xpack/logger": "^5.0.4",
+    "@xpack/logger": "^6.0.0",
     "@xpack/xpm-liquid": "^1.2.3",
     "comment-json": "^4.4.1",
     "make-dir": "^5.1.0",
@@ -82,20 +82,20 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
-    "@microsoft/api-extractor": "^7.54.0",
-    "@tsconfig/node20": "^20.1.6",
-    "@types/node": "^24.10.0",
-    "@types/vscode": "^1.102.0",
+    "@microsoft/api-extractor": "^7.55.2",
+    "@tsconfig/node20": "^20.1.8",
+    "@types/node": "^24.10.1",
+    "@types/vscode": "^1.106.1",
     "@vscode/test-electron": "^2.5.2",
-    "@vscode/vsce": "^3.7.0",
+    "@vscode/vsce": "^3.7.1",
     "del-cli": "^7.0.0",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
-    "prettier": "^3.6.2",
+    "prettier": "^3.7.4",
     "ts-node": "^10.9.2",
     "ts-loader": "^9.5.4",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.46.3"
+    "typescript-eslint": "^8.48.1"
   },
   "prettier": {
     "printWidth": 80,
