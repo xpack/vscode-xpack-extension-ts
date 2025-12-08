@@ -69,6 +69,7 @@
     "publish": "vsce publish --githubBranch master",
     "clean": "del-cli dist",
     "deep-clean": "del-cli dist node_modules package-lock.json",
+    "npm-link-deps": "npm link @xpack/xpm-liquid",
     "dumpconf": "env | sort | uniq",
     "show-version": "echo $(which node) $(node --version) && echo $(which npm) $(npm --version)"
   },
