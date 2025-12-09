@@ -14,7 +14,6 @@
 import assert from 'node:assert'
 import * as fs from 'fs/promises'
 import { Dirent } from 'node:fs'
-import * as os from 'node:os'
 import * as path from 'node:path'
 
 import * as vscode from 'vscode'
@@ -24,25 +23,16 @@ import {
   JsonNpmPackage,
   JsonXpmPackage,
   JsonScripts,
-  JsonProperties,
   JsonBuildConfiguration,
-  JsonBuildConfigurations,
   JsonXpack,
   JsonActions,
-  XpmLiquidData,
-  XpmLiquidSubstitutionMap,
+  XpmLiquidPackage,
 } from '@xpack/xpm-liquid'
 
 import { Xpack } from './xpack.js'
-import {
-  XpackTaskDefinition,
-  buildFolderRelativePathPropertyName,
-  // JsonBuildConfiguration
-} from './definitions.js'
+import { XpackTaskDefinition } from './definitions.js'
 
 import * as utils from './utils.js'
-
-import { XpmLiquid, filterPath } from '@xpack/xpm-liquid'
 
 // ----------------------------------------------------------------------------
 
@@ -61,7 +51,7 @@ export class DataModel implements vscode.Disposable {
 
   tasks: vscode.Task[] = []
 
-  _maxSearchDepth: number
+  #maxSearchDepth: number
 
   log: Logger
 
@@ -71,9 +61,15 @@ export class DataModel implements vscode.Disposable {
   // --------------------------------------------------------------------------
   // Constructor.
 
-  constructor(log: Logger, maxSearchDepth: number) {
+  constructor({
+    log,
+    maxSearchDepth,
+  }: {
+    log: Logger
+    maxSearchDepth: number
+  }) {
     this.log = log
-    this._maxSearchDepth = maxSearchDepth
+    this.#maxSearchDepth = maxSearchDepth
   }
 
   // --------------------------------------------------------------------------
@@ -94,7 +90,7 @@ export class DataModel implements vscode.Disposable {
       )
       this.workspaceFolders = filteredWorkspaces.map(
         (workspaceFolder) =>
-          new DataNodeWorkspaceFolder(workspaceFolder, this.log)
+          new DataNodeWorkspaceFolder({ workspaceFolder, log: this.log })
       )
 
       const promises: Promise<void>[] = []
@@ -110,12 +106,12 @@ export class DataModel implements vscode.Disposable {
         )
         const excludeArray = Array.isArray(exclude) ? exclude : [exclude]
         log.trace(`excludeArray [${excludeArray.join(',')}]`)
-        const promise = this._findPackageJsonFilesRecursive(
-          dataNodeWorkspaceFolder.workspaceFolder.uri.fsPath,
-          this._maxSearchDepth,
-          dataNodeWorkspaceFolder,
-          excludeArray
-        )
+        const promise = this.#findPackageJsonFilesRecursive({
+          folderPath: dataNodeWorkspaceFolder.workspaceFolder.uri.fsPath,
+          depth: this.#maxSearchDepth,
+          parentWorkspaceFolder: dataNodeWorkspaceFolder,
+          exclude: excludeArray,
+        })
         promises.push(promise)
       })
       if (!this.cancellation.token.isCancellationRequested) {
@@ -124,12 +120,17 @@ export class DataModel implements vscode.Disposable {
     }
   }
 
-  async _findPackageJsonFilesRecursive(
-    folderPath: string,
-    depth: number,
-    parentWorkspaceFolder: DataNodeWorkspaceFolder,
+  async #findPackageJsonFilesRecursive({
+    folderPath,
+    depth,
+    parentWorkspaceFolder,
+    exclude,
+  }: {
+    folderPath: string
+    depth: number
+    parentWorkspaceFolder: DataNodeWorkspaceFolder
     exclude: string[]
-  ): Promise<void> {
+  }): Promise<void> {
     assert(folderPath)
     const log = this.log
 
@@ -154,10 +155,10 @@ export class DataModel implements vscode.Disposable {
         xpack.hasNpmScripts() ||
         (xpack.isXpmPackage() && xpack.hasXpmActions())
       ) {
-        const dataNodePackage = parentWorkspaceFolder.addPackage(
+        const dataNodePackage = parentWorkspaceFolder.addPackage({
           folderPath,
-          packageJson
-        )
+          packageJson,
+        })
 
         this.packages.push(dataNodePackage)
 
@@ -168,8 +169,14 @@ export class DataModel implements vscode.Disposable {
         }
 
         if (xpack.hasNpmScripts()) {
-          this.addNpmCommands(packageJson, dataNodePackage)
-          this.addNpmScripts(packageJson.scripts, dataNodePackage)
+          this.addNpmCommands({
+            fromJson: packageJson,
+            parent: dataNodePackage,
+          })
+          this.addNpmScripts({
+            fromJson: packageJson.scripts,
+            parent: dataNodePackage,
+          })
         }
 
         if (xpack.isXpmPackage()) {
@@ -182,29 +189,28 @@ export class DataModel implements vscode.Disposable {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           const xpackPackageJson: JsonXpmPackage = packageJson as JsonXpmPackage
 
-          const liquidData = new XpmLiquidData({
+          const liquidPackage = new XpmLiquidPackage({
             log: log,
             packageJson: xpackPackageJson,
           })
 
-          this.addXpmCommands(xpackPackageJson.xpack, dataNodePackage)
+          this.addXpmCommands({
+            fromJson: xpackPackageJson.xpack,
+            parent: dataNodePackage,
+          })
 
-          // await this.addXpmActions(
-          //   xpackPackageJson.xpack.actions,
-          //   dataNodePackage
-          // )
-
-          if (liquidData.topActions.hasActions()) {
-            await this.addXpmTopActions(liquidData, dataNodePackage)
+          if (liquidPackage.topActions.hasActions()) {
+            await this.addXpmTopActions({
+              liquidPackage: liquidPackage,
+              parent: dataNodePackage,
+            })
           }
 
-          await this.addXpmConfigurations(
-            xpackPackageJson.xpack.buildConfigurations,
-            dataNodePackage
-          )
-
-          if (liquidData.hasBuildConfigurations()) {
-            await this.addXpmBuildConfigurations(liquidData, dataNodePackage)
+          if (liquidPackage.buildConfigurations.hasBuildConfigurations()) {
+            await this.addXpmBuildConfigurations({
+              liquidPackage: liquidPackage,
+              parent: dataNodePackage,
+            })
           }
         }
       }
@@ -239,22 +245,28 @@ export class DataModel implements vscode.Disposable {
     const promises: Promise<void>[] = []
     filteredFolders.forEach((entry) => {
       promises.push(
-        this._findPackageJsonFilesRecursive(
-          path.join(folderPath, entry.name),
-          depth - 1,
+        this.#findPackageJsonFilesRecursive({
+          folderPath: path.join(folderPath, entry.name),
+          depth: depth - 1,
           parentWorkspaceFolder,
-          exclude
-        )
+          exclude,
+        })
       )
     })
 
     await Promise.all(promises)
   }
 
-  addNpmCommands(fromJson: JsonNpmPackage, parent: DataNodePackage): void {
+  addNpmCommands({
+    fromJson,
+    parent,
+  }: {
+    fromJson: JsonNpmPackage
+    parent: DataNodePackage
+  }): void {
     if (this.cancellation.token.isCancellationRequested) {
       return
-    }hasTopActions
+    }
 
     let scripts: JsonScripts | undefined
     if (parent instanceof DataNodePackage) {
@@ -273,32 +285,42 @@ export class DataModel implements vscode.Disposable {
       return
     }
 
-    const task = this.createTaskForCommand('npm install', '', parent.package)
+    const task = this.createTaskForCommand({
+      command: 'npm install',
+      configurationName: '',
+      dataNodePackage: parent.package,
+    })
     this.tasks.push(task)
 
-    const dataNodeCommand = parent.addCommand('npm install', task)
+    const dataNodeCommand = parent.addCommand({ command: 'npm install', task })
     this.commands.push(dataNodeCommand)
   }
 
-  addNpmScripts(
-    fromJson: JsonScripts | undefined,
+  addNpmScripts({
+    fromJson,
+    parent,
+  }: {
+    fromJson: JsonScripts | undefined
     parent: DataNodePackage
-  ): void {
+  }): void {
     // const log = this.log
 
     if (fromJson !== undefined) {
       for (const scriptName of Object.keys(fromJson)) {
-        const task = this.createTaskForScript(scriptName, parent.package)
+        const task = this.createTaskForScript({
+          scriptName,
+          dataNodePackage: parent.package,
+        })
 
         if (this.cancellation.token.isCancellationRequested) {
           return
         }
 
-        const dataNodeAction = parent.addNpmScript(
-          scriptName,
-          fromJson[scriptName],
-          task
-        )
+        const dataNodeAction = parent.addNpmScript({
+          name: scriptName,
+          value: fromJson[scriptName],
+          task,
+        })
 
         // Also collect an array of scripts
         this.npmScripts.push(dataNodeAction)
@@ -308,10 +330,13 @@ export class DataModel implements vscode.Disposable {
     }
   }
 
-  addXpmCommands(
-    fromJson: JsonXpack | JsonBuildConfiguration,
+  addXpmCommands({
+    fromJson,
+    parent,
+  }: {
+    fromJson: JsonXpack | JsonBuildConfiguration
     parent: DataNodeConfiguration | DataNodePackage
-  ): void {
+  }): void {
     const configurationName =
       parent instanceof DataNodeConfiguration ? parent.name : ''
 
@@ -341,36 +366,47 @@ export class DataModel implements vscode.Disposable {
       return
     }
 
-    const task = this.createTaskForCommand(
-      'xpm install',
+    const task = this.createTaskForCommand({
+      command: 'xpm install',
       configurationName,
-      parent.package
-    )
+      dataNodePackage: parent.package,
+    })
     this.tasks.push(task)
 
-    const dataNodeCommand = parent.addCommand('xpm install', task)
+    const dataNodeCommand = parent.addCommand({ command: 'xpm install', task })
     this.commands.push(dataNodeCommand)
   }
 
-  async addXpmTopActions(liquidData: XpmLiquidData, parent: DataNodePackage) {
+  async addXpmTopActions({
+    liquidPackage,
+    parent,
+  }: {
+    liquidPackage: XpmLiquidPackage
+    parent: DataNodePackage
+  }) {
     const log = this.log
 
-    for (const actionName of liquidData.topActions.getActionNames()) {
+    for (const actionName of liquidPackage.topActions.getActionsNames()) {
       log.trace(actionName)
-      const task = this.createTaskForAction(actionName, '', parent.package)
+      const task = this.createTaskForAction({
+        actionName,
+        configurationName: '',
+        dataNodePackage: parent.package,
+      })
 
       if (this.cancellation.token.isCancellationRequested) {
         return
       }
 
-      const actionCommands =
-        await (liquidData.topActions.getAction(actionName)).getCommands()
+      const actionCommands = await liquidPackage.topActions
+        .getAction(actionName)
+        .getCommands()
 
-      const dataNodeAction = parent.addXpmAction(
-        actionName,
-        actionCommands,
-        task
-      )
+      const dataNodeAction = parent.addXpmAction({
+        name: actionName,
+        value: actionCommands,
+        task,
+      })
 
       // Also collect an array of actions
       this.xpmActions.push(dataNodeAction)
@@ -379,105 +415,124 @@ export class DataModel implements vscode.Disposable {
     }
   }
 
-  async addXpmActions(
-    fromJson: JsonActions | undefined,
-    parent: DataNodeConfiguration | DataNodePackage
-  ): Promise<void> {
+  async addXpmBuildConfigurationActions({
+    liquidPackage,
+    parent,
+  }: {
+    liquidPackage: XpmLiquidPackage
+    parent: DataNodeConfiguration
+  }): Promise<void> {
     // const log = this.log
 
-    const configurationName =
-      parent instanceof DataNodeConfiguration ? parent.name : ''
+    const buildConfigurationName = parent.name
 
-    if (fromJson !== undefined) {
-      for (const actionName of Object.keys(fromJson)) {
-        const task = this.createTaskForAction(
-          actionName,
-          configurationName,
-          parent.package
-        )
+    const buildConfiguration =
+      liquidPackage.buildConfigurations.getBuildConfiguration(
+        buildConfigurationName
+      )
 
-        if (this.cancellation.token.isCancellationRequested) {
-          return
-        }
+    for (const actionName of buildConfiguration.actions.getActionsNames()) {
+      const task = this.createTaskForAction({
+        actionName,
+        configurationName: buildConfigurationName,
+        dataNodePackage: parent.package,
+      })
 
-        const actionJsonValue: string = Array.isArray(fromJson[actionName])
-          ? fromJson[actionName].join(os.EOL)
-          : fromJson[actionName]
-
-        let actionValue: string
-        try {
-          actionValue = await parent.xpmLiquidEngine.performSubstitutions(
-            actionJsonValue,
-            parent.xpmLiquidMap
-          )
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (err) {
-          // log.trace(err)
-          actionValue = actionJsonValue
-        }
-        const dataNodeAction = parent.addXpmAction(
-          actionName,
-          actionValue.split(os.EOL),
-          task
-        )
-
-        // Also collect an array of actions
-        this.xpmActions.push(dataNodeAction)
-
-        this.tasks.push(task)
+      if (this.cancellation.token.isCancellationRequested) {
+        return
       }
+
+      const actionCommands = await buildConfiguration.actions
+        .getAction(actionName)
+        .getCommands()
+
+      const dataNodeAction = parent.addXpmAction({
+        name: actionName,
+        value: actionCommands,
+        task,
+      })
+
+      // Also collect an array of actions
+      this.xpmActions.push(dataNodeAction)
+
+      this.tasks.push(task)
     }
   }
 
-  async addXpmConfigurations(
-    fromJson: JsonBuildConfigurations | undefined,
+  async addXpmBuildConfigurations({
+    liquidPackage,
+    parent,
+  }: {
+    liquidPackage: XpmLiquidPackage
     parent: DataNodePackage
-  ): Promise<void> {
-    if (fromJson !== undefined) {
-      for (const configurationName of Object.keys(fromJson)) {
-        const jsonBuildConfiguration = fromJson[configurationName]
-
-        const hidden = jsonBuildConfiguration.hidden ?? false
-        const dataNodeConfiguration = parent.addConfiguration(
-          configurationName,
-          hidden
-        )
-
-        this.addXpmCommands(jsonBuildConfiguration, dataNodeConfiguration)
-        await this.addXpmActions(
-          jsonBuildConfiguration.actions,
-          dataNodeConfiguration
-        )
-
-        if (this.cancellation.token.isCancellationRequested) {
-          return
-        }
-
-        // Keep a separate array with all build configurations.
-        this.xpmConfigurations.push(dataNodeConfiguration)
-      }
-    }
-  }
-
-  async addXpmBuildConfigurations(
-    liquidData: XpmLiquidData,
-    parent: DataNodePackage
-  ) {
+  }) {
     const log = this.log
 
-    for (const actionName of liquidData.listBuildConfigurationsNames()) {
-      log.trace(actionName)
+    const buildConfigurationNames =
+      liquidPackage.buildConfigurations.getBuildConfigurationsNames()
+    for (const buildConfigurationName of buildConfigurationNames) {
+      log.trace(buildConfigurationName)
+      const hidden = liquidPackage.buildConfigurations.isHidden(
+        buildConfigurationName
+      )
+      if (hidden) {
+        continue
+      }
+      if (
+        !liquidPackage.buildConfigurations.hasJsonBuildConfiguration(
+          buildConfigurationName
+        )
+      ) {
+        continue
+      }
+
+      const buildConfiguration =
+        liquidPackage.buildConfigurations.getBuildConfiguration(
+          buildConfigurationName
+        )
+
+      const dataNodeConfiguration = parent.addConfiguration({
+        name: buildConfigurationName,
+        hidden,
+        buildFolderRelativePath: buildConfiguration.buildFolderRelativePath,
+      })
+
+      const jsonBuildConfiguration =
+        liquidPackage.buildConfigurations.getJsonBuildConfiguration(
+          buildConfigurationName
+        )
+
+      this.addXpmCommands({
+        fromJson: jsonBuildConfiguration,
+        parent: dataNodeConfiguration,
+      })
+
+      await this.addXpmBuildConfigurationActions({
+        liquidPackage,
+        parent: dataNodeConfiguration,
+      })
+
+      if (this.cancellation.token.isCancellationRequested) {
+        return
+      }
+
+      // Keep a separate array with all build configurations.
+      this.xpmConfigurations.push(dataNodeConfiguration)
     }
   }
 
-  createTaskForCommand(
-    commandName: string,
-    configurationName: string,
+  createTaskForCommand({
+    command,
+    configurationName,
+    dataNodePackage,
+  }: {
+    command: string
+    configurationName: string
     dataNodePackage: DataNodePackage
-  ): vscode.Task {
+  }): vscode.Task {
     const taskDefinition: XpackTaskDefinition = {
       type: 'xPack',
-      xpmCommand: commandName,
+      xpmCommand: command,
     }
 
     const relativePath = dataNodePackage.folderRelativePath
@@ -491,7 +546,7 @@ export class DataModel implements vscode.Disposable {
       taskDefinition.packageFolderRelativePath = relativePath
     }
 
-    const commandArguments = [commandName]
+    const commandArguments = [command]
     let taskLabel
     if (configurationName !== '') {
       taskLabel = `install configuration ${configurationName} dependencies`
@@ -516,10 +571,13 @@ export class DataModel implements vscode.Disposable {
     return task
   }
 
-  createTaskForScript(
-    scriptName: string,
+  createTaskForScript({
+    scriptName,
+    dataNodePackage,
+  }: {
+    scriptName: string
     dataNodePackage: DataNodePackage
-  ): vscode.Task {
+  }): vscode.Task {
     const taskDefinition: XpackTaskDefinition = {
       type: 'xPack',
       scriptName,
@@ -550,11 +608,15 @@ export class DataModel implements vscode.Disposable {
     return task
   }
 
-  createTaskForAction(
-    actionName: string,
-    configurationName: string,
+  createTaskForAction({
+    actionName,
+    configurationName,
+    dataNodePackage,
+  }: {
+    actionName: string
+    configurationName: string
     dataNodePackage: DataNodePackage
-  ): vscode.Task {
+  }): vscode.Task {
     const taskDefinition: XpackTaskDefinition = {
       type: 'xPack',
       actionName,
@@ -610,7 +672,7 @@ export class DataNode implements vscode.Disposable {
   // --------------------------------------------------------------------------
   // Constructor.
 
-  constructor(name: string, log: Logger) {
+  constructor({ name, log }: { name: string; log: Logger }) {
     this.name = name
     this.log = log
   }
@@ -637,9 +699,15 @@ export class DataNodeWorkspaceFolder extends DataNode {
   // --------------------------------------------------------------------------
   // Constructor.
 
-  constructor(workspaceFolder: vscode.WorkspaceFolder, log: Logger) {
+  constructor({
+    workspaceFolder,
+    log,
+  }: {
+    workspaceFolder: vscode.WorkspaceFolder
+    log: Logger
+  }) {
     // Use the index to generate unique names.
-    super(workspaceFolder.index.toString(), log)
+    super({ name: workspaceFolder.index.toString(), log })
     this.workspaceFolder = workspaceFolder
 
     log.trace(
@@ -663,13 +731,19 @@ export class DataNodeWorkspaceFolder extends DataNode {
   // --------------------------------------------------------------------------
   // Methods.
 
-  addPackage(folderPath: string, packageJson: JsonNpmPackage): DataNodePackage {
-    const dataNodePackage = new DataNodePackage(
+  addPackage({
+    folderPath,
+    packageJson,
+  }: {
+    folderPath: string
+    packageJson: JsonNpmPackage
+  }): DataNodePackage {
+    const dataNodePackage = new DataNodePackage({
       folderPath,
       packageJson,
-      this,
-      this.log
-    )
+      parent: this,
+      log: this.log,
+    })
     this.packages.push(dataNodePackage)
 
     return dataNodePackage
@@ -729,34 +803,29 @@ export class DataNodePackage extends DataNode {
    */
   xpmConfigurations: DataNodeConfiguration[] = []
 
-  /**
-   * A preconfigured instance of the Liquid engine.
-   */
-  xpmLiquidEngine: XpmLiquid
-
-  /**
-   * The map with properties used by the Liquid engine to perform substitutions.
-   */
-  xpmLiquidMap: XpmLiquidSubstitutionMap
-
   // --------------------------------------------------------------------------
   // Constructor.
 
-  constructor(
-    folderPath: string,
-    packageJson: JsonNpmPackage,
-    parent: DataNodeWorkspaceFolder,
+  constructor({
+    folderPath,
+    packageJson,
+    parent,
+    log,
+  }: {
+    folderPath: string
+    packageJson: JsonNpmPackage
+    parent: DataNodeWorkspaceFolder
     log: Logger
-  ) {
+  }) {
     // Pass the relative path as name.
-    super(path.relative(parent.workspaceFolder.uri.fsPath, folderPath), log)
+    super({
+      name: path.relative(parent.workspaceFolder.uri.fsPath, folderPath),
+      log,
+    })
     this.parent = parent
 
     this.folderPath = folderPath
     this.packageJson = packageJson
-
-    this.xpmLiquidEngine = new XpmLiquid(this.log)
-    this.xpmLiquidMap = this.xpmLiquidEngine.prepareMap(packageJson)
 
     log.trace(`DataNodePackage ${this.name}`)
   }
@@ -773,61 +842,85 @@ export class DataNodePackage extends DataNode {
     return this
   }
 
-  get properties(): JsonProperties {
-    return (this.xpmLiquidMap.properties ?? {}) as JsonProperties
-  }
-
   // --------------------------------------------------------------------------
   // Methods.
 
-  addNpmScript(
-    name: string,
-    value: string,
+  addNpmScript({
+    name,
+    value,
+    task,
+  }: {
+    name: string
+    value: string
     task: vscode.Task
-  ): DataNodeNpmScript {
-    const dataNodeScript = new DataNodeNpmScript(
+  }): DataNodeNpmScript {
+    const dataNodeScript = new DataNodeNpmScript({
       name,
       value,
       task,
-      this,
-      this.log
-    )
+      parent: this,
+      log: this.log,
+    })
     this.npmScripts.push(dataNodeScript)
 
     return dataNodeScript
   }
 
-  addCommand(name: string, task: vscode.Task): DataNodeCommand {
-    const dataNodeCommand = new DataNodeCommand(name, task, this, this.log)
+  addCommand({
+    command,
+    task,
+  }: {
+    command: string
+    task: vscode.Task
+  }): DataNodeCommand {
+    const dataNodeCommand = new DataNodeCommand({
+      command: command,
+      task,
+      parent: this,
+      log: this.log,
+    })
     this.commands.push(dataNodeCommand)
 
     return dataNodeCommand
   }
 
-  addXpmAction(
-    name: string,
-    value: string[],
+  addXpmAction({
+    name,
+    value,
+    task,
+  }: {
+    name: string
+    value: string[]
     task: vscode.Task
-  ): DataNodeXpmAction {
-    const dataNodeAction = new DataNodeXpmAction(
+  }): DataNodeXpmAction {
+    const dataNodeAction = new DataNodeXpmAction({
       name,
       value,
       task,
-      this,
-      this.log
-    )
+      parent: this,
+      log: this.log,
+    })
     this.xpmActions.push(dataNodeAction)
 
     return dataNodeAction
   }
 
-  addConfiguration(name: string, hidden: boolean): DataNodeConfiguration {
-    const dataNodeConfiguration = new DataNodeConfiguration(
+  addConfiguration({
+    name,
+    hidden,
+    buildFolderRelativePath,
+  }: {
+    name: string
+    hidden: boolean
+    buildFolderRelativePath: string
+  }): DataNodeConfiguration {
+    const dataNodeConfiguration = new DataNodeConfiguration({
       name,
       hidden,
-      this,
-      this.log
-    )
+      parent: this,
+      buildFolderRelativePath,
+      log: this.log,
+    })
 
     this.xpmConfigurations.push(dataNodeConfiguration)
 
@@ -857,9 +950,6 @@ export class DataNodePackage extends DataNode {
 
     this.packageJson = undefined as unknown as JsonXpmPackage
 
-    this.xpmLiquidEngine = undefined as unknown as XpmLiquid
-    this.xpmLiquidMap = undefined as unknown as XpmLiquidSubstitutionMap
-
     this.parent = undefined as unknown as DataNodeWorkspaceFolder
 
     super.dispose()
@@ -887,27 +977,29 @@ export class DataNodeConfiguration extends DataNode {
    */
   xpmActions: DataNodeXpmAction[] = []
 
-  xpmLiquidEngine: XpmLiquid
-  xpmLiquidMap: XpmLiquidSubstitutionMap
+  buildFolderRelativePath: string
 
   // --------------------------------------------------------------------------
   // Constructor.
 
-  constructor(
-    name: string,
-    hidden: boolean,
-    parent: DataNodePackage,
+  constructor({
+    name,
+    hidden,
+    parent,
+    buildFolderRelativePath,
+    log,
+  }: {
+    name: string
+    hidden: boolean
+    parent: DataNodePackage
+    buildFolderRelativePath: string
     log: Logger
-  ) {
-    super(name, log)
+  }) {
+    super({ name, log })
     this.hidden = hidden
     this.parent = parent
 
-    this.xpmLiquidEngine = new XpmLiquid(this.log)
-    this.xpmLiquidMap = this.xpmLiquidEngine.prepareMap(
-      parent.packageJson,
-      name
-    )
+    this.buildFolderRelativePath = buildFolderRelativePath
 
     log.trace(`DataNodeConfiguration ${this.name}`)
   }
@@ -919,57 +1011,46 @@ export class DataNodeConfiguration extends DataNode {
     return this.parent
   }
 
-  get properties(): JsonProperties {
-    return (this.xpmLiquidMap.properties ?? {}) as JsonProperties
-  }
-
   // --------------------------------------------------------------------------
   // Methods.
 
-  addCommand(name: string, task: vscode.Task): DataNodeCommand {
-    const dataNodeCommand = new DataNodeCommand(name, task, this, this.log)
+  addCommand({
+    command,
+    task,
+  }: {
+    command: string
+    task: vscode.Task
+  }): DataNodeCommand {
+    const dataNodeCommand = new DataNodeCommand({
+      command,
+      task,
+      parent: this,
+      log: this.log,
+    })
     this.commands.push(dataNodeCommand)
 
     return dataNodeCommand
   }
 
-  addXpmAction(
-    name: string,
-    value: string[],
+  addXpmAction({
+    name,
+    value,
+    task,
+  }: {
+    name: string
+    value: string[]
     task: vscode.Task
-  ): DataNodeXpmAction {
-    const dataNodeAction = new DataNodeXpmAction(
+  }): DataNodeXpmAction {
+    const dataNodeAction = new DataNodeXpmAction({
       name,
       value,
       task,
-      this,
-      this.log
-    )
+      parent: this,
+      log: this.log,
+    })
     this.xpmActions.push(dataNodeAction)
 
     return dataNodeAction
-  }
-
-  async getBuildFolderRelativePath(): Promise<string> {
-    const log = this.log
-
-    let folderPath: string
-    if (buildFolderRelativePathPropertyName in this.properties) {
-      folderPath = this.properties[buildFolderRelativePathPropertyName]
-      if (folderPath !== '') {
-        try {
-          return await this.xpmLiquidEngine.performSubstitutions(
-            folderPath,
-            this.xpmLiquidMap
-          )
-        } catch (err) {
-          log.trace(err)
-        }
-      }
-    }
-
-    // Provide a default value, based on the name.
-    return path.join('build', filterPath(this.name))
   }
 
   dispose(): void {
@@ -982,9 +1063,6 @@ export class DataNodeConfiguration extends DataNode {
       node.dispose()
     })
     this.xpmActions = undefined as unknown as DataNodeXpmAction[]
-
-    this.xpmLiquidEngine = undefined as unknown as XpmLiquid
-    this.xpmLiquidMap = undefined as unknown as XpmLiquidSubstitutionMap
 
     this.parent = undefined as unknown as DataNodePackage
 
@@ -1011,13 +1089,18 @@ class DataNodeRunnable extends DataNode {
   // --------------------------------------------------------------------------
   // Constructor.
 
-  constructor(
-    name: string,
-    task: vscode.Task,
-    parent: DataNodeConfiguration | DataNodePackage,
+  constructor({
+    name,
+    task,
+    parent,
+    log,
+  }: {
+    name: string
+    task: vscode.Task
+    parent: DataNodeConfiguration | DataNodePackage
     log: Logger
-  ) {
-    super(name, log)
+  }) {
+    super({ name, log })
 
     this.parent = parent
     this.task = task
@@ -1072,14 +1155,20 @@ export class DataNodeXpmAction extends DataNodeRunnable {
   // --------------------------------------------------------------------------
   // Constructor.
 
-  constructor(
-    name: string,
-    value: string[],
-    task: vscode.Task,
-    parent: DataNodeConfiguration | DataNodePackage,
+  constructor({
+    name,
+    value,
+    task,
+    parent,
+    log,
+  }: {
+    name: string
+    value: string[]
+    task: vscode.Task
+    parent: DataNodeConfiguration | DataNodePackage
     log: Logger
-  ) {
-    super(name, task, parent, log)
+  }) {
+    super({ name, task, parent, log })
 
     this.value = value
 
@@ -1114,14 +1203,20 @@ export class DataNodeNpmScript extends DataNodeRunnable {
   // --------------------------------------------------------------------------
   // Constructor.
 
-  constructor(
-    name: string,
-    value: string,
-    task: vscode.Task,
-    parent: DataNodePackage,
+  constructor({
+    name,
+    value,
+    task,
+    parent,
+    log,
+  }: {
+    name: string
+    value: string
+    task: vscode.Task
+    parent: DataNodePackage
     log: Logger
-  ) {
-    super(name, task, parent, log)
+  }) {
+    super({ name, task, parent, log })
 
     this.value = value
 
@@ -1153,13 +1248,18 @@ export class DataNodeCommand extends DataNodeRunnable {
   // --------------------------------------------------------------------------
   // Constructor.
 
-  constructor(
-    name: string,
-    task: vscode.Task,
-    parent: DataNodeConfiguration | DataNodePackage,
+  constructor({
+    command,
+    task,
+    parent,
+    log,
+  }: {
+    command: string
+    task: vscode.Task
+    parent: DataNodeConfiguration | DataNodePackage
     log: Logger
-  ) {
-    super(name, task, parent, log)
+  }) {
+    super({ name: command, task, parent, log })
 
     log.trace(`DataNodeCommand ${this.name}`)
   }

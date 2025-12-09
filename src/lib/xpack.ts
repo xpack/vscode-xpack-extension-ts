@@ -76,7 +76,8 @@ export class Xpack {
       // If not called with explicit path, remember the resulted json.
       if (folderPath === undefined) {
         this.packageJsonOriginal = packageJson
-        this.packageJson = this.processInheritance(packageJson)
+        // this.packageJson = this.processInheritance(packageJson)
+        this.packageJson = packageJson
         return this.packageJson
       }
       return packageJson

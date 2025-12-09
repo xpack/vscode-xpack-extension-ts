@@ -75,7 +75,10 @@ export class ExtensionManager implements vscode.Disposable {
       .getConfiguration('xpack')
       .get<number>('maxSearchDepthLevel', 3)
     log.trace(`maxSearchDepthLevel = ${this.maxSearchDepthLevel.toString()}`)
-    this.data = new DataModel(this.log, this.maxSearchDepthLevel)
+    this.data = new DataModel({
+      log: this.log,
+      maxSearchDepth: this.maxSearchDepthLevel,
+    })
   }
 
   // --------------------------------------------------------------------------
@@ -105,7 +108,10 @@ export class ExtensionManager implements vscode.Disposable {
       log.debug('ExtensionManager.refresh() cancel previous')
       data.cancellation.cancel()
     })
-    const data = new DataModel(this.log, this.maxSearchDepthLevel)
+    const data = new DataModel({
+      log: this.log,
+      maxSearchDepth: this.maxSearchDepthLevel,
+    })
     this.dataCandidates.add(data)
 
     // Start the tree creation process; it might not be ready

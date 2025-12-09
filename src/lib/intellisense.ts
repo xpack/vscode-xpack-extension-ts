@@ -239,7 +239,7 @@ export class IntelliSense implements vscode.Disposable {
 
         // Get the variable value (via substitutions).
         const buildFolderRelativePath =
-          await dataNodeConfiguration.getBuildFolderRelativePath()
+          dataNodeConfiguration.buildFolderRelativePath
 
         // Use relative paths.
         const newBaseFolderPath = '$' + '{workspaceFolder}'
@@ -375,7 +375,7 @@ export class IntelliSense implements vscode.Disposable {
       // Iterate through all configurations and identify the workspace folder
       // where to update the `c_cpp_properties.json`.
       for (const node of this.manager.data.xpmConfigurations) {
-        const buildFolderRelativePath = await node.getBuildFolderRelativePath()
+        const buildFolderRelativePath = node.buildFolderRelativePath
         const compileCommandsFilePath = path.join(
           node.package.folderPath,
           buildFolderRelativePath,

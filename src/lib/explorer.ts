@@ -592,9 +592,7 @@ class TreeItemEmpty extends TreeItem {
 /**
  * The data provider for the xpm Actions & npm Scripts tree view.
  */
-export class XpackTreeDataProvider
-  implements vscode.TreeDataProvider<TreeItem>
-{
+export class XpackTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
   // --------------------------------------------------------------------------
   // Members.
 
