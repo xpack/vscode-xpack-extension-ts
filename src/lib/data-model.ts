@@ -186,7 +186,6 @@ export class DataModel implements vscode.Disposable {
             dataNodePackage.package.isPackageJsonDirty = true
           }
 
-           
           const xpackPackageJson: JsonXpmPackage = packageJson as JsonXpmPackage
 
           const liquidPackage = new XpmLiquidPackage({
@@ -494,7 +493,8 @@ export class DataModel implements vscode.Disposable {
       const dataNodeConfiguration = parent.addConfiguration({
         name: buildConfigurationName,
         hidden,
-        buildFolderRelativePath: buildConfiguration.buildFolderRelativePath,
+        buildFolderRelativePath:
+          await buildConfiguration.getBuildFolderRelativePath(),
       })
 
       const jsonBuildConfiguration =
