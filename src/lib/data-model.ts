@@ -186,7 +186,7 @@ export class DataModel implements vscode.Disposable {
             dataNodePackage.package.isPackageJsonDirty = true
           }
 
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+           
           const xpackPackageJson: JsonXpmPackage = packageJson as JsonXpmPackage
 
           const liquidPackage = new XpmLiquidPackage({

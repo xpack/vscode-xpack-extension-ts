@@ -592,6 +592,7 @@ class TreeItemEmpty extends TreeItem {
 /**
  * The data provider for the xpm Actions & npm Scripts tree view.
  */
+// eslint-disable-next-line max-len
 export class XpackTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
   // --------------------------------------------------------------------------
   // Members.

@@ -232,7 +232,7 @@ export class Xpack {
       } else if (Array.isArray(source.inherit)) {
         for (const value of source.inherit) {
           if (utils.isString(value)) {
-            parentNames.push(value as string)
+            parentNames.push(value)
           } else {
             log.error(
               'Build configuration inherit can be only' +
