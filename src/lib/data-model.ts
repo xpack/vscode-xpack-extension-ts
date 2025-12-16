@@ -192,20 +192,21 @@ export class DataModel implements vscode.Disposable {
             log: log,
             packageJson: xpackPackageJson,
           })
+          await liquidPackage.initialise()
 
           this.addXpmCommands({
             fromJson: xpackPackageJson.xpack,
             parent: dataNodePackage,
           })
 
-          if (liquidPackage.topActions.hasActions()) {
+          if (!liquidPackage.topActions.empty()) {
             await this.addXpmTopActions({
               liquidPackage: liquidPackage,
               parent: dataNodePackage,
             })
           }
 
-          if (liquidPackage.buildConfigurations.hasBuildConfigurations()) {
+          if (!liquidPackage.buildConfigurations.empty()) {
             await this.addXpmBuildConfigurations({
               liquidPackage: liquidPackage,
               parent: dataNodePackage,
@@ -385,7 +386,7 @@ export class DataModel implements vscode.Disposable {
   }) {
     const log = this.log
 
-    for (const actionName of liquidPackage.topActions.getActionsNames()) {
+    for (const actionName of liquidPackage.topActions.names()) {
       log.trace(actionName)
       const task = this.createTaskForAction({
         actionName,
@@ -398,8 +399,8 @@ export class DataModel implements vscode.Disposable {
       }
 
       const actionCommands = await liquidPackage.topActions
-        .getAction(actionName)
-        .getCommands()
+        .get(actionName)
+        .commands()
 
       const dataNodeAction = parent.addXpmAction({
         name: actionName,
@@ -425,12 +426,11 @@ export class DataModel implements vscode.Disposable {
 
     const buildConfigurationName = parent.name
 
-    const buildConfiguration =
-      liquidPackage.buildConfigurations.getBuildConfiguration(
-        buildConfigurationName
-      )
+    const buildConfiguration = await liquidPackage.buildConfigurations.get(
+      buildConfigurationName
+    )
 
-    for (const actionName of buildConfiguration.actions.getActionsNames()) {
+    for (const actionName of buildConfiguration.actions.names()) {
       const task = this.createTaskForAction({
         actionName,
         configurationName: buildConfigurationName,
@@ -442,8 +442,8 @@ export class DataModel implements vscode.Disposable {
       }
 
       const actionCommands = await buildConfiguration.actions
-        .getAction(actionName)
-        .getCommands()
+        .get(actionName)
+        .commands()
 
       const dataNodeAction = parent.addXpmAction({
         name: actionName,
@@ -467,8 +467,7 @@ export class DataModel implements vscode.Disposable {
   }) {
     const log = this.log
 
-    const buildConfigurationNames =
-      liquidPackage.buildConfigurations.getBuildConfigurationsNames()
+    const buildConfigurationNames = liquidPackage.buildConfigurations.names()
     for (const buildConfigurationName of buildConfigurationNames) {
       log.trace(buildConfigurationName)
       const hidden = liquidPackage.buildConfigurations.isHidden(
@@ -477,18 +476,13 @@ export class DataModel implements vscode.Disposable {
       if (hidden) {
         continue
       }
-      if (
-        !liquidPackage.buildConfigurations.hasJsonBuildConfiguration(
-          buildConfigurationName
-        )
-      ) {
+      if (!liquidPackage.buildConfigurations.hasJson(buildConfigurationName)) {
         continue
       }
 
-      const buildConfiguration =
-        liquidPackage.buildConfigurations.getBuildConfiguration(
-          buildConfigurationName
-        )
+      const buildConfiguration = await liquidPackage.buildConfigurations.get(
+        buildConfigurationName
+      )
 
       const dataNodeConfiguration = parent.addConfiguration({
         name: buildConfigurationName,
@@ -497,10 +491,9 @@ export class DataModel implements vscode.Disposable {
           await buildConfiguration.getBuildFolderRelativePath(),
       })
 
-      const jsonBuildConfiguration =
-        liquidPackage.buildConfigurations.getJsonBuildConfiguration(
-          buildConfigurationName
-        )
+      const jsonBuildConfiguration = liquidPackage.buildConfigurations.getJson(
+        buildConfigurationName
+      )
 
       this.addXpmCommands({
         fromJson: jsonBuildConfiguration,
