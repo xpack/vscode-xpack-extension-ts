@@ -17,6 +17,9 @@
     "**/tests/**",
     "**/xpacks/**"
   ],
+  "xpack.exclude": [
+    "**/tests/**"
+  ],
   "markdownlint.config": {
     "MD041": false
   },
