@@ -192,13 +192,13 @@ export class DataModel implements vscode.Disposable {
             log: log,
             packageJson: xpackPackageJson,
           })
-          await liquidPackage.initialise()
 
           this.addXpmCommands({
             fromJson: xpackPackageJson.xpack,
             parent: dataNodePackage,
           })
 
+          await liquidPackage.topActions.initialise()
           if (!liquidPackage.topActions.empty()) {
             await this.addXpmTopActions({
               liquidPackage: liquidPackage,
@@ -206,6 +206,7 @@ export class DataModel implements vscode.Disposable {
             })
           }
 
+          await liquidPackage.buildConfigurations.initialise()
           if (!liquidPackage.buildConfigurations.empty()) {
             await this.addXpmBuildConfigurations({
               liquidPackage: liquidPackage,
@@ -430,6 +431,11 @@ export class DataModel implements vscode.Disposable {
       buildConfigurationName
     )
 
+    await buildConfiguration.actions.initialise()
+    if (buildConfiguration.actions.empty()) {
+      return
+    }
+
     for (const actionName of buildConfiguration.actions.names()) {
       const task = this.createTaskForAction({
         actionName,
@@ -483,6 +489,9 @@ export class DataModel implements vscode.Disposable {
       const buildConfiguration = await liquidPackage.buildConfigurations.get(
         buildConfigurationName
       )
+
+      // TODO: check if needed.
+      await buildConfiguration.actions.initialise()
 
       const dataNodeConfiguration = parent.addConfiguration({
         name: buildConfigurationName,
