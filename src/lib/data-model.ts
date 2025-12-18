@@ -27,9 +27,9 @@ import {
   JsonXpack,
   JsonActions,
   XpmLiquidPackage,
+  XpmPackage,
 } from '@xpack/xpm-liquid'
 
-import { Xpack } from './xpack.js'
 import { XpackTaskDefinition } from './definitions.js'
 
 import * as utils from './utils.js'
@@ -150,16 +150,16 @@ export class DataModel implements vscode.Disposable {
     // May be null.
     log.trace(`check folder ${folderPath} `)
 
-    const xpack = new Xpack(log, folderPath)
-    const packageJson = await xpack.checkIfFolderHasPackageJson()
-    if (packageJson !== null && xpack.isPackage()) {
+    const xpmPackage = new XpmPackage(log, folderPath)
+    const jsonPackage = await xpmPackage.checkIfFolderHasPackageJson()
+    if (jsonPackage !== null && xpmPackage.isNpmPackage()) {
       if (
-        xpack.hasNpmScripts() ||
-        (xpack.isXpmPackage() && xpack.hasXpmActions())
+        xpmPackage.hasNpmScripts() ||
+        (xpmPackage.isXpmPackage() && xpmPackage.hasXpmActions())
       ) {
         const dataNodePackage = parentWorkspaceFolder.addPackage({
           folderPath,
-          packageJson,
+          jsonPackage,
         })
 
         this.packages.push(dataNodePackage)
@@ -170,25 +170,25 @@ export class DataModel implements vscode.Disposable {
           this.workspaceProjects.push(dataNodePackage)
         }
 
-        if (xpack.hasNpmScripts()) {
+        if (xpmPackage.hasNpmScripts()) {
           this.addNpmCommands({
-            fromJson: packageJson,
+            fromJson: jsonPackage,
             parent: dataNodePackage,
           })
           this.addNpmScripts({
-            fromJson: packageJson.scripts,
+            fromJson: jsonPackage.scripts,
             parent: dataNodePackage,
           })
         }
 
-        if (xpack.isXpmPackage()) {
-          if (!utils.isJsonObject(packageJson.xpack)) {
+        if (xpmPackage.isXpmPackage()) {
+          if (!utils.isJsonObject(jsonPackage.xpack)) {
             // If not an object, enforce it, to avoid exceptions.
-            packageJson.xpack = {}
+            jsonPackage.xpack = {}
             dataNodePackage.package.isPackageJsonDirty = true
           }
 
-          const xpackPackageJson: JsonXpmPackage = packageJson as JsonXpmPackage
+          const xpackPackageJson: JsonXpmPackage = jsonPackage as JsonXpmPackage
 
           const liquidPackage = new XpmLiquidPackage({
             log: log,
@@ -425,8 +425,6 @@ export class DataModel implements vscode.Disposable {
     liquidPackage: XpmLiquidPackage
     parent: DataNodeConfiguration
   }): Promise<void> {
-    // const log = this.log
-
     const buildConfigurationName = parent.name
 
     const buildConfiguration = await liquidPackage.buildConfigurations.get(
@@ -459,7 +457,7 @@ export class DataModel implements vscode.Disposable {
         task,
       })
 
-      // Also collect an array of actions
+      // Collect an array of actions.
       this.xpmActions.push(dataNodeAction)
 
       this.tasks.push(task)
@@ -734,14 +732,14 @@ export class DataNodeWorkspaceFolder extends DataNode {
 
   addPackage({
     folderPath,
-    packageJson,
+    jsonPackage,
   }: {
     folderPath: string
-    packageJson: JsonNpmPackage
+    jsonPackage: JsonNpmPackage
   }): DataNodePackage {
     const dataNodePackage = new DataNodePackage({
       folderPath,
-      packageJson,
+      jsonPackage: jsonPackage,
       parent: this,
       log: this.log,
     })
@@ -781,7 +779,7 @@ export class DataNodePackage extends DataNode {
   /**
    * The parsed package.json
    */
-  packageJson: JsonNpmPackage
+  jsonPackage: JsonNpmPackage
 
   isPackageJsonDirty = false
 
@@ -809,12 +807,12 @@ export class DataNodePackage extends DataNode {
 
   constructor({
     folderPath,
-    packageJson,
+    jsonPackage,
     parent,
     log,
   }: {
     folderPath: string
-    packageJson: JsonNpmPackage
+    jsonPackage: JsonNpmPackage
     parent: DataNodeWorkspaceFolder
     log: Logger
   }) {
@@ -826,7 +824,7 @@ export class DataNodePackage extends DataNode {
     this.parent = parent
 
     this.folderPath = folderPath
-    this.packageJson = packageJson
+    this.jsonPackage = jsonPackage
 
     log.trace(`${DataNodePackage.name}(${this.name})`)
   }
@@ -949,7 +947,7 @@ export class DataNodePackage extends DataNode {
     })
     this.xpmConfigurations = undefined as unknown as DataNodeConfiguration[]
 
-    this.packageJson = undefined as unknown as JsonXpmPackage
+    this.jsonPackage = undefined as unknown as JsonXpmPackage
 
     this.parent = undefined as unknown as DataNodeWorkspaceFolder
 

@@ -343,7 +343,7 @@ export class Commands implements vscode.Disposable {
     log.trace(configurationName)
 
     const packageJson: JsonXpmPackage = treeItem.dataNode
-      .packageJson as JsonXpmPackage
+      .jsonPackage as JsonXpmPackage
     if (packageJson.xpack.buildConfigurations === undefined) {
       packageJson.xpack.buildConfigurations = {}
     } else {
@@ -393,7 +393,7 @@ export class Commands implements vscode.Disposable {
     log.trace(actionName)
 
     const packageJson: JsonXpmPackage = treeItemPackage.dataNode
-      .packageJson as JsonXpmPackage
+      .jsonPackage as JsonXpmPackage
 
     let fromJson: JsonXpack = packageJson.xpack
     if (treeItem instanceof TreeItemConfiguration) {
@@ -447,7 +447,7 @@ export class Commands implements vscode.Disposable {
     const treeItemPackage: TreeItemPackage = treeItem.parent.package
 
     const packageJson: JsonXpmPackage = treeItemPackage.dataNode
-      .packageJson as JsonXpmPackage
+      .jsonPackage as JsonXpmPackage
     let actions: JsonActions | undefined = packageJson.xpack.actions
     if (treeItem.parent instanceof TreeItemConfiguration) {
       const buildConfigurationName = treeItem.parent.name
@@ -493,7 +493,7 @@ export class Commands implements vscode.Disposable {
     log.trace(configurationName)
 
     const packageJson: JsonXpmPackage = treeItem.parent.dataNode
-      .packageJson as JsonXpmPackage
+      .jsonPackage as JsonXpmPackage
     const buildConfigurations = packageJson.xpack.buildConfigurations
 
     if (buildConfigurations !== undefined) {
@@ -541,7 +541,7 @@ export class Commands implements vscode.Disposable {
     }
 
     const packageJson: JsonXpmPackage = treeItem.parent.dataNode
-      .packageJson as JsonXpmPackage
+      .jsonPackage as JsonXpmPackage
     const buildConfigurations = packageJson.xpack.buildConfigurations
 
     if (buildConfigurations !== undefined) {

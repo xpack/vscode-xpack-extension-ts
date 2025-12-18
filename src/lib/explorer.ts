@@ -216,7 +216,7 @@ export class TreeItemPackage extends TreeItem {
     this.packageJsonPath = path.join(dataNode.folderPath, packageJsonFileName)
     this.dataNode = dataNode
 
-    const packageJson: JsonNpmPackage = dataNode.packageJson
+    const packageJson: JsonNpmPackage = dataNode.jsonPackage
     const packageName: string = packageJson.name ?? 'name?'
     const packageVersion: string = packageJson.version ?? 'version?'
 
@@ -505,7 +505,7 @@ export class TreeItemConfiguration extends TreeItem {
     this.parent = parent
 
     const packageJson: JsonXpmPackage = parent.dataNode
-      .packageJson as JsonXpmPackage
+      .jsonPackage as JsonXpmPackage
     const packageName: string = packageJson.name ?? 'name?'
     const packageVersion: string = packageJson.version ?? 'version?'
 
