@@ -492,9 +492,6 @@ export class DataModel implements vscode.Disposable {
         buildConfigurationName
       )
 
-      // TODO: check if needed.
-      await buildConfiguration.actions.initialise()
-
       const dataNodeConfiguration = parent.addConfiguration({
         name: buildConfigurationName,
         hidden,
@@ -715,7 +712,7 @@ export class DataNodeWorkspaceFolder extends DataNode {
     this.workspaceFolder = workspaceFolder
 
     log.trace(
-      `${DataNodeWorkspaceFolder.name}` +
+      DataNodeWorkspaceFolder.name +
         `(${workspaceFolder.name}, ${workspaceFolder.index.toString()})`
     )
   }
