@@ -70,6 +70,8 @@ export class DataModel implements vscode.Disposable {
   }) {
     this.log = log
     this.#maxSearchDepth = maxSearchDepth
+
+    log.trace(`${DataModel.name}()`)
   }
 
   // --------------------------------------------------------------------------
@@ -713,8 +715,8 @@ export class DataNodeWorkspaceFolder extends DataNode {
     this.workspaceFolder = workspaceFolder
 
     log.trace(
-      'DataNodeWorkspaceFolder ' +
-        `${workspaceFolder.name} ${workspaceFolder.index.toString()}`
+      `${DataNodeWorkspaceFolder.name}` +
+        `(${workspaceFolder.name}, ${workspaceFolder.index.toString()})`
     )
   }
 
@@ -829,7 +831,7 @@ export class DataNodePackage extends DataNode {
     this.folderPath = folderPath
     this.packageJson = packageJson
 
-    log.trace(`DataNodePackage ${this.name}`)
+    log.trace(`${DataNodePackage.name}(${this.name})`)
   }
 
   // --------------------------------------------------------------------------
@@ -1003,7 +1005,7 @@ export class DataNodeConfiguration extends DataNode {
 
     this.buildFolderRelativePath = buildFolderRelativePath
 
-    log.trace(`DataNodeConfiguration ${this.name}`)
+    log.trace(`${DataNodeConfiguration.name}(${this.name})`)
   }
 
   // --------------------------------------------------------------------------
@@ -1106,6 +1108,8 @@ class DataNodeRunnable extends DataNode {
 
     this.parent = parent
     this.task = task
+
+    log.trace(`${DataNodeRunnable.name}(${this.name})`)
   }
 
   // --------------------------------------------------------------------------
@@ -1174,7 +1178,7 @@ export class DataNodeXpmAction extends DataNodeRunnable {
 
     this.value = value
 
-    log.trace(`DataNodeXpmAction ${this.name}`)
+    log.trace(`${DataNodeXpmAction.name}(${this.name})`)
   }
 
   // --------------------------------------------------------------------------
@@ -1222,7 +1226,7 @@ export class DataNodeNpmScript extends DataNodeRunnable {
 
     this.value = value
 
-    log.trace(`DataNodeNpmString ${this.name}`)
+    log.trace(`${DataNodeNpmScript.name}(${this.name})`)
   }
 
   // --------------------------------------------------------------------------
@@ -1263,7 +1267,7 @@ export class DataNodeCommand extends DataNodeRunnable {
   }) {
     super({ name: command, task, parent, log })
 
-    log.trace(`DataNodeCommand ${this.name}`)
+    log.trace(`${DataNodeCommand.name}(${this.name})`)
   }
 
   // --------------------------------------------------------------------------
