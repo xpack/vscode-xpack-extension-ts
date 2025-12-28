@@ -26,8 +26,7 @@
   "config": {},
   "dependencies": {},
   "devDependencies": {
-    "@xpack-dev-tools/cmake": "3.19.2-2.1",
-    "@xpack-dev-tools/ninja-build": "1.10.2-2.1"
+    "del-cli": "^7.0.0"
   },
   "xpack": {
     "properties": {
@@ -46,6 +45,10 @@
         "xpm run clean --config Debug",
         "xpm run clean --config Release"
       ]
+    },
+    "devDependencies": {
+      "@xpack-dev-tools/cmake": "3.19.2-2.1",
+      "@xpack-dev-tools/ninja-build": "1.10.2-2.1"
     },
     "buildConfigurations": {
       "Debug": {

@@ -52,8 +52,8 @@
     "compile": "tsc --build --verbose src",
     "api-extractor": "api-extractor run --local --verbose",
     "prettier": "prettier src --write",
-    "lint": "eslint src",
     "fix": "eslint --fix src",
+    "lint": "eslint src",
     "npm-install ": "npm install",
     "npm-outdated": "npm outdated",
     "npm-update": "npm update",
@@ -69,13 +69,13 @@
     "publish": "vsce publish --githubBranch master",
     "clean": "del-cli dist",
     "deep-clean": "del-cli dist node_modules package-lock.json",
-    "npm-link-deps": "npm link @xpack/xpm-liquid",
+    "npm-link-deps": "npm link @xpack/xpm-lib",
     "dumpconf": "env | sort | uniq",
     "show-version": "echo $(which node) $(node --version) && echo $(which npm) $(npm --version)"
   },
   "dependencies": {
     "@xpack/logger": "^6.0.0",
-    "@xpack/xpm-liquid": "^1.2.3",
+    "@xpack/xpm-lib": "^3.0.0",
     "comment-json": "^4.4.1",
     "make-dir": "^5.1.0",
     "minimatch": "^10.1.1",
@@ -142,8 +142,18 @@
         "icon": "$(run)"
       },
       {
-        "command": "xpack.runCommand",
-        "title": "%command.runCommand%",
+        "command": "xpack.copyNpmScript",
+        "title": "%command.copyNpmScript%",
+        "icon": "$(run)"
+      },
+      {
+        "command": "xpack.runNpmCommand",
+        "title": "%command.runNpmCommand%",
+        "icon": "$(run)"
+      },
+      {
+        "command": "xpack.copyNpmCommand",
+        "title": "%command.copyNpmCommand%",
         "icon": "$(run)"
       },
       {
@@ -152,8 +162,18 @@
         "icon": "$(run)"
       },
       {
-        "command": "xpack.copyAction",
-        "title": "%command.copyAction%",
+        "command": "xpack.copyXpmAction",
+        "title": "%command.copyXpmAction%",
+        "icon": "$(run)"
+      },
+      {
+        "command": "xpack.runXpmCommand",
+        "title": "%command.runXpmCommand%",
+        "icon": "$(run)"
+      },
+      {
+        "command": "xpack.copyXpmCommand",
+        "title": "%command.copyXpmCommand%",
         "icon": "$(run)"
       },
       {
@@ -215,37 +235,62 @@
       "view/item/context": [
         {
           "command": "xpack.runNpmScript",
-          "when": "view == xPackActions && viewItem == script",
+          "when": "view == xPackActions && viewItem == npmScript",
           "group": "inline"
         },
         {
           "command": "xpack.runNpmScript",
-          "when": "view == xPackActions && viewItem == script",
+          "when": "view == xPackActions && viewItem == npmScript",
           "group": "navigation"
         },
         {
-          "command": "xpack.runCommand",
-          "when": "view == xPackActions && viewItem == command",
+          "command": "xpack.copyNpmScript",
+          "when": "view == xPackActions && viewItem == npmScript",
+          "group": "navigation"
+        },
+        {
+          "command": "xpack.runNpmCommand",
+          "when": "view == xPackActions && viewItem == npmCommand",
           "group": "inline"
         },
         {
-          "command": "xpack.runCommand",
-          "when": "view == xPackActions && viewItem == command",
+          "command": "xpack.runNpmCommand",
+          "when": "view == xPackActions && viewItem == npmCommand",
+          "group": "navigation"
+        },
+        {
+          "command": "xpack.copyNpmCommand",
+          "when": "view == xPackActions && viewItem == npmCommand",
           "group": "navigation"
         },
         {
           "command": "xpack.runXpmAction",
-          "when": "view == xPackActions && viewItem == action",
+          "when": "view == xPackActions && viewItem == xpmAction",
           "group": "inline"
         },
         {
           "command": "xpack.runXpmAction",
-          "when": "view == xPackActions && viewItem == action",
+          "when": "view == xPackActions && viewItem == xpmAction",
           "group": "navigation"
         },
         {
-          "command": "xpack.copyAction",
-          "when": "view == xPackActions && viewItem == action",
+          "command": "xpack.copyXpmAction",
+          "when": "view == xPackActions && viewItem == xpmAction",
+          "group": "navigation"
+        },
+        {
+          "command": "xpack.runXpmCommand",
+          "when": "view == xPackActions && viewItem == xpmCommand",
+          "group": "inline"
+        },
+        {
+          "command": "xpack.runXpmCommand",
+          "when": "view == xPackActions && viewItem == xpmCommand",
+          "group": "navigation"
+        },
+        {
+          "command": "xpack.copyXpmCommand",
+          "when": "view == xPackActions && viewItem == xpmCommand",
           "group": "navigation"
         },
         {
@@ -300,7 +345,7 @@
         },
         {
           "command": "xpack.removeAction",
-          "when": "view == xPackActions && viewItem == action",
+          "when": "view == xPackActions && viewItem == xpmAction",
           "group": "navigation@9"
         }
       ]

@@ -24,17 +24,18 @@ import * as vscode from 'vscode'
 
 import { Logger } from '@xpack/logger'
 
-import { JsonNpmPackage, JsonXpmPackage } from '@xpack/xpm-liquid'
+import { JsonNpmPackage, JsonXpmPackage } from '@xpack/xpm-lib'
 
 import { ExtensionManager } from './manager.js'
 
 import {
   DataNodeXpmAction,
-  DataNodeCommand,
+  DataNodeNpmCommand,
   DataNodeConfiguration,
   DataNodePackage,
   DataNodeNpmScript,
   DataNodeWorkspaceFolder,
+  DataNodeXpmCommand,
 } from './data-model.js'
 
 import { packageJsonFileName } from './definitions.js'
@@ -47,10 +48,12 @@ type ActionsTree =
   | TreeItemEmpty[]
 type TreeItemRunnableParent = TreeItemPackage | TreeItemConfiguration
 type TreeItemPackageChild =
-  | TreeItemCommand
+  | TreeItemNpmScript
+  | TreeItemNpmCommand
   | TreeItemXpmAction
+  | TreeItemXpmCommand
   | TreeItemConfiguration
-type TreeItemConfigurationChild = TreeItemCommand | TreeItemXpmAction
+type TreeItemConfigurationChild = TreeItemXpmCommand | TreeItemXpmAction
 
 // ----------------------------------------------------------------------------
 
@@ -196,9 +199,11 @@ export class TreeItemPackage extends TreeItem {
   packageJsonPath: string
 
   npmScripts: TreeItemNpmScript[] = []
+  npmCommands: TreeItemNpmCommand[] = []
 
-  commands: TreeItemCommand[] = []
   xpmActions: TreeItemXpmAction[] = []
+  xpmCommands: TreeItemXpmCommand[] = []
+
   xpmConfigurations: TreeItemConfiguration[] = []
 
   dataNode: DataNodePackage
@@ -220,6 +225,7 @@ export class TreeItemPackage extends TreeItem {
     const packageName: string = packageJson.name ?? 'name?'
     const packageVersion: string = packageJson.version ?? 'version?'
 
+    // https://code.visualstudio.com/api/references/icons-in-labels#icon-listing
     // Tree item properties.
     this.iconPath = new vscode.ThemeIcon('json')
     this.resourceUri = vscode.Uri.file(this.packageJsonPath)
@@ -236,8 +242,9 @@ export class TreeItemPackage extends TreeItem {
   get children(): TreeItemPackageChild[] {
     return [
       ...this.npmScripts,
+      ...this.npmCommands,
       ...this.xpmActions,
-      ...this.commands,
+      ...this.xpmCommands,
       ...this.xpmConfigurations,
     ]
   }
@@ -259,9 +266,9 @@ export class TreeItemPackage extends TreeItem {
     return treeItem
   }
 
-  addCommand(commandName: string, task: vscode.Task): TreeItemCommand {
-    const treeItem = new TreeItemCommand(commandName, task, this)
-    this.commands.push(treeItem)
+  addNpmCommand(commandName: string, task: vscode.Task): TreeItemNpmCommand {
+    const treeItem = new TreeItemNpmCommand(commandName, task, this)
+    this.npmCommands.push(treeItem)
     return treeItem
   }
 
@@ -272,6 +279,12 @@ export class TreeItemPackage extends TreeItem {
   ): TreeItemXpmAction {
     const treeItem = new TreeItemXpmAction(actionName, actionValue, task, this)
     this.xpmActions.push(treeItem)
+    return treeItem
+  }
+
+  addXpmCommand(commandName: string, task: vscode.Task): TreeItemXpmCommand {
+    const treeItem = new TreeItemXpmCommand(commandName, task, this)
+    this.xpmCommands.push(treeItem)
     return treeItem
   }
 
@@ -287,15 +300,20 @@ export class TreeItemPackage extends TreeItem {
     })
     this.npmScripts = undefined as unknown as TreeItemNpmScript[]
 
-    this.commands.forEach((node) => {
+    this.npmCommands.forEach((node) => {
       node.dispose()
     })
-    this.commands = undefined as unknown as TreeItemCommand[]
+    this.npmCommands = undefined as unknown as TreeItemNpmCommand[]
 
     this.xpmActions.forEach((node) => {
       node.dispose()
     })
     this.xpmActions = undefined as unknown as TreeItemXpmAction[]
+
+    this.xpmCommands.forEach((node) => {
+      node.dispose()
+    })
+    this.xpmCommands = undefined as unknown as TreeItemXpmCommand[]
 
     this.xpmConfigurations.forEach((node) => {
       node.dispose()
@@ -379,35 +397,6 @@ class TreeItemRunnable extends TreeItem {
 
 // ----------------------------------------------------------------------------
 
-export class TreeItemCommand extends TreeItemRunnable {
-  // --------------------------------------------------------------------------
-  // Members.
-
-  // --------------------------------------------------------------------------
-  // Constructor.
-
-  constructor(
-    commandName: string,
-    task: vscode.Task,
-    parent: TreeItemRunnableParent
-  ) {
-    super(commandName, task, parent)
-
-    this.iconPath = new vscode.ThemeIcon('wrench-subaction')
-    this.tooltip = commandName
-    this.contextValue = 'command'
-  }
-
-  // --------------------------------------------------------------------------
-  // Methods.
-
-  dispose(): void {
-    super.dispose()
-  }
-}
-
-// ----------------------------------------------------------------------------
-
 export class TreeItemNpmScript extends TreeItemRunnable {
   // --------------------------------------------------------------------------
   // Members.
@@ -427,9 +416,10 @@ export class TreeItemNpmScript extends TreeItemRunnable {
 
     this.scriptValue = actionValue
 
+    // https://code.visualstudio.com/api/references/icons-in-labels#icon-listing
     this.iconPath = new vscode.ThemeIcon('wrench')
     this.tooltip = this.scriptValue
-    this.contextValue = 'script'
+    this.contextValue = 'npmScript'
   }
 
   // --------------------------------------------------------------------------
@@ -438,6 +428,36 @@ export class TreeItemNpmScript extends TreeItemRunnable {
   dispose(): void {
     this.scriptValue = undefined as unknown as string
 
+    super.dispose()
+  }
+}
+
+// ----------------------------------------------------------------------------
+
+export class TreeItemNpmCommand extends TreeItemRunnable {
+  // --------------------------------------------------------------------------
+  // Members.
+
+  // --------------------------------------------------------------------------
+  // Constructor.
+
+  constructor(
+    commandName: string,
+    task: vscode.Task,
+    parent: TreeItemRunnableParent
+  ) {
+    super(commandName, task, parent)
+
+    // https://code.visualstudio.com/api/references/icons-in-labels#icon-listing
+    this.iconPath = new vscode.ThemeIcon('wrench-subaction')
+    this.tooltip = 'npm ' + commandName
+    this.contextValue = 'npmCommand'
+  }
+
+  // --------------------------------------------------------------------------
+  // Methods.
+
+  dispose(): void {
     super.dispose()
   }
 }
@@ -463,10 +483,11 @@ export class TreeItemXpmAction extends TreeItemRunnable {
 
     this.actionValue = actionValue
 
+    // https://code.visualstudio.com/api/references/icons-in-labels#icon-listing
     // xpm actions have a slightly more complicated icon.
     this.iconPath = new vscode.ThemeIcon('tools')
     this.tooltip = this.actionValue.join('\n')
-    this.contextValue = 'action'
+    this.contextValue = 'xpmAction'
   }
 
   // --------------------------------------------------------------------------
@@ -481,13 +502,43 @@ export class TreeItemXpmAction extends TreeItemRunnable {
 
 // ----------------------------------------------------------------------------
 
+export class TreeItemXpmCommand extends TreeItemRunnable {
+  // --------------------------------------------------------------------------
+  // Members.
+
+  // --------------------------------------------------------------------------
+  // Constructor.
+
+  constructor(
+    commandName: string,
+    task: vscode.Task,
+    parent: TreeItemRunnableParent
+  ) {
+    super(commandName, task, parent)
+
+    // https://code.visualstudio.com/api/references/icons-in-labels#icon-listing
+    this.iconPath = new vscode.ThemeIcon('tools')
+    this.tooltip = 'xpm ' + commandName
+    this.contextValue = 'xpmCommand'
+  }
+
+  // --------------------------------------------------------------------------
+  // Methods.
+
+  dispose(): void {
+    super.dispose()
+  }
+}
+
+// ----------------------------------------------------------------------------
+
 export class TreeItemConfiguration extends TreeItem {
   // --------------------------------------------------------------------------
   // Members.
 
   parent: TreeItemPackage
-  commands: TreeItemCommand[] = []
   xpmActions: TreeItemXpmAction[] = []
+  xpmCommands: TreeItemXpmCommand[] = []
 
   dataNode: DataNodeConfiguration
 
@@ -509,6 +560,7 @@ export class TreeItemConfiguration extends TreeItem {
     const packageName: string = packageJson.name ?? 'name?'
     const packageVersion: string = packageJson.version ?? 'version?'
 
+    // https://code.visualstudio.com/api/references/icons-in-labels#icon-listing
     // Tree item properties.
     this.iconPath = vscode.ThemeIcon.Folder
     this.tooltip =
@@ -522,7 +574,7 @@ export class TreeItemConfiguration extends TreeItem {
   // Getters & Setters.
 
   get children(): TreeItemConfigurationChild[] {
-    return [...this.commands, ...this.xpmActions]
+    return [...this.xpmActions, ...this.xpmCommands]
   }
 
   get package(): TreeItemPackage {
@@ -531,12 +583,6 @@ export class TreeItemConfiguration extends TreeItem {
 
   // --------------------------------------------------------------------------
   // Methods.
-
-  addCommand(commandName: string, task: vscode.Task): TreeItemCommand {
-    const treeItem = new TreeItemCommand(commandName, task, this)
-    this.commands.push(treeItem)
-    return treeItem
-  }
 
   addXpmAction(
     actionName: string,
@@ -548,18 +594,24 @@ export class TreeItemConfiguration extends TreeItem {
     return treeItem
   }
 
+  addXpmCommand(commandName: string, task: vscode.Task): TreeItemXpmCommand {
+    const treeItem = new TreeItemXpmCommand(commandName, task, this)
+    this.xpmCommands.push(treeItem)
+    return treeItem
+  }
+
   dispose(): void {
     this.parent = undefined as unknown as TreeItemPackage
-
-    this.commands.forEach((node) => {
-      node.dispose()
-    })
-    this.commands = undefined as unknown as TreeItemCommand[]
 
     this.xpmActions.forEach((node) => {
       node.dispose()
     })
     this.xpmActions = undefined as unknown as TreeItemXpmAction[]
+
+    this.xpmCommands.forEach((node) => {
+      node.dispose()
+    })
+    this.xpmCommands = undefined as unknown as TreeItemXpmCommand[]
 
     super.dispose()
   }
@@ -660,14 +712,18 @@ export class XpackTreeDataProvider implements vscode.TreeDataProvider<TreeItem> 
         const treeItemPackage = new TreeItemPackage(dataNodePackage)
         tree.push(treeItemPackage)
 
-        this._addCommands(dataNodePackage.commands, treeItemPackage)
         this._addNpmScripts(dataNodePackage.npmScripts, treeItemPackage)
+        this._addNpmCommands(dataNodePackage.npmCommands, treeItemPackage)
+
         this._addXpmActions(dataNodePackage.xpmActions, treeItemPackage)
+        this._addXpmCommands(dataNodePackage.xpmCommands, treeItemPackage)
+
         this._addConfigurations(
           dataNodePackage.xpmConfigurations,
           treeItemPackage
         )
       })
+
       log.trace('items tree created with', tree.length, 'pacakges')
       return tree
     }
@@ -681,9 +737,12 @@ export class XpackTreeDataProvider implements vscode.TreeDataProvider<TreeItem> 
       const treeItemPackage = new TreeItemPackage(dataNodePackage)
       parentTreeItem.addPackage(treeItemPackage)
 
-      this._addCommands(dataNodePackage.commands, treeItemPackage)
       this._addNpmScripts(dataNodePackage.npmScripts, treeItemPackage)
+      this._addNpmCommands(dataNodePackage.npmCommands, treeItemPackage)
+
       this._addXpmActions(dataNodePackage.xpmActions, treeItemPackage)
+      this._addXpmCommands(dataNodePackage.xpmCommands, treeItemPackage)
+
       this._addConfigurations(
         dataNodePackage.xpmConfigurations,
         treeItemPackage
@@ -704,12 +763,15 @@ export class XpackTreeDataProvider implements vscode.TreeDataProvider<TreeItem> 
     })
   }
 
-  private _addCommands(
-    dataNodeCommands: DataNodeCommand[],
-    parentTreeItem: TreeItemPackage | TreeItemConfiguration
+  private _addNpmCommands(
+    dataNodeNpmCommands: DataNodeNpmCommand[],
+    parentTreeItem: TreeItemPackage
   ): void {
-    dataNodeCommands.forEach((dataNodeCommand) => {
-      parentTreeItem.addCommand(dataNodeCommand.name, dataNodeCommand.task)
+    dataNodeNpmCommands.forEach((dataNodeNpmCommand) => {
+      parentTreeItem.addNpmCommand(
+        dataNodeNpmCommand.name,
+        dataNodeNpmCommand.task
+      )
     })
   }
 
@@ -726,6 +788,18 @@ export class XpackTreeDataProvider implements vscode.TreeDataProvider<TreeItem> 
     })
   }
 
+  private _addXpmCommands(
+    dataNodeXpmCommands: DataNodeXpmCommand[],
+    parentTreeItem: TreeItemPackage | TreeItemConfiguration
+  ): void {
+    dataNodeXpmCommands.forEach((dataNodeXpmCommand) => {
+      parentTreeItem.addXpmCommand(
+        dataNodeXpmCommand.name,
+        dataNodeXpmCommand.task
+      )
+    })
+  }
+
   private _addConfigurations(
     dataNodeConfigurations: DataNodeConfiguration[],
     parentTreeItem: TreeItemPackage
@@ -736,9 +810,13 @@ export class XpackTreeDataProvider implements vscode.TreeDataProvider<TreeItem> 
           dataNodeConfiguration
         )
 
-        this._addCommands(dataNodeConfiguration.commands, treeItemConfiguration)
         this._addXpmActions(
           dataNodeConfiguration.xpmActions,
+          treeItemConfiguration
+        )
+
+        this._addXpmCommands(
+          dataNodeConfiguration.xpmCommands,
           treeItemConfiguration
         )
       }

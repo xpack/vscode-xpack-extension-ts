@@ -23,7 +23,7 @@
  * https://code.visualstudio.com/api/references/contribution-points#contributes.menus
  */
 
-import * as fs from 'fs/promises'
+import * as fs from 'node:fs/promises'
 import * as os from 'node:os'
 
 import * as vscode from 'vscode'
@@ -35,17 +35,18 @@ import {
   JsonBuildConfigurations,
   JsonXpack,
   JsonActions,
-} from '@xpack/xpm-liquid'
+} from '@xpack/xpm-lib'
 
 import { ExtensionManager, BuildConfigurationPick } from './manager.js'
 
 import {
   TreeItem,
   TreeItemXpmAction,
-  TreeItemCommand,
+  TreeItemNpmCommand,
   TreeItemConfiguration,
   TreeItemPackage,
   TreeItemNpmScript,
+  TreeItemXpmCommand,
 } from './explorer.js'
 
 import { MessageItemConfirmation } from './definitions.js'
@@ -105,6 +106,7 @@ export class Commands implements vscode.Disposable {
         this
       )
     )
+
     context.subscriptions.push(
       vscode.commands.registerCommand(
         'xpack.runNpmScript',
@@ -114,9 +116,30 @@ export class Commands implements vscode.Disposable {
       )
     )
     context.subscriptions.push(
-      // eslint-disable-next-line @typescript-eslint/unbound-method
-      vscode.commands.registerCommand('xpack.runCommand', this.runCommand, this)
+      vscode.commands.registerCommand(
+        'xpack.copyNpmScript',
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        this.copyNpmScript,
+        this
+      )
     )
+    context.subscriptions.push(
+      vscode.commands.registerCommand(
+        'xpack.runNpmCommand',
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        this.runNpmCommand,
+        this
+      )
+    )
+    context.subscriptions.push(
+      vscode.commands.registerCommand(
+        'xpack.copyNpmCommand',
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        this.copyNpmCommand,
+        this
+      )
+    )
+
     context.subscriptions.push(
       vscode.commands.registerCommand(
         'xpack.runXpmAction',
@@ -126,8 +149,28 @@ export class Commands implements vscode.Disposable {
       )
     )
     context.subscriptions.push(
-      // eslint-disable-next-line @typescript-eslint/unbound-method
-      vscode.commands.registerCommand('xpack.copyAction', this.copyAction, this)
+      vscode.commands.registerCommand(
+        'xpack.copyXpmAction',
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        this.copyXpmAction,
+        this
+      )
+    )
+    context.subscriptions.push(
+      vscode.commands.registerCommand(
+        'xpack.runXpmCommand',
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        this.runXpmCommand,
+        this
+      )
+    )
+    context.subscriptions.push(
+      vscode.commands.registerCommand(
+        'xpack.copyXpmCommand',
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        this.copyXpmCommand,
+        this
+      )
     )
 
     // context.subscriptions.push(
@@ -146,8 +189,12 @@ export class Commands implements vscode.Disposable {
       )
     )
     context.subscriptions.push(
-      // eslint-disable-next-line @typescript-eslint/unbound-method
-      vscode.commands.registerCommand('xpack.addAction', this.addAction, this)
+      vscode.commands.registerCommand(
+        'xpack.addAction',
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        this.addXpmAction,
+        this
+      )
     )
     context.subscriptions.push(
       vscode.commands.registerCommand(
@@ -247,25 +294,78 @@ export class Commands implements vscode.Disposable {
     }
   }
 
+  async copyNpmScript(treeItem: TreeItem): Promise<void> {
+    const log = this.log
+
+    log.trace('Command.copyNpmScript()')
+    if (treeItem instanceof TreeItemNpmScript) {
+      // if (treeItem.task === undefined) {
+      //   log.debug('copyXpmAction(): inconsistent treeItem, no task')
+      //   return
+      // }
+      log.trace(treeItem.task.execution)
+
+      let node = treeItem.parent
+      while (!(node instanceof TreeItemPackage)) {
+        node = node.parent
+      }
+
+      const projectFolderPath = node.dataNode.folderPath
+
+      const command = `npm --prefix run '${projectFolderPath}' ${treeItem.name}`
+      log.trace(command)
+      await vscode.env.clipboard.writeText(command)
+    } else {
+      log.debug('copyNpmScript(): treeItem not yet implemented')
+    }
+  }
+
   /**
    * Run a command.
    *
    * @param treeItem - When invoked by the tree viewer it gets the
    * TreeItem where the invocation occurred.
    */
-  async runCommand(treeItem: TreeItem): Promise<void> {
+  async runNpmCommand(treeItem: TreeItem): Promise<void> {
     const log = this.log
 
-    log.trace('Command.runCommand()')
-    if (treeItem instanceof TreeItemCommand) {
+    log.trace('Command.runNpmCommand()')
+    if (treeItem instanceof TreeItemNpmCommand) {
       // if (treeItem.task === undefined) {
-      //   log.debug('runCommand(): inconsistent treeItem, no task')
+      //   log.debug('runNpmCommand(): inconsistent treeItem, no task')
       //   return
       // }
       log.trace(treeItem.task.execution)
       await treeItem.runTask()
     } else {
-      log.debug('runCommand(): treeItem not yet implemented')
+      log.debug('runNpmCommand(): treeItem not yet implemented')
+    }
+  }
+
+  async copyNpmCommand(treeItem: TreeItem): Promise<void> {
+    const log = this.log
+
+    log.trace('Command.copyNpmCommand()')
+    if (treeItem instanceof TreeItemNpmCommand) {
+      // if (treeItem.task === undefined) {
+      //   log.debug('copyXpmAction(): inconsistent treeItem, no task')
+      //   return
+      // }
+      log.trace(treeItem.task.execution)
+
+      let node = treeItem.parent
+      while (!(node instanceof TreeItemPackage)) {
+        node = node.parent
+      }
+
+      const projectFolderPath = node.dataNode.folderPath
+
+      // The command name is like `npm install` or `xpm install`.
+      const command = `npm --prefix '${projectFolderPath}' ${treeItem.name}`
+      log.trace(command)
+      await vscode.env.clipboard.writeText(command)
+    } else {
+      log.debug('copyNpmCommand(): treeItem not yet implemented')
     }
   }
 
@@ -294,13 +394,13 @@ export class Commands implements vscode.Disposable {
     }
   }
 
-  async copyAction(treeItem: TreeItem): Promise<void> {
+  async copyXpmAction(treeItem: TreeItem): Promise<void> {
     const log = this.log
 
-    log.trace('Command.copyAction()')
+    log.trace('Command.copyXpmAction()')
     if (treeItem instanceof TreeItemXpmAction) {
       // if (treeItem.task === undefined) {
-      //   log.debug('copyAction(): inconsistent treeItem, no task')
+      //   log.debug('copyXpmAction(): inconsistent treeItem, no task')
       //   return
       // }
       log.trace(treeItem.task.execution)
@@ -320,7 +420,56 @@ export class Commands implements vscode.Disposable {
       log.trace(command)
       await vscode.env.clipboard.writeText(command)
     } else {
-      log.debug('copyAction(): treeItem not yet implemented')
+      log.debug('copyXpmAction(): treeItem not yet implemented')
+    }
+  }
+
+  /**
+   * Run an xpm command.
+   *
+   * @param treeItem - When invoked by the tree viewer it gets the
+   * TreeItem where the invocation occurred.
+   */
+  async runXpmCommand(treeItem: TreeItem): Promise<void> {
+    const log = this.log
+
+    log.trace('Command.runXpmCommand()')
+    if (treeItem instanceof TreeItemXpmCommand) {
+      // if (treeItem.task === undefined) {
+      //   log.debug('runNpmCommand(): inconsistent treeItem, no task')
+      //   return
+      // }
+      log.trace(treeItem.task.execution)
+      await treeItem.runTask()
+    } else {
+      log.debug('runXpmCommand(): treeItem not yet implemented')
+    }
+  }
+
+  async copyXpmCommand(treeItem: TreeItem): Promise<void> {
+    const log = this.log
+
+    log.trace('Command.copyXpmCommand()')
+    if (treeItem instanceof TreeItemXpmCommand) {
+      // if (treeItem.task === undefined) {
+      //   log.debug('copyXpmAction(): inconsistent treeItem, no task')
+      //   return
+      // }
+      log.trace(treeItem.task.execution)
+
+      let node = treeItem.parent
+      while (!(node instanceof TreeItemPackage)) {
+        node = node.parent
+      }
+
+      const projectFolderPath = node.dataNode.folderPath
+
+      // The command name is like `npm install` or `xpm install`.
+      const command = `xpm ${treeItem.name} -C '${projectFolderPath}'`
+      log.trace(command)
+      await vscode.env.clipboard.writeText(command)
+    } else {
+      log.debug('copyXpmCommand(): treeItem not yet implemented')
     }
   }
 
@@ -369,15 +518,15 @@ export class Commands implements vscode.Disposable {
     log.trace(`${treeItem.packageJsonPath} written back`)
   }
 
-  async addAction(treeItem: TreeItem): Promise<void> {
+  async addXpmAction(treeItem: TreeItem): Promise<void> {
     const log = this.log
 
     let treeItemPackage
     if (treeItem instanceof TreeItemPackage) {
-      log.trace(`addAction() to package '${treeItem.name}'`)
+      log.trace(`addXpmAction() to package '${treeItem.name}'`)
       treeItemPackage = treeItem
     } else if (treeItem instanceof TreeItemConfiguration) {
-      log.trace(`addAction() to configuration ${treeItem.name}`)
+      log.trace(`addXpmAction() to configuration ${treeItem.name}`)
       treeItemPackage = treeItem.parent
     } else {
       return

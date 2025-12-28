@@ -12,7 +12,7 @@
 // ----------------------------------------------------------------------------
 
 import assert from 'node:assert'
-import * as fs from 'fs/promises'
+import * as fs from 'node:fs/promises'
 import { Dirent } from 'node:fs'
 import * as path from 'node:path'
 
@@ -28,7 +28,7 @@ import {
   JsonActions,
   XpmLiquidPackage,
   XpmPackage,
-} from '@xpack/xpm-liquid'
+} from '@xpack/xpm-lib'
 
 import { XpackTaskDefinition } from './definitions.js'
 
@@ -46,8 +46,9 @@ export class DataModel implements vscode.Disposable {
   xpmConfigurations: DataNodeConfiguration[] = []
 
   npmScripts: DataNodeNpmScript[] = [] // npm scripts
-  commands: DataNodeCommand[] = [] // Associated with npm scripts like install
+  npmCommands: DataNodeNpmCommand[] = [] // npm scripts like install
   xpmActions: DataNodeXpmAction[] = [] // xpm actions
+  xpmCommands: DataNodeNpmCommand[] = [] // xpm actions like install
 
   tasks: vscode.Task[] = []
 
@@ -150,13 +151,15 @@ export class DataModel implements vscode.Disposable {
     // May be null.
     log.trace(`check folder ${folderPath} `)
 
-    const xpmPackage = new XpmPackage(log, folderPath)
-    const jsonPackage = await xpmPackage.checkIfFolderHasPackageJson()
-    if (jsonPackage !== null && xpmPackage.isNpmPackage()) {
+    const xpmPackage = new XpmPackage({ log, folderPath })
+    const jsonPackage = await xpmPackage.readPackageDotJsonNoThrow()
+
+    if (xpmPackage.isNpmPackage()) {
       if (
         xpmPackage.hasNpmScripts() ||
         (xpmPackage.isXpmPackage() && xpmPackage.hasXpmActions())
       ) {
+        assert(jsonPackage)
         const dataNodePackage = parentWorkspaceFolder.addPackage({
           folderPath,
           jsonPackage,
@@ -188,15 +191,13 @@ export class DataModel implements vscode.Disposable {
             dataNodePackage.package.isPackageJsonDirty = true
           }
 
-          const xpackPackageJson: JsonXpmPackage = jsonPackage as JsonXpmPackage
-
           const liquidPackage = new XpmLiquidPackage({
             log: log,
-            packageJson: xpackPackageJson,
+            jsonPackage,
           })
 
           this.addXpmCommands({
-            fromJson: xpackPackageJson.xpack,
+            fromJson: jsonPackage.xpack,
             parent: dataNodePackage,
           })
 
@@ -295,8 +296,11 @@ export class DataModel implements vscode.Disposable {
     })
     this.tasks.push(task)
 
-    const dataNodeCommand = parent.addCommand({ command: 'npm install', task })
-    this.commands.push(dataNodeCommand)
+    const dataNodeNpmCommand = parent.addNpmCommand({
+      command: 'install',
+      task,
+    })
+    this.npmCommands.push(dataNodeNpmCommand)
   }
 
   addNpmScripts({
@@ -376,8 +380,11 @@ export class DataModel implements vscode.Disposable {
     })
     this.tasks.push(task)
 
-    const dataNodeCommand = parent.addCommand({ command: 'xpm install', task })
-    this.commands.push(dataNodeCommand)
+    const dataNodeXpmCommand = parent.addXpmCommand({
+      command: 'install',
+      task,
+    })
+    this.xpmCommands.push(dataNodeXpmCommand)
   }
 
   async addXpmTopActions({
@@ -739,7 +746,7 @@ export class DataNodeWorkspaceFolder extends DataNode {
   }): DataNodePackage {
     const dataNodePackage = new DataNodePackage({
       folderPath,
-      jsonPackage: jsonPackage,
+      jsonPackage,
       parent: this,
       log: this.log,
     })
@@ -761,7 +768,7 @@ export class DataNodeWorkspaceFolder extends DataNode {
 }
 
 /**
- * A class to store the data related to an xPack, its location and
+ * A class to store the data related to an xpm package, its location and
  * configurations/actions.
  */
 export class DataNodePackage extends DataNode {
@@ -788,17 +795,22 @@ export class DataNodePackage extends DataNode {
   npmScripts: DataNodeNpmScript[] = []
 
   /**
-   * The xPack wide commands.
+   * The npm top commands.
    */
-  commands: DataNodeCommand[] = []
+  npmCommands: DataNodeNpmCommand[] = []
 
   /**
-   * The xPack wide actions.
+   * The xpm top actions.
    */
   xpmActions: DataNodeXpmAction[] = []
 
   /**
-   * The xPack build configurations.
+   * The xpm top commands.
+   */
+  xpmCommands: DataNodeXpmCommand[] = []
+
+  /**
+   * The xpm build configurations.
    */
   xpmConfigurations: DataNodeConfiguration[] = []
 
@@ -865,22 +877,22 @@ export class DataNodePackage extends DataNode {
     return dataNodeScript
   }
 
-  addCommand({
+  addNpmCommand({
     command,
     task,
   }: {
     command: string
     task: vscode.Task
-  }): DataNodeCommand {
-    const dataNodeCommand = new DataNodeCommand({
-      command: command,
+  }): DataNodeNpmCommand {
+    const dataNodeNpmCommand = new DataNodeNpmCommand({
+      command,
       task,
       parent: this,
       log: this.log,
     })
-    this.commands.push(dataNodeCommand)
+    this.npmCommands.push(dataNodeNpmCommand)
 
-    return dataNodeCommand
+    return dataNodeNpmCommand
   }
 
   addXpmAction({
@@ -892,16 +904,34 @@ export class DataNodePackage extends DataNode {
     value: string[]
     task: vscode.Task
   }): DataNodeXpmAction {
-    const dataNodeAction = new DataNodeXpmAction({
+    const dataNodeXpmAction = new DataNodeXpmAction({
       name,
       value,
       task,
       parent: this,
       log: this.log,
     })
-    this.xpmActions.push(dataNodeAction)
+    this.xpmActions.push(dataNodeXpmAction)
 
-    return dataNodeAction
+    return dataNodeXpmAction
+  }
+
+  addXpmCommand({
+    command,
+    task,
+  }: {
+    command: string
+    task: vscode.Task
+  }): DataNodeXpmCommand {
+    const dataNodeXpmCommand = new DataNodeXpmCommand({
+      command: command,
+      task,
+      parent: this,
+      log: this.log,
+    })
+    this.xpmCommands.push(dataNodeXpmCommand)
+
+    return dataNodeXpmCommand
   }
 
   addConfiguration({
@@ -927,20 +957,25 @@ export class DataNodePackage extends DataNode {
   }
 
   dispose(): void {
-    this.commands.forEach((node) => {
-      node.dispose()
-    })
-    this.commands = undefined as unknown as DataNodeCommand[]
-
     this.npmScripts.forEach((node) => {
       node.dispose()
     })
     this.npmScripts = undefined as unknown as DataNodeNpmScript[]
 
+    this.npmCommands.forEach((node) => {
+      node.dispose()
+    })
+    this.npmCommands = undefined as unknown as DataNodeNpmCommand[]
+
     this.xpmActions.forEach((node) => {
       node.dispose()
     })
     this.xpmActions = undefined as unknown as DataNodeXpmAction[]
+
+    this.xpmCommands.forEach((node) => {
+      node.dispose()
+    })
+    this.xpmCommands = undefined as unknown as DataNodeXpmCommand[]
 
     this.xpmConfigurations.forEach((node) => {
       node.dispose()
@@ -967,14 +1002,14 @@ export class DataNodeConfiguration extends DataNode {
   parent: DataNodePackage
 
   /**
-   * Configuration commands.
-   */
-  commands: DataNodeCommand[] = []
-
-  /**
    * Configuration actions.
    */
   xpmActions: DataNodeXpmAction[] = []
+
+  /**
+   * Configuration xpm commands.
+   */
+  xpmCommands: DataNodeXpmCommand[] = []
 
   buildFolderRelativePath: string
 
@@ -1013,24 +1048,6 @@ export class DataNodeConfiguration extends DataNode {
   // --------------------------------------------------------------------------
   // Methods.
 
-  addCommand({
-    command,
-    task,
-  }: {
-    command: string
-    task: vscode.Task
-  }): DataNodeCommand {
-    const dataNodeCommand = new DataNodeCommand({
-      command,
-      task,
-      parent: this,
-      log: this.log,
-    })
-    this.commands.push(dataNodeCommand)
-
-    return dataNodeCommand
-  }
-
   addXpmAction({
     name,
     value,
@@ -1052,16 +1069,34 @@ export class DataNodeConfiguration extends DataNode {
     return dataNodeAction
   }
 
-  dispose(): void {
-    this.commands.forEach((node) => {
-      node.dispose()
+  addXpmCommand({
+    command,
+    task,
+  }: {
+    command: string
+    task: vscode.Task
+  }): DataNodeXpmCommand {
+    const dataNodeXpmCommand = new DataNodeXpmCommand({
+      command,
+      task,
+      parent: this,
+      log: this.log,
     })
-    this.commands = undefined as unknown as DataNodeCommand[]
+    this.xpmCommands.push(dataNodeXpmCommand)
 
+    return dataNodeXpmCommand
+  }
+
+  dispose(): void {
     this.xpmActions.forEach((node) => {
       node.dispose()
     })
     this.xpmActions = undefined as unknown as DataNodeXpmAction[]
+
+    this.xpmCommands.forEach((node) => {
+      node.dispose()
+    })
+    this.xpmCommands = undefined as unknown as DataNodeXpmCommand[]
 
     this.parent = undefined as unknown as DataNodePackage
 
@@ -1190,6 +1225,39 @@ export class DataNodeXpmAction extends DataNodeRunnable {
 }
 
 /**
+ * A class to store the command and the associated task.
+ */
+export class DataNodeXpmCommand extends DataNodeRunnable {
+  // --------------------------------------------------------------------------
+  // Members.
+
+  // --------------------------------------------------------------------------
+  // Constructor.
+
+  constructor({
+    command,
+    task,
+    parent,
+    log,
+  }: {
+    command: string
+    task: vscode.Task
+    parent: DataNodeConfiguration | DataNodePackage
+    log: Logger
+  }) {
+    super({ name: command, task, parent, log })
+
+    log.trace(`${DataNodeXpmCommand.name}(${this.name})`)
+  }
+
+  // --------------------------------------------------------------------------
+  // Getters & setters.
+
+  // --------------------------------------------------------------------------
+  // Methods.
+}
+
+/**
  * A class to store the npm script value and the associated task.
  */
 export class DataNodeNpmScript extends DataNodeRunnable {
@@ -1242,7 +1310,7 @@ export class DataNodeNpmScript extends DataNodeRunnable {
 /**
  * A class to store the command and the associated task.
  */
-export class DataNodeCommand extends DataNodeRunnable {
+export class DataNodeNpmCommand extends DataNodeRunnable {
   // --------------------------------------------------------------------------
   // Members.
 
@@ -1257,12 +1325,12 @@ export class DataNodeCommand extends DataNodeRunnable {
   }: {
     command: string
     task: vscode.Task
-    parent: DataNodeConfiguration | DataNodePackage
+    parent: DataNodePackage
     log: Logger
   }) {
     super({ name: command, task, parent, log })
 
-    log.trace(`${DataNodeCommand.name}(${this.name})`)
+    log.trace(`${DataNodeNpmCommand.name}(${this.name})`)
   }
 
   // --------------------------------------------------------------------------

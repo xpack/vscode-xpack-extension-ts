@@ -16,7 +16,7 @@ import { minimatch } from 'minimatch'
 
 import * as vscode from 'vscode'
 
-import { JsonNpmPackage } from '@xpack/xpm-liquid'
+import { JsonNpmPackage } from '@xpack/xpm-lib'
 
 import { XpackTaskDefinition } from './definitions.js'
 
