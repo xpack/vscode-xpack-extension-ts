@@ -299,7 +299,7 @@ project template available from:
 
 ## Release Notes
 
-The latest release is **v1.1.0**, which,
+The latest release is **v1.2.0**, which,
 according to [semantic versioning](https://semver.org) rules,
 means it is in the _production_ phase.
 

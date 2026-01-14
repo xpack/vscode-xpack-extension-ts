@@ -6,9 +6,64 @@ Please check
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 and close existing issues and pull requests.
 
+## 2026-01-14
+
+* 6ea1de6 copyright notices updates
+* 35bbe0d rename src/core src/functions
+* 54cef4d launch.json updates
+* 16bd8a3 package.json cosmetics; move prettierrc outside
+* 773d29e update for new lib
+
+## 2025-12-29
+
+* 1a2342c update for separate commands, xpm-lib
+
+## 2025-12-18
+
+* f37b9b3 use external XpmPackage
+* fce7deb late actions.initialise()
+* e482e0c rework constructors trace
+* 3980944 data-models.ts with explicit initialise()
+
+## 2025-12-17
+
+* 2ae801c data-model.ts update for async inits
+* 39af299 xpack.exclude tests
+
+## 2025-12-09
+
+* 8176281 data-model.ts: fix getBuildFolderRelativePath
+* 791b50e eslint fixes
+* bc095fa rework with object params, no XpmLiquid
+
+## 2025-12-08
+
+* 87af447 package.nls.json update
+* 9167570 pacakge.json add npm-link-deps
+* a95e267 package*.json bump deps
+
+## 2025-12-05
+
+* 523cf02 data-model.ts update for liquid actions
+
+## 2025-12-02
+
+* 49f6454 move definitions to xpm-liquid
+
+## 2025-11-12
+
+* 1682506 README update
+
+
 ## 2025-11-11
 
-* v1.1.0 prepared
+## 2025-11-11
+
+* a1793a2 1.1.0
+* 28afb6e 1.0.2
+* e590c50 package*.json update
+* 5ff0fdb READMEs update
+* 18d5549 prepare v1.1.0
 * 2e49df9 intellisense.ts silence eslint
 * 128d891 re-work commands
 * 1936850 launch.json add xpack-dev-tools workspace
@@ -27,10 +82,12 @@ and close existing issues and pull requests.
 
 ## 2025-08-12
 
-2025-08-12 * a806e6a 1.0.1
-2025-08-12 * e8bcbd0 prepare 1.0.1
-2025-08-12 * d72cb7c 1.0.0
-2025-08-12 * 8e20046 prepare 1.0.0
+## 2025-08-12
+
+* a806e6a 1.0.1
+* e8bcbd0 prepare 1.0.1
+* d72cb7c 1.0.0
+* 8e20046 prepare 1.0.0
 * 29bd5e1 package.json remove files
 
 ## 2025-08-11
