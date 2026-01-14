@@ -1,11 +1,13 @@
 #
 # This file is part of the µOS++ distribution.
-#   (https://github.com/micro-os-plus)
-# Copyright (c) 2021 Liviu Ionescu
+#   (https://github.com/micro-os-plus) 
+# Copyright (c) 2021-2026 Liviu Ionescu. All rights reserved.
 #
-# This Source Code Form is subject to the terms of the MIT License.
-# If a copy of the license was not distributed with this file, it can
-# be obtained from https://opensource.org/licenses/MIT/.
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose is hereby granted, under the terms of the MIT license.
+#
+# If a copy of the license was not distributed with this file, it can be
+# obtained from https://opensource.org/licenses/mit.
 #
 # -----------------------------------------------------------------------------
 
@@ -15,7 +17,10 @@ cmake_minimum_required(VERSION 3.19)
 message(STATUS "CMake version: ${CMAKE_VERSION}")
 
 if(CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR)
-  message(FATAL_ERROR "In-source builds are not supported. Please use separate folder for build.")
+  message(
+    FATAL_ERROR
+      "In-source builds are not supported. Please use separate folder for build."
+  )
 endif()
 
 # -----------------------------------------------------------------------------
@@ -50,37 +55,20 @@ message(STATUS "PATH: $ENV{PATH}")
 
 # -----------------------------------------------------------------------------
 
-project(
-	hallo-welt
-	DESCRIPTION "A simple Hello World application"
-)
+project(hallo-welt DESCRIPTION "A simple Hello World application")
 
 # -----------------------------------------------------------------------------
 
 # Common to all platforms.
-add_compile_definitions(
-  $<$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">:DEBUG>
-)
+add_compile_definitions($<$<STREQUAL:"${CMAKE_BUILD_TYPE}","Debug">:DEBUG>)
 
 # Options passed to the compilers and linker.
-set(common_options 
+set(common_options -fmessage-length=0 -fsigned-char -ffunction-sections
+                   -fdata-sections)
 
-  -fmessage-length=0
-  -fsigned-char
+add_compile_options(${common_options})
 
-  -ffunction-sections
-  -fdata-sections
-)
-
-add_compile_options(
-
-  ${common_options}
-)
-
-add_link_options(
-
-  ${common_cpu_options}
-)
+add_link_options(${common_cpu_options})
 
 # -----------------------------------------------------------------------------
 # Create the application.
@@ -88,27 +76,13 @@ add_link_options(
 add_executable(application)
 message(STATUS "==> application")
 
-set_target_properties(
-  application
-
-  PROPERTIES
-    OUTPUT_NAME "${CMAKE_PROJECT_NAME}"
-)
+set_target_properties(application PROPERTIES OUTPUT_NAME
+                                             "${CMAKE_PROJECT_NAME}")
 
 # Application sources.
-target_sources(
-  application
-
-  PRIVATE
-    src/hallo-welt.cpp
-)
+target_sources(application PRIVATE src/hallo-welt.cpp)
 
 # Application includes.
-target_include_directories(
-  application
-
-  PRIVATE
-    include
-)
+target_include_directories(application PRIVATE include)
 
 # -----------------------------------------------------------------------------
