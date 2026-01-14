@@ -34,45 +34,6 @@
     "url": "https://github.com/xpack/vscode-xpack-extension-ts/issues"
   },
   "homepage": "https://github.com/xpack/vscode-xpack-extension-ts/blob/master/README.md",
-  "markdown": "github",
-  "icon": "assets/images/icon.png",
-  "galleryBanner": {
-    "theme": "light"
-  },
-  "qna": "https://xpack.github.io/vscode/support/",
-  "extensionDependencies": [
-    "ms-vscode.cpptools"
-  ],
-  "engines": {
-    "node": " >=20.18.1",
-    "vscode": "^1.102.0"
-  },
-  "scripts": {
-    "compile-watch": "tsc -watch -p src",
-    "compile": "tsc --build --verbose src",
-    "api-extractor": "api-extractor run --local --verbose",
-    "prettier": "prettier src --write",
-    "fix": "eslint --fix src",
-    "lint": "eslint src",
-    "npm-install ": "npm install",
-    "npm-outdated": "npm outdated",
-    "npm-update": "npm update",
-    "npm-version-patch": "npm version patch",
-    "npm-version-minor": "npm version minor",
-    "postversion": "git push origin --all && git push origin --tags",
-    "package": "vsce ls && vsce package --githubBranch master",
-    "git-log": "git log --pretty='%cd * %h %s' --date=short",
-    "prepare": "npm run compile && npm run lint",
-    "pretest": "npm run compile && npm run lint",
-    "test": "echo 'Tests not yet implemented'",
-    "vscode:prepublish": "npm run fix && npm run compile",
-    "publish": "vsce publish --githubBranch master",
-    "clean": "del-cli dist",
-    "deep-clean": "del-cli dist node_modules package-lock.json",
-    "npm-link-deps": "npm link @xpack/xpm-lib",
-    "dumpconf": "env | sort | uniq",
-    "show-version": "echo $(which node) $(node --version) && echo $(which npm) $(npm --version)"
-  },
   "dependencies": {
     "@xpack/logger": "^6.0.0",
     "@xpack/xpm-lib": "^3.0.0",
@@ -98,12 +59,48 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.48.1"
   },
-  "prettier": {
-    "printWidth": 80,
-    "semi": false,
-    "singleQuote": true,
-    "trailingComma": "es5"
+  "scripts": {
+    "compile-watch": "tsc -watch -p src",
+    "prettier": "prettier src --write",
+    "fix": "eslint --fix src",
+    "compile": "tsc --build --verbose src",
+    "fix-compile": "npm run prettier && npm run fix && npm run compile",
+    "lint": "eslint src",
+    "api-extractor": "api-extractor run --local --verbose",
+    "npm-install ": "npm install",
+    "npm-link": "npm link",
+    "npm-link-deps": "npm link @xpack/logger",
+    "npm-link-lib": "npm link @xpack/xpm-lib",
+    "npm-outdated": "npm outdated",
+    "npm-update": "npm update",
+    "npm-version-patch": "npm version patch",
+    "npm-version-minor": "npm version minor",
+    "postversion": "git push origin --all && git push origin --tags",
+    "vsce-package": "vsce ls && vsce package --githubBranch master",
+    "git-log": "git log --pretty='%cd * %h %s' --date=short",
+    "prepare": "npm run compile && npm run lint",
+    "pretest": "npm run compile && npm run lint",
+    "test": "echo 'Tests not yet implemented'",
+    "vscode:prepublish": "npm run fix && npm run compile",
+    "publish": "vsce publish --githubBranch master",
+    "clean": "del-cli dist",
+    "deep-clean": "del-cli dist node_modules package-lock.json",
+    "dumpconf": "env | sort | uniq",
+    "show-versions": "echo $(which node) $(node --version) && echo $(which npm) $(npm --version)"
   },
+  "engines": {
+    "node": " >=20.18.1",
+    "vscode": "^1.102.0"
+  },
+  "markdown": "github",
+  "icon": "assets/images/icon.png",
+  "galleryBanner": {
+    "theme": "light"
+  },
+  "qna": "https://xpack.github.io/vscode/support/",
+  "extensionDependencies": [
+    "ms-vscode.cpptools"
+  ],
   "activationEvents": [
     "onLanguage:json",
     "workspaceContains:**/package.json"
