@@ -33,7 +33,7 @@ import {
 
 import { XpackTaskDefinition } from './definitions.js'
 
-import * as utils from './utils.js'
+import * as utils from '../functions/utils.js'
 
 // ----------------------------------------------------------------------------
 

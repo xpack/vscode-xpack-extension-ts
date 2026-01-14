@@ -52,7 +52,7 @@ import {
 
 import { MessageItemConfirmation } from './definitions.js'
 
-import * as utils from './utils.js'
+import * as utils from '../functions/utils.js'
 import { DataNodeConfiguration } from './data-model.js'
 
 // ----------------------------------------------------------------------------

@@ -21,7 +21,7 @@ import * as vscode from 'vscode'
 
 import { Logger } from '@xpack/logger'
 
-import * as utils from './utils.js'
+import * as utils from '../functions/utils.js'
 
 import { DataModel, DataNodeConfiguration } from './data-model.js'
 

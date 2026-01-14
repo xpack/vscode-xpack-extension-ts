@@ -18,7 +18,7 @@ import * as vscode from 'vscode'
 
 import { JsonNpmPackage } from '@xpack/xpm-lib'
 
-import { XpackTaskDefinition } from './definitions.js'
+import { XpackTaskDefinition } from '../core/definitions.js'
 
 // ----------------------------------------------------------------------------
 

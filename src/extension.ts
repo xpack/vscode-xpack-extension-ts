@@ -18,14 +18,14 @@ import { Logger } from '@xpack/logger'
 
 // These local modules contain the actual implementation.
 // They create and register the objects to VS Code.
-import { ExtensionManager } from './lib/manager.js'
-import { Commands } from './lib/commands.js'
-import { TaskProvider } from './lib/tasks.js'
-import { Explorer } from './lib/explorer.js'
+import { ExtensionManager } from './core/manager.js'
+import { Commands } from './core/commands.js'
+import { TaskProvider } from './core/tasks.js'
+import { Explorer } from './core/explorer.js'
 // import { Hover } from './lib/hover.js'
 // import { StatusBar } from './lib/status-bar.js'
-import { IntelliSense } from './lib/intellisense.js'
-import { LogLevelKey } from './lib/definitions.js'
+import { IntelliSense } from './core/intellisense.js'
+import { LogLevelKey } from './core/definitions.js'
 
 // ----------------------------------------------------------------------------
 
