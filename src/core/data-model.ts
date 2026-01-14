@@ -507,8 +507,7 @@ export class DataModel implements vscode.Disposable {
       const dataNodeConfiguration = parent.addConfiguration({
         name: buildConfigurationName,
         hidden,
-        buildFolderRelativePath:
-          await buildConfiguration.getBuildFolderRelativePath(),
+        buildFolderRelativePath: buildConfiguration.buildFolderRelativePath,
       })
 
       const jsonBuildConfiguration = liquidPackage.buildConfigurations.getJson(
