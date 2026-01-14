@@ -35,6 +35,7 @@ import {
   JsonBuildConfigurations,
   JsonXpack,
   JsonActions,
+  JsonBuildConfigurationContent,
 } from '@xpack/xpm-lib'
 
 import { ExtensionManager, BuildConfigurationPick } from './manager.js'
@@ -544,12 +545,14 @@ export class Commands implements vscode.Disposable {
     const packageJson: JsonXpmPackage = treeItemPackage.dataNode
       .jsonPackage as JsonXpmPackage
 
-    let fromJson: JsonXpack = packageJson.xpack
+    let fromJson: JsonXpack | JsonBuildConfigurationContent = packageJson.xpack
     if (treeItem instanceof TreeItemConfiguration) {
       const jsonConfigurations: JsonBuildConfigurations | undefined =
         packageJson.xpack.buildConfigurations
       if (jsonConfigurations !== undefined) {
-        fromJson = jsonConfigurations[treeItem.name]
+        fromJson = jsonConfigurations[
+          treeItem.name
+        ] as JsonBuildConfigurationContent
       }
     }
     if (fromJson.actions === undefined) {
@@ -597,25 +600,29 @@ export class Commands implements vscode.Disposable {
 
     const packageJson: JsonXpmPackage = treeItemPackage.dataNode
       .jsonPackage as JsonXpmPackage
-    let actions: JsonActions | undefined = packageJson.xpack.actions
+    let jsonActions: JsonActions | undefined = packageJson.xpack.actions
     if (treeItem.parent instanceof TreeItemConfiguration) {
       const buildConfigurationName = treeItem.parent.name
 
       const buildConfigurations = packageJson.xpack.buildConfigurations
 
-      if (buildConfigurations?.[buildConfigurationName] !== undefined) {
-        actions = buildConfigurations[buildConfigurationName].actions
-      } else {
+      if (buildConfigurations?.[buildConfigurationName] === undefined) {
         await vscode.window.showErrorMessage(
           `Build configuration '${buildConfigurationName}' not found.`
         )
         return
       }
+      jsonActions = (
+        buildConfigurations[
+          buildConfigurationName
+        ] as JsonBuildConfigurationContent
+      ).actions
     }
 
-    if (actions !== undefined) {
+    if (jsonActions !== undefined) {
+      // Finally permanently remove the action.
       // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-      delete actions[actionName]
+      delete jsonActions[actionName]
     }
 
     const fileNewContent = JSON.stringify(packageJson, null, 2) + os.EOL

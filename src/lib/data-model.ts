@@ -28,6 +28,7 @@ import {
   JsonActions,
   XpmLiquidPackage,
   XpmPackage,
+  JsonBuildConfigurationContent,
 } from '@xpack/xpm-lib'
 
 import { XpackTaskDefinition } from './definitions.js'
@@ -151,8 +152,8 @@ export class DataModel implements vscode.Disposable {
     // May be null.
     log.trace(`check folder ${folderPath} `)
 
-    const xpmPackage = new XpmPackage({ log, folderPath })
-    const jsonPackage = await xpmPackage.readPackageDotJsonNoThrow()
+    const xpmPackage = new XpmPackage({ log, packageFolderPath: folderPath })
+    const jsonPackage = await xpmPackage.readPackageDotJson()
 
     if (xpmPackage.isNpmPackage()) {
       if (
@@ -201,8 +202,8 @@ export class DataModel implements vscode.Disposable {
             parent: dataNodePackage,
           })
 
-          await liquidPackage.topActions.initialise()
-          if (!liquidPackage.topActions.empty()) {
+          await liquidPackage.actions.initialise()
+          if (!liquidPackage.actions.empty()) {
             await this.addXpmTopActions({
               liquidPackage: liquidPackage,
               parent: dataNodePackage,
@@ -351,23 +352,26 @@ export class DataModel implements vscode.Disposable {
       return
     }
 
-    let actions: JsonActions | undefined
+    let jsonActions: JsonActions | undefined
     if (parent instanceof DataNodeConfiguration) {
       if (!utils.hasDependencies(fromJson)) {
         // There are no xpm dependencies to install.
         return
       }
-      actions = (fromJson as JsonBuildConfiguration).actions
+      jsonActions = (fromJson as JsonBuildConfigurationContent).actions
     } else if (parent instanceof DataNodePackage) {
       if (!utils.hasDependencies(fromJson)) {
         return
       }
-      actions = (fromJson as JsonXpack).actions
+      jsonActions = (fromJson as JsonXpack).actions
     } else {
       throw new Error('Internal error, unknown parent.')
     }
 
-    if (actions && ('install' in actions || 'xpm-install' in actions)) {
+    if (
+      jsonActions &&
+      ('install' in jsonActions || 'xpm-install' in jsonActions)
+    ) {
       // An action with the explicit name `install` or `xpm-install` is present;
       // do not show the default command.
       return
@@ -396,7 +400,7 @@ export class DataModel implements vscode.Disposable {
   }) {
     const log = this.log
 
-    for (const actionName of liquidPackage.topActions.names()) {
+    for (const actionName of liquidPackage.actions.names()) {
       log.trace(actionName)
       const task = this.createTaskForAction({
         actionName,
@@ -408,13 +412,12 @@ export class DataModel implements vscode.Disposable {
         return
       }
 
-      const actionCommands = await liquidPackage.topActions
-        .get(actionName)
-        .commands()
+      const action = liquidPackage.actions.get(actionName)
+      await action.initialise()
 
       const dataNodeAction = parent.addXpmAction({
         name: actionName,
-        value: actionCommands,
+        value: action.commands,
         task,
       })
 
@@ -434,9 +437,10 @@ export class DataModel implements vscode.Disposable {
   }): Promise<void> {
     const buildConfigurationName = parent.name
 
-    const buildConfiguration = await liquidPackage.buildConfigurations.get(
+    const buildConfiguration = liquidPackage.buildConfigurations.get(
       buildConfigurationName
     )
+    await buildConfiguration.initialise()
 
     await buildConfiguration.actions.initialise()
     if (buildConfiguration.actions.empty()) {
@@ -454,13 +458,12 @@ export class DataModel implements vscode.Disposable {
         return
       }
 
-      const actionCommands = await buildConfiguration.actions
-        .get(actionName)
-        .commands()
+      const action = buildConfiguration.actions.get(actionName)
+      await action.initialise()
 
       const dataNodeAction = parent.addXpmAction({
         name: actionName,
-        value: actionCommands,
+        value: action.commands,
         task,
       })
 
@@ -493,9 +496,10 @@ export class DataModel implements vscode.Disposable {
         continue
       }
 
-      const buildConfiguration = await liquidPackage.buildConfigurations.get(
+      const buildConfiguration = liquidPackage.buildConfigurations.get(
         buildConfigurationName
       )
+      await buildConfiguration.initialise()
 
       const dataNodeConfiguration = parent.addConfiguration({
         name: buildConfigurationName,
