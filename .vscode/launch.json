@@ -125,6 +125,30 @@
       "preLaunchTask": "${defaultBuildTask}"
     },
     {
+      "name": "Run Extension Workspace micro-test-plus/tests",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "/Users/ilg/MyProjects/micro-os-plus.github/xPacks/micro-test-plus-xpack.git/tests"
+      ],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js",
+        "${workspaceFolder}/node_modules/@xpack/xpm-lib/dist/**/*.js"
+      ],
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**",
+        "${workspaceFolder}/node_modules/@xpack/xpm-lib/**"
+      ],
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/async-hook-domain/**"
+      ],
+      "preLaunchTask": "${defaultBuildTask}"
+    },
+    {
       "name": "Run Extension sub-folder",
       "type": "extensionHost",
       "request": "launch",
