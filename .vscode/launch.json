@@ -149,6 +149,30 @@
       "preLaunchTask": "${defaultBuildTask}"
     },
     {
+      "name": "Run Extension Workspace xpm-lib",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "/Users/ilg/MyProjects/xpack.github/packages/xpm-lib-ts.git"
+      ],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js",
+        "${workspaceFolder}/node_modules/@xpack/xpm-lib/dist/**/*.js"
+      ],
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**",
+        "${workspaceFolder}/node_modules/@xpack/xpm-lib/**"
+      ],
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/async-hook-domain/**"
+      ],
+      "preLaunchTask": "${defaultBuildTask}"
+    },
+    {
       "name": "Run Extension sub-folder",
       "type": "extensionHost",
       "request": "launch",
