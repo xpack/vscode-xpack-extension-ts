@@ -20,6 +20,7 @@
   "command.createProjectHello": "Create a Hello World project (C/C++, CMake/meson)",
   "command.createProjectHelloQemu": "Create a Hello World QEMU semihosted project (Arm/RISC-V, C/C++, CMake/meson)",
   "taskdef.xpmCommand": "The xpm command to customize.",
+  "taskdef.scriptName": "The name of the npm script to customize.",
   "taskdef.actionName": "The name of the xpm action to customize.",
   "taskdef.buildConfigurationName": "The name of the xpm build configuration where the action is defined. If omitted, the action does not belong to a configuration, but to the package.",
   "taskdef.packageFolderRelativePath": "The path to the package that provides the action. If omitted the root of the workspace folder is used.",
