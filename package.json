@@ -445,6 +445,10 @@
             "type": "string",
             "description": "%taskdef.xpmCommand%"
           },
+          "scriptName": {
+            "type": "string",
+            "description": "%taskdef.scriptName%"
+          },
           "actionName": {
             "type": "string",
             "description": "%taskdef.actionName%"
