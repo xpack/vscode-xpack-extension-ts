@@ -22,17 +22,7 @@ import * as path from 'node:path'
 import * as vscode from 'vscode'
 
 import { Logger } from '@xpack/logger'
-import {
-  JsonNpmPackage,
-  JsonXpmPackage,
-  JsonScripts,
-  JsonBuildConfiguration,
-  JsonXpack,
-  JsonActions,
-  XpmLiquidPackage,
-  XpmPackage,
-  JsonBuildConfigurationContent,
-} from '@xpack/xpm-lib'
+import * as xpmLib from '@xpack/xpm-lib'
 
 import { XpackTaskDefinition } from './definitions.js'
 
@@ -155,7 +145,10 @@ export class DataModel implements vscode.Disposable {
     // May be null.
     log.trace(`check folder ${folderPath} `)
 
-    const xpmPackage = new XpmPackage({ log, packageFolderPath: folderPath })
+    const xpmPackage = new xpmLib.Package({
+      log,
+      packageFolderPath: folderPath,
+    })
     const jsonPackage = await xpmPackage.readPackageDotJson()
 
     if (xpmPackage.isNpmPackage()) {
@@ -195,7 +188,7 @@ export class DataModel implements vscode.Disposable {
             dataNodePackage.package.isPackageJsonDirty = true
           }
 
-          const liquidPackage = new XpmLiquidPackage({
+          const liquidDataModel = new xpmLib.DataModel({
             log: log,
             jsonPackage,
           })
@@ -205,18 +198,18 @@ export class DataModel implements vscode.Disposable {
             parent: dataNodePackage,
           })
 
-          await liquidPackage.actions.initialise()
-          if (!liquidPackage.actions.empty()) {
+          await liquidDataModel.actions.initialise()
+          if (!liquidDataModel.actions.isEmpty) {
             await this.addXpmTopActions({
-              liquidPackage: liquidPackage,
+              liquidDataModel: liquidDataModel,
               parent: dataNodePackage,
             })
           }
 
-          await liquidPackage.buildConfigurations.initialise()
-          if (!liquidPackage.buildConfigurations.empty()) {
+          await liquidDataModel.buildConfigurations.initialise()
+          if (!liquidDataModel.buildConfigurations.isEmpty) {
             await this.addXpmBuildConfigurations({
-              liquidPackage: liquidPackage,
+              liquidDataModel,
               parent: dataNodePackage,
             })
           }
@@ -269,14 +262,14 @@ export class DataModel implements vscode.Disposable {
     fromJson,
     parent,
   }: {
-    fromJson: JsonNpmPackage
+    fromJson: xpmLib.JsonNpmPackage
     parent: DataNodePackage
   }): void {
     if (this.cancellation.token.isCancellationRequested) {
       return
     }
 
-    let scripts: JsonScripts | undefined
+    let scripts: xpmLib.JsonScripts | undefined
     if (parent instanceof DataNodePackage) {
       if (!utils.hasDependencies(fromJson)) {
         // There are no npm dependencies to install.
@@ -311,7 +304,7 @@ export class DataModel implements vscode.Disposable {
     fromJson,
     parent,
   }: {
-    fromJson: JsonScripts | undefined
+    fromJson: xpmLib.JsonScripts | undefined
     parent: DataNodePackage
   }): void {
     // const log = this.log
@@ -345,7 +338,7 @@ export class DataModel implements vscode.Disposable {
     fromJson,
     parent,
   }: {
-    fromJson: JsonXpack | JsonBuildConfiguration
+    fromJson: xpmLib.JsonXpack | xpmLib.JsonBuildConfiguration
     parent: DataNodeConfiguration | DataNodePackage
   }): void {
     const configurationName =
@@ -355,18 +348,18 @@ export class DataModel implements vscode.Disposable {
       return
     }
 
-    let jsonActions: JsonActions | undefined
+    let jsonActions: xpmLib.JsonActions | undefined
     if (parent instanceof DataNodeConfiguration) {
       if (!utils.hasDependencies(fromJson)) {
         // There are no xpm dependencies to install.
         return
       }
-      jsonActions = (fromJson as JsonBuildConfigurationContent).actions
+      jsonActions = (fromJson as xpmLib.JsonBuildConfigurationContent).actions
     } else if (parent instanceof DataNodePackage) {
       if (!utils.hasDependencies(fromJson)) {
         return
       }
-      jsonActions = (fromJson as JsonXpack).actions
+      jsonActions = (fromJson as xpmLib.JsonXpack).actions
     } else {
       throw new Error('Internal error, unknown parent.')
     }
@@ -395,15 +388,15 @@ export class DataModel implements vscode.Disposable {
   }
 
   async addXpmTopActions({
-    liquidPackage,
+    liquidDataModel,
     parent,
   }: {
-    liquidPackage: XpmLiquidPackage
+    liquidDataModel: xpmLib.DataModel
     parent: DataNodePackage
   }) {
     const log = this.log
 
-    for (const actionName of liquidPackage.actions.names()) {
+    for (const actionName of liquidDataModel.actions.names) {
       log.trace(actionName)
       const task = this.createTaskForAction({
         actionName,
@@ -415,7 +408,7 @@ export class DataModel implements vscode.Disposable {
         return
       }
 
-      const action = liquidPackage.actions.get(actionName)
+      const action = liquidDataModel.actions.get(actionName)
       await action.initialise()
 
       const dataNodeAction = parent.addXpmAction({
@@ -432,25 +425,25 @@ export class DataModel implements vscode.Disposable {
   }
 
   async addXpmBuildConfigurationActions({
-    liquidPackage,
+    liquidDataModel,
     parent,
   }: {
-    liquidPackage: XpmLiquidPackage
+    liquidDataModel: xpmLib.DataModel
     parent: DataNodeConfiguration
   }): Promise<void> {
     const buildConfigurationName = parent.name
 
-    const buildConfiguration = liquidPackage.buildConfigurations.get(
+    const buildConfiguration = liquidDataModel.buildConfigurations.get(
       buildConfigurationName
     )
     await buildConfiguration.initialise()
 
     await buildConfiguration.actions.initialise()
-    if (buildConfiguration.actions.empty()) {
+    if (buildConfiguration.actions.isEmpty) {
       return
     }
 
-    for (const actionName of buildConfiguration.actions.names()) {
+    for (const actionName of buildConfiguration.actions.names) {
       const task = this.createTaskForAction({
         actionName,
         configurationName: buildConfigurationName,
@@ -478,28 +471,30 @@ export class DataModel implements vscode.Disposable {
   }
 
   async addXpmBuildConfigurations({
-    liquidPackage,
+    liquidDataModel,
     parent,
   }: {
-    liquidPackage: XpmLiquidPackage
+    liquidDataModel: xpmLib.DataModel
     parent: DataNodePackage
   }) {
     const log = this.log
 
-    const buildConfigurationNames = liquidPackage.buildConfigurations.names()
+    const buildConfigurationNames = liquidDataModel.buildConfigurations.names
     for (const buildConfigurationName of buildConfigurationNames) {
       log.trace(buildConfigurationName)
-      const hidden = liquidPackage.buildConfigurations.isHidden(
+      const hidden = liquidDataModel.buildConfigurations.isHidden(
         buildConfigurationName
       )
       if (hidden) {
         continue
       }
-      if (!liquidPackage.buildConfigurations.hasJson(buildConfigurationName)) {
+      if (
+        !liquidDataModel.buildConfigurations.hasJson(buildConfigurationName)
+      ) {
         continue
       }
 
-      const buildConfiguration = liquidPackage.buildConfigurations.get(
+      const buildConfiguration = liquidDataModel.buildConfigurations.get(
         buildConfigurationName
       )
       await buildConfiguration.initialise()
@@ -510,9 +505,8 @@ export class DataModel implements vscode.Disposable {
         buildFolderRelativePath: buildConfiguration.buildFolderRelativePath,
       })
 
-      const jsonBuildConfiguration = liquidPackage.buildConfigurations.getJson(
-        buildConfigurationName
-      )
+      const jsonBuildConfiguration =
+        liquidDataModel.buildConfigurations.getJson(buildConfigurationName)
 
       this.addXpmCommands({
         fromJson: jsonBuildConfiguration,
@@ -520,7 +514,7 @@ export class DataModel implements vscode.Disposable {
       })
 
       await this.addXpmBuildConfigurationActions({
-        liquidPackage,
+        liquidDataModel,
         parent: dataNodeConfiguration,
       })
 
@@ -748,7 +742,7 @@ export class DataNodeWorkspaceFolder extends DataNode {
     jsonPackage,
   }: {
     folderPath: string
-    jsonPackage: JsonNpmPackage
+    jsonPackage: xpmLib.JsonNpmPackage
   }): DataNodePackage {
     const dataNodePackage = new DataNodePackage({
       folderPath,
@@ -792,7 +786,7 @@ export class DataNodePackage extends DataNode {
   /**
    * The parsed package.json
    */
-  jsonPackage: JsonNpmPackage
+  jsonPackage: xpmLib.JsonNpmPackage
 
   isPackageJsonDirty = false
 
@@ -830,7 +824,7 @@ export class DataNodePackage extends DataNode {
     log,
   }: {
     folderPath: string
-    jsonPackage: JsonNpmPackage
+    jsonPackage: xpmLib.JsonNpmPackage
     parent: DataNodeWorkspaceFolder
     log: Logger
   }) {
@@ -988,7 +982,7 @@ export class DataNodePackage extends DataNode {
     })
     this.xpmConfigurations = undefined as unknown as DataNodeConfiguration[]
 
-    this.jsonPackage = undefined as unknown as JsonXpmPackage
+    this.jsonPackage = undefined as unknown as xpmLib.JsonXpmPackage
 
     this.parent = undefined as unknown as DataNodeWorkspaceFolder
 

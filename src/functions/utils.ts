@@ -19,7 +19,7 @@ import { minimatch } from 'minimatch'
 
 import * as vscode from 'vscode'
 
-import { JsonNpmPackage } from '@xpack/xpm-lib'
+import * as xpmLib from '@xpack/xpm-lib'
 
 import { XpackTaskDefinition } from '../core/definitions.js'
 
@@ -129,8 +129,8 @@ export function isNonEmptyJsonObject(value: unknown): boolean {
 
 export function hasDependencies(value: unknown): boolean {
   return (
-    isNonEmptyJsonObject((value as JsonNpmPackage).dependencies) ||
-    isNonEmptyJsonObject((value as JsonNpmPackage).devDependencies)
+    isNonEmptyJsonObject((value as xpmLib.JsonNpmPackage).dependencies) ||
+    isNonEmptyJsonObject((value as xpmLib.JsonNpmPackage).devDependencies)
   )
 }
 

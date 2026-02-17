@@ -27,7 +27,7 @@ import * as vscode from 'vscode'
 
 import { Logger } from '@xpack/logger'
 
-import { JsonNpmPackage, JsonXpmPackage } from '@xpack/xpm-lib'
+import * as xpmLib from '@xpack/xpm-lib'
 
 import { ExtensionManager } from './manager.js'
 
@@ -224,19 +224,19 @@ export class TreeItemPackage extends TreeItem {
     this.packageJsonPath = path.join(dataNode.folderPath, packageJsonFileName)
     this.dataNode = dataNode
 
-    const packageJson: JsonNpmPackage = dataNode.jsonPackage
-    const packageName: string = packageJson.name ?? 'name?'
-    const packageVersion: string = packageJson.version ?? 'version?'
+    const jsonPackage: xpmLib.JsonNpmPackage = dataNode.jsonPackage
+    const jsonPackageName: string = jsonPackage.name ?? 'name?'
+    const jsonPackageVersion: string = jsonPackage.version ?? 'version?'
 
     // https://code.visualstudio.com/api/references/icons-in-labels#icon-listing
     // Tree item properties.
     this.iconPath = new vscode.ThemeIcon('json')
     this.resourceUri = vscode.Uri.file(this.packageJsonPath)
     this.tooltip =
-      `The '${packageName}@${packageVersion}' package at ` +
+      `The '${jsonPackageName}@${jsonPackageVersion}' package at ` +
       `'${this.packageJsonPath}'`
     this.contextValue = 'package'
-    this.description = `(${packageName})`
+    this.description = `(${jsonPackageName})`
   }
 
   // --------------------------------------------------------------------------
@@ -387,6 +387,7 @@ class TreeItemRunnable extends TreeItem {
   // Methods.
 
   async runTask(): Promise<vscode.TaskExecution> {
+    console.log('Running task', this.task)
     return await vscode.tasks.executeTask(this.task)
   }
 
@@ -558,19 +559,19 @@ export class TreeItemConfiguration extends TreeItem {
     this.dataNode = dataNode
     this.parent = parent
 
-    const packageJson: JsonXpmPackage = parent.dataNode
-      .jsonPackage as JsonXpmPackage
-    const packageName: string = packageJson.name ?? 'name?'
-    const packageVersion: string = packageJson.version ?? 'version?'
+    const jsonPackage: xpmLib.JsonXpmPackage = parent.dataNode
+      .jsonPackage as xpmLib.JsonXpmPackage
+    const jsonPackageName: string = jsonPackage.name ?? 'name?'
+    const jsonPackageVersion: string = jsonPackage.version ?? 'version?'
 
     // https://code.visualstudio.com/api/references/icons-in-labels#icon-listing
     // Tree item properties.
     this.iconPath = vscode.ThemeIcon.Folder
     this.tooltip =
       `The ${this.name} build configuration ` +
-      `of the '${packageName}@${packageVersion}' xpm package`
+      `of the '${jsonPackageName}@${jsonPackageVersion}' xpm package`
     this.contextValue = 'configuration'
-    this.description = `(${packageName})`
+    this.description = `(${jsonPackageName})`
   }
 
   // --------------------------------------------------------------------------
@@ -727,7 +728,7 @@ export class XpackTreeDataProvider implements vscode.TreeDataProvider<TreeItem> 
         )
       })
 
-      log.trace('items tree created with', tree.length, 'pacakges')
+      log.trace('items tree created with', tree.length, 'packages')
       return tree
     }
   }

@@ -34,6 +34,7 @@ export type AsyncVoidFunction = () => Promise<void>
 export interface XpackTaskDefinition extends vscode.TaskDefinition {
   actionName?: string
   xpmCommand?: string
+  scriptName?: string
   buildConfigurationName?: string
   packageFolderRelativePath?: string
 }

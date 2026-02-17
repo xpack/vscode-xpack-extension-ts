@@ -33,13 +33,7 @@ import * as vscode from 'vscode'
 
 import { Logger } from '@xpack/logger'
 
-import {
-  JsonXpmPackage,
-  JsonBuildConfigurations,
-  JsonXpack,
-  JsonActions,
-  JsonBuildConfigurationContent,
-} from '@xpack/xpm-lib'
+import * as xpmLib from '@xpack/xpm-lib'
 
 import { ExtensionManager, BuildConfigurationPick } from './manager.js'
 
@@ -495,14 +489,14 @@ export class Commands implements vscode.Disposable {
     }
     log.trace(configurationName)
 
-    const packageJson: JsonXpmPackage = treeItem.dataNode
-      .jsonPackage as JsonXpmPackage
-    if (packageJson.xpack.buildConfigurations === undefined) {
-      packageJson.xpack.buildConfigurations = {}
+    const jsonPackage: xpmLib.JsonXpmPackage = treeItem.dataNode
+      .jsonPackage as xpmLib.JsonXpmPackage
+    if (jsonPackage.xpack.buildConfigurations === undefined) {
+      jsonPackage.xpack.buildConfigurations = {}
     } else {
       if (
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        packageJson.xpack.buildConfigurations[configurationName] !== undefined
+        jsonPackage.xpack.buildConfigurations[configurationName] !== undefined
       ) {
         await vscode.window.showErrorMessage(
           `Configuration '${configurationName}' ` +
@@ -511,13 +505,13 @@ export class Commands implements vscode.Disposable {
         return
       }
     }
-    packageJson.xpack.buildConfigurations[configurationName] = {
+    jsonPackage.xpack.buildConfigurations[configurationName] = {
       properties: {},
       actions: {},
     }
-    log.trace(packageJson)
+    log.trace(jsonPackage)
 
-    const fileNewContent = JSON.stringify(packageJson, null, 2) + os.EOL
+    const fileNewContent = JSON.stringify(jsonPackage, null, 2) + os.EOL
     await fs.writeFile(treeItem.packageJsonPath, fileNewContent)
     log.trace(`${treeItem.packageJsonPath} written back`)
   }
@@ -545,17 +539,18 @@ export class Commands implements vscode.Disposable {
     }
     log.trace(actionName)
 
-    const packageJson: JsonXpmPackage = treeItemPackage.dataNode
-      .jsonPackage as JsonXpmPackage
+    const jsonPackage: xpmLib.JsonXpmPackage = treeItemPackage.dataNode
+      .jsonPackage as xpmLib.JsonXpmPackage
 
-    let fromJson: JsonXpack | JsonBuildConfigurationContent = packageJson.xpack
+    let fromJson: xpmLib.JsonXpack | xpmLib.JsonBuildConfigurationContent =
+      jsonPackage.xpack
     if (treeItem instanceof TreeItemConfiguration) {
-      const jsonConfigurations: JsonBuildConfigurations | undefined =
-        packageJson.xpack.buildConfigurations
+      const jsonConfigurations: xpmLib.JsonBuildConfigurations | undefined =
+        jsonPackage.xpack.buildConfigurations
       if (jsonConfigurations !== undefined) {
         fromJson = jsonConfigurations[
           treeItem.name
-        ] as JsonBuildConfigurationContent
+        ] as xpmLib.JsonBuildConfigurationContent
       }
     }
     if (fromJson.actions === undefined) {
@@ -572,9 +567,9 @@ export class Commands implements vscode.Disposable {
     }
     fromJson.actions[actionName] = []
 
-    log.trace(packageJson)
+    log.trace(jsonPackage)
 
-    const fileNewContent = JSON.stringify(packageJson, null, 2) + os.EOL
+    const fileNewContent = JSON.stringify(jsonPackage, null, 2) + os.EOL
     await fs.writeFile(treeItemPackage.packageJsonPath, fileNewContent)
     log.trace(`${treeItemPackage.packageJsonPath} written back`)
   }
@@ -601,13 +596,13 @@ export class Commands implements vscode.Disposable {
 
     const treeItemPackage: TreeItemPackage = treeItem.parent.package
 
-    const packageJson: JsonXpmPackage = treeItemPackage.dataNode
-      .jsonPackage as JsonXpmPackage
-    let jsonActions: JsonActions | undefined = packageJson.xpack.actions
+    const jsonPackage: xpmLib.JsonXpmPackage = treeItemPackage.dataNode
+      .jsonPackage as xpmLib.JsonXpmPackage
+    let jsonActions: xpmLib.JsonActions | undefined = jsonPackage.xpack.actions
     if (treeItem.parent instanceof TreeItemConfiguration) {
       const buildConfigurationName = treeItem.parent.name
 
-      const buildConfigurations = packageJson.xpack.buildConfigurations
+      const buildConfigurations = jsonPackage.xpack.buildConfigurations
 
       if (buildConfigurations?.[buildConfigurationName] === undefined) {
         await vscode.window.showErrorMessage(
@@ -618,7 +613,7 @@ export class Commands implements vscode.Disposable {
       jsonActions = (
         buildConfigurations[
           buildConfigurationName
-        ] as JsonBuildConfigurationContent
+        ] as xpmLib.JsonBuildConfigurationContent
       ).actions
     }
 
@@ -628,7 +623,7 @@ export class Commands implements vscode.Disposable {
       delete jsonActions[actionName]
     }
 
-    const fileNewContent = JSON.stringify(packageJson, null, 2) + os.EOL
+    const fileNewContent = JSON.stringify(jsonPackage, null, 2) + os.EOL
     await fs.writeFile(treeItemPackage.packageJsonPath, fileNewContent)
     log.trace(`${treeItemPackage.packageJsonPath} written back`)
   }
@@ -651,9 +646,9 @@ export class Commands implements vscode.Disposable {
     }
     log.trace(configurationName)
 
-    const packageJson: JsonXpmPackage = treeItem.parent.dataNode
-      .jsonPackage as JsonXpmPackage
-    const buildConfigurations = packageJson.xpack.buildConfigurations
+    const jsonPackage: xpmLib.JsonXpmPackage = treeItem.parent.dataNode
+      .jsonPackage as xpmLib.JsonXpmPackage
+    const buildConfigurations = jsonPackage.xpack.buildConfigurations
 
     if (buildConfigurations !== undefined) {
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -670,9 +665,9 @@ export class Commands implements vscode.Disposable {
       buildConfigurations[configurationName] = {
         ...sourceBuildConfiguration,
       }
-      log.trace(packageJson)
+      log.trace(jsonPackage)
 
-      const fileNewContent = JSON.stringify(packageJson, null, 2) + os.EOL
+      const fileNewContent = JSON.stringify(jsonPackage, null, 2) + os.EOL
       await fs.writeFile(treeItem.parent.packageJsonPath, fileNewContent)
       log.trace(`${treeItem.parent.packageJsonPath} written back`)
     }
@@ -699,16 +694,16 @@ export class Commands implements vscode.Disposable {
       return
     }
 
-    const packageJson: JsonXpmPackage = treeItem.parent.dataNode
-      .jsonPackage as JsonXpmPackage
-    const buildConfigurations = packageJson.xpack.buildConfigurations
+    const jsonPackage: xpmLib.JsonXpmPackage = treeItem.parent.dataNode
+      .jsonPackage as xpmLib.JsonXpmPackage
+    const buildConfigurations = jsonPackage.xpack.buildConfigurations
 
     if (buildConfigurations !== undefined) {
       // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
       delete buildConfigurations[buildConfigurationName]
     }
 
-    const fileNewContent = JSON.stringify(packageJson, null, 2) + os.EOL
+    const fileNewContent = JSON.stringify(jsonPackage, null, 2) + os.EOL
     await fs.writeFile(treeItem.parent.packageJsonPath, fileNewContent)
     log.trace(`${treeItem.parent.packageJsonPath} written back`)
   }
