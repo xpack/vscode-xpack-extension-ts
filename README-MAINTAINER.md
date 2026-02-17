@@ -94,7 +94,7 @@ Check that the page appears at:
 - Run `npm run vsce-package`; review the list of packaged files and update `.vscodeignore` if necessary.
 - Use `npm version patch` (for bug fixes), `npm version minor` (for compatible API additions), or `npm version major` (for incompatible API changes).
 - The post-version script should push all changes to GitHub and trigger CI (to be implemented).
-- Run `npm run package` again to ensure `.vsix` is up to date.
+- Run `npm run vsce-package` again to ensure `.vsix` is up to date.
 - **Wait for CI tests to complete** (to be implemented).
 - Run `npm run publish`.
 - After receiving the confirmation email, verify the extension at:
