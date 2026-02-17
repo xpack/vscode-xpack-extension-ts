@@ -91,7 +91,7 @@ Check that the page appears at:
 - Run `npm run fix`.
 - Commit all changes in the `development` branch.
 - Run `npm run test` (to be implemented).
-- Run `npm run package`; review the list of packaged files and update `.vscodeignore` if necessary.
+- Run `npm run vsce-package`; review the list of packaged files and update `.vscodeignore` if necessary.
 - Use `npm version patch` (for bug fixes), `npm version minor` (for compatible API additions), or `npm version major` (for incompatible API changes).
 - The post-version script should push all changes to GitHub and trigger CI (to be implemented).
 - Run `npm run package` again to ensure `.vsix` is up to date.
