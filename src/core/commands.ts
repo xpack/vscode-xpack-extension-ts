@@ -819,7 +819,8 @@ export class Commands implements vscode.Disposable {
       vscode.TaskScope.Workspace,
       uris[0].fsPath,
       taskLabel,
-      { type: 'xPack' }
+      { type: 'xPack' },
+      log
     )
     const code = await vscode.tasks.executeTask(task)
     // Does not wait for the process to terminate.

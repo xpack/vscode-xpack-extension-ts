@@ -22,6 +22,7 @@ import * as vscode from 'vscode'
 import * as xpmLib from '@xpack/xpm-lib'
 
 import { XpackTaskDefinition } from '../core/definitions.js'
+import { Logger } from '@xpack/logger'
 
 // ----------------------------------------------------------------------------
 
@@ -86,7 +87,8 @@ export function createTask(
     | vscode.TaskScope.Workspace,
   folderPath: string,
   taskLabel: string,
-  taskDefinition: XpackTaskDefinition
+  taskDefinition: XpackTaskDefinition,
+  log: Logger
 ): vscode.Task {
   const execution: vscode.ShellExecution = new vscode.ShellExecution(
     programName,
@@ -97,6 +99,10 @@ export function createTask(
   const taskPrefix = programName
 
   const problemMatchers = undefined
+  log.trace('taskDefinition:', taskDefinition)
+  log.trace('taskLabel:', taskLabel)
+  log.trace('taskPrefix:', taskPrefix)
+
   const task = new vscode.Task(
     taskDefinition,
     scope,

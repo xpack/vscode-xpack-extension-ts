@@ -564,6 +564,7 @@ export class DataModel implements vscode.Disposable {
     if (relativePath !== '') {
       taskLabel += ` (${relativePath})`
     }
+    this.log.trace(taskDefinition)
 
     const task = utils.createTask(
       'xpm',
@@ -571,7 +572,8 @@ export class DataModel implements vscode.Disposable {
       dataNodePackage.parent.workspaceFolder,
       folderPath,
       taskLabel,
-      taskDefinition
+      taskDefinition,
+      this.log
     )
 
     return task
@@ -608,7 +610,8 @@ export class DataModel implements vscode.Disposable {
       dataNodePackage.parent.workspaceFolder,
       folderPath,
       taskLabel,
-      taskDefinition
+      taskDefinition,
+      this.log
     )
 
     return task
@@ -655,7 +658,8 @@ export class DataModel implements vscode.Disposable {
       dataNodePackage.parent.workspaceFolder,
       folderPath,
       taskLabel,
-      taskDefinition
+      taskDefinition,
+      this.log
     )
 
     return task
