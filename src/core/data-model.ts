@@ -537,7 +537,7 @@ export class DataModel implements vscode.Disposable {
     dataNodePackage: DataNodePackage
   }): vscode.Task {
     const taskDefinition: XpackTaskDefinition = {
-      type: 'xPack',
+      type: 'xPack command',
       xpmCommand: command,
     }
 
@@ -585,7 +585,7 @@ export class DataModel implements vscode.Disposable {
     dataNodePackage: DataNodePackage
   }): vscode.Task {
     const taskDefinition: XpackTaskDefinition = {
-      type: 'xPack',
+      type: 'xPack script',
       scriptName,
     }
 
@@ -624,7 +624,7 @@ export class DataModel implements vscode.Disposable {
     dataNodePackage: DataNodePackage
   }): vscode.Task {
     const taskDefinition: XpackTaskDefinition = {
-      type: 'xPack',
+      type: 'xPack action',
       actionName,
     }
 
