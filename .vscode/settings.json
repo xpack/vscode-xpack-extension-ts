@@ -58,5 +58,6 @@
     "vsix",
     "xpack",
     "xpacks"
-  ]
+  ],
+  "cmake.ignoreCMakeListsMissing": true
 }
