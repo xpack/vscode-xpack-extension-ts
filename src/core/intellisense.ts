@@ -31,9 +31,6 @@ import * as path from 'node:path'
 // https://www.npmjs.com/package/comment-json
 import * as jsonc from 'comment-json'
 
-// https://www.npmjs.com/package/make-dir
-import { makeDirectory } from 'make-dir'
-
 import * as vscode from 'vscode'
 import * as cpt from 'vscode-cpptools'
 
@@ -183,7 +180,7 @@ export class IntelliSense implements vscode.Disposable {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       // Ensure that the folder is there.
-      await makeDirectory(vscodeFolderPath)
+      await fs.mkdir(vscodeFolderPath, { recursive: true })
       json = {
         configurations: [],
         version: 4,

@@ -548,9 +548,7 @@ export class Commands implements vscode.Disposable {
       const jsonConfigurations: xpmLib.JsonBuildConfigurations | undefined =
         jsonPackage.xpack.buildConfigurations
       if (jsonConfigurations !== undefined) {
-        fromJson = jsonConfigurations[
-          treeItem.name
-        ] as xpmLib.JsonBuildConfigurationContent
+        fromJson = jsonConfigurations[treeItem.name]
       }
     }
     if (fromJson.actions === undefined) {
