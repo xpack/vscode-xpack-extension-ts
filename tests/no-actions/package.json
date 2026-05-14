@@ -1,0 +1,40 @@
+{
+  "name": "@<scope>/no-actions",
+  "version": "0.1.0",
+  "description": "A source xpm package with <your-description-here>",
+  "main": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/<user-id>/no-actions.git"
+  },
+  "homepage": "https://github.com/<user-id>/no-actions/",
+  "bugs": {
+    "url": "https://github.com/<user-id>/no-actions/issues/"
+  },
+  "keywords": [
+    "xpack"
+  ],
+  "author": {
+    "name": "Liviu Ionescu",
+    "email": "ilg@livius.net",
+    "url": "<author-url>"
+  },
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "del-cli": "^7.0.0"
+  },
+  "xpack": {
+    "minimumXpmRequired": "0.23.2",
+    "dependencies": {},
+    "devDependencies": {
+      "@micro-os-plus/diag-trace": "3.0.1"
+    },
+    "properties": {},
+    "actions": {},
+    "buildConfigurations": {}
+  }
+}

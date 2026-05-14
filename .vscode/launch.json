@@ -302,6 +302,30 @@
         "**/async-hook-domain/**"
       ],
       "preLaunchTask": "${defaultBuildTask}"
+    },
+    {
+      "name": "Run Extension No Actions",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "${workspaceFolder}/tests/no-actions"
+      ],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js",
+        "${workspaceFolder}/node_modules/@xpack/xpm-lib/dist/**/*.js"
+      ],
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**",
+        "${workspaceFolder}/node_modules/@xpack/xpm-lib/**"
+      ],
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/async-hook-domain/**"
+      ],
+      "preLaunchTask": "${defaultBuildTask}"
     }
   ]
 }
