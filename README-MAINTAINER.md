@@ -53,8 +53,8 @@ Review GitHub issues and pull requests:
 - Review recent commits using `npm run git-log`.
 - Open the `CHANGELOG.md` file.
 - Ensure all previously fixed issues are documented.
-- add an entry _* v1.2.0 prepared_.
-- Commit with a message such as _prepare v1.2.0_.
+- add an entry _* v1.2.1 prepared_.
+- Commit with a message such as _prepare v1.2.1_.
 
 ## Prepare a New Blog Post for the Release
 
@@ -63,7 +63,7 @@ In the `xpack/web-archive-jekyll.git` GitHub repository:
 - Switch to the `development` branch.
 - Add a new file to `_posts/releases/vscode-xpack`.
 - Name the file in the format `YYYY-MM-DD-vscode-xpack-vX-Y-Z-released.md`.
-- Title the post: **VS Code xPack extension v1.2.0 released**
+- Title the post: **VS Code xPack extension v1.2.1 released**
 - Update the `date:` field with the current date.
 - Update the **Changes** section.
 
@@ -75,7 +75,7 @@ as follows:
 - [#1] ...
 ```
 
-- Commit with a message such as **VS Code xPack extension v1.2.0 released**.
+- Commit with a message such as **VS Code xPack extension v1.2.1 released**.
 - Push the changes.
 - Wait for the CI job to complete (<https://github.com/xpack/web-jekyll/actions>).
 
@@ -117,7 +117,7 @@ Within this Git repository:
 
 - In a separate browser window, open [X/Twitter](https://twitter.com/).
 - Using the `@xpack_project` account:
-  - Post the release name, e.g., **VS Code xPack extension v1.2.0 released**.
+  - Post the release name, e.g., **VS Code xPack extension v1.2.1 released**.
   - Include a link to the [release web page](https://xpack.github.io/web-archive-jekyll/vscode/releases/).
   - Click the **Tweet** button.
 

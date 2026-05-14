@@ -6,9 +6,26 @@ Please check
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 and close existing issues and pull requests.
 
+## 2026-05-14 
+
+* v1.2.1 prepared
+* efc9030 tests updates devDependencies
+* 7b40c77 #53: add no-actions test
+* 6be2b80 #53: fix install tasks creation
+
+## 2026-05-12 
+
+* 737192f move configurations in config
+* a0e3820 settings.json update
+* dbd9cf9 package*.json bump deps
+
 ## 2026-02-17
 
-* v1.2.0 prepared
+* ff0fc4e 1.2.0
+* cc08dfe 1.2.0
+* c5fe117 README update
+* 74f5d6d package.json: bump vscode engine
+* 925f1a0 prepare v1.2.0
 * c109622 package*.json: bump deps
 * c643421 pass logger to task creation
 * 76d96dd Revert "data-model.ts: specific taskDefinition type"
