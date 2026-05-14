@@ -25,11 +25,11 @@
   "license": "MIT",
   "config": {},
   "dependencies": {},
-  "devDependencies": {
-    "@xpack-dev-tools/cmake": "3.19.2-2.1",
-    "@xpack-dev-tools/ninja-build": "1.10.2-2.1"
-  },
   "xpack": {
+    "devDependencies": {
+      "@xpack-dev-tools/cmake": "3.19.2-2.1",
+      "@xpack-dev-tools/ninja-build": "1.10.2-2.1"
+    },
     "properties": {
       "buildFolderRelativePath": "build/{{ configuration.name | downcase }}",
       "commandCmakeGenerate": "cmake -S . -B {{ properties.buildFolderRelativePath }} -G Ninja -D CMAKE_BUILD_TYPE={{ properties.buildType }}",
