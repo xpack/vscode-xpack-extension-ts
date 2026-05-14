@@ -1,7 +1,7 @@
 [![Visual Studio Marketplace Version](https://vsmarketplacebadges.dev/version/ilg-vscode.xpack.svg)](https://marketplace.visualstudio.com/items?itemName=ilg-vscode.xpack)
 [![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/xpack/vscode-xpack-extension-ts)](https://github.com/xpack/vscode-xpack-extension-ts)
 [![license](https://img.shields.io/github/license/xpack/vscode-xpack-extension-ts.svg)](https://github.com/xpack/vscode-xpack-extension-ts/blob/xpack/LICENSE)
-[![TS-Standard - Typescript Standard Style Guide](https://badgen.net/badge/code%20style/ts-standard/blue?icon=typescript)](https://github.com/standard/ts-standard)
+[![Code Style: typescript-eslint](https://badgen.net/badge/code%20style/typescript-eslint/blue?icon=typescript)](https://typescript-eslint.io)
 
 # xPack C/C++ Managed Build
 

@@ -1,6 +1,6 @@
 [![Visual Studio Marketplace Version](https://vsmarketplacebadges.dev/version/ilg-vscode.xpack.svg)](https://marketplace.visualstudio.com/items?itemName=ilg-vscode.xpack)
 [![license](https://img.shields.io/github/license/xpack/vscode-xpack-extension-ts.svg)](https://github.com/xpack/vscode-xpack-extension-ts/blob/xpack/LICENSE)
-[![TS-Standard - Typescript Standard Style Guide](https://badgen.net/badge/code%20style/ts-standard/blue?icon=typescript)](https://github.com/standard/ts-standard)
+[![Code Style: typescript-eslint](https://badgen.net/badge/code%20style/typescript-eslint/blue?icon=typescript)](https://typescript-eslint.io)
 [![Visual Studio Marketplace Installs](https://vsmarketplacebadges.dev/installs/ilg-vscode.xpack.svg)](https://marketplace.visualstudio.com/items?itemName=ilg-vscode.xpack)
 [![Visual Studio Marketplace Downloads](https://vsmarketplacebadges.dev/downloads/ilg-vscode.xpack.svg)](https://marketplace.visualstudio.com/items?itemName=ilg-vscode.xpack)
 [![GitHub issues](https://img.shields.io/github/issues/xpack/vscode-xpack-extension-ts.svg)](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
