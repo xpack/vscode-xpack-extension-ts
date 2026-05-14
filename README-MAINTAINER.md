@@ -115,11 +115,11 @@ Within this Git repository:
 
 ## Share on X/Twitter
 
-- In a separate browser window, open [X/Twitter](https://twitter.com/).
+- In a separate browser window, open [X/Twitter](https://x.com/).
 - Using the `@xpack_project` account:
   - Post the release name, e.g., **VS Code xPack extension v1.2.1 released**.
   - Include a link to the [release web page](https://xpack.github.io/web-archive-jekyll/vscode/releases/).
-  - Click the **Tweet** button.
+  - Click the **Post** button.
 
 ## Useful Links
 
