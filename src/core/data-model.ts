@@ -287,7 +287,8 @@ export class DataModel implements vscode.Disposable {
     }
 
     const task = this.createTaskForCommand({
-      command: 'npm install',
+      command: 'npm',
+      commandArguments: ['install'],
       configurationName: '',
       dataNodePackage: parent.package,
     })
@@ -374,7 +375,8 @@ export class DataModel implements vscode.Disposable {
     }
 
     const task = this.createTaskForCommand({
-      command: 'xpm install',
+      command: 'xpm',
+      commandArguments: ['install'],
       configurationName,
       dataNodePackage: parent.package,
     })
@@ -529,10 +531,12 @@ export class DataModel implements vscode.Disposable {
 
   createTaskForCommand({
     command,
+    commandArguments,
     configurationName,
     dataNodePackage,
   }: {
     command: string
+    commandArguments: string[]
     configurationName: string
     dataNodePackage: DataNodePackage
   }): vscode.Task {
@@ -552,11 +556,11 @@ export class DataModel implements vscode.Disposable {
       taskDefinition.packageFolderRelativePath = relativePath
     }
 
-    const commandArguments = [command]
+    const taskCommandArguments = commandArguments
     let taskLabel
     if (configurationName !== '') {
       taskLabel = `install configuration ${configurationName} dependencies`
-      commandArguments.push('--config', configurationName)
+      taskCommandArguments.push('--config', configurationName)
     } else {
       taskLabel = 'install project dependencies'
     }
@@ -567,8 +571,8 @@ export class DataModel implements vscode.Disposable {
     this.log.trace(taskDefinition)
 
     const task = utils.createTask(
-      'xpm',
-      commandArguments,
+      command,
+      taskCommandArguments,
       dataNodePackage.parent.workspaceFolder,
       folderPath,
       taskLabel,
