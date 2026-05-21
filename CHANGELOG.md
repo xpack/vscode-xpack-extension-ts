@@ -6,9 +6,20 @@ Please check
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 and close existing issues and pull requests.
 
-## 2026-05-14 
+## 2026-05-21
 
-* v1.2.1 prepared
+* v1.2.2 prepared
+* 53c341d #54: fix npm --prefix runq commands
+
+## 2026-05-14
+
+* f7fb0fd README-MAINTAINER update
+* 4024be6 typescript-eslint badges updated
+* f357c6e vs marketplace badges updated
+* 24e1d34 1.2.1
+* 60e2bc1 README-MAINTAINER update
+* b22abaa package.json: update engines.vscode
+* 92628bc prepare v1.2.1
 * efc9030 tests updates devDependencies
 * 7b40c77 #53: add no-actions test
 * 6be2b80 #53: fix install tasks creation
