@@ -310,7 +310,7 @@ export class Commands implements vscode.Disposable {
 
       const projectFolderPath = node.dataNode.folderPath
 
-      const command = `npm --prefix run '${projectFolderPath}' ${treeItem.name}`
+      const command = `npm --prefix '${projectFolderPath}' run ${treeItem.name}`
       log.trace(command)
       await vscode.env.clipboard.writeText(command)
     } else {
