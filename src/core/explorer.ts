@@ -46,9 +46,7 @@ import { packageJsonFileName } from './definitions.js'
 // ----------------------------------------------------------------------------
 
 type ActionsTree =
-  | TreeItemWorkspaceFolder[]
-  | TreeItemPackage[]
-  | TreeItemEmpty[]
+  TreeItemWorkspaceFolder[] | TreeItemPackage[] | TreeItemEmpty[]
 type TreeItemRunnableParent = TreeItemPackage | TreeItemConfiguration
 type TreeItemPackageChild =
   | TreeItemNpmScript
