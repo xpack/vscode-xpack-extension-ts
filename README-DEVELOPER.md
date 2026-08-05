@@ -5,7 +5,7 @@
 [![Visual Studio Marketplace Downloads](https://vsmarketplacebadges.dev/downloads/ilg-vscode.xpack.svg)](https://marketplace.visualstudio.com/items?itemName=ilg-vscode.xpack)
 [![GitHub issues](https://img.shields.io/github/issues/xpack/vscode-xpack-extension-ts.svg)](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 [![GitHub pulls](https://img.shields.io/github/issues-pr/xpack/vscode-xpack-extension-ts.svg)](https://github.com/xpack/vscode-xpack-extension-ts/pulls)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/984cdd1e0ee24ff58ab9f941427ae2e3)](https://www.codacy.com/gh/xpack/vscode-xpack-extension-ts/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=xpack/vscode-xpack-extension-ts&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/984cdd1e0ee24ff58ab9f941427ae2e3)](https://www.codacy.com/gh/xpack/vscode-xpack-extension-ts/dashboard?utm_source=github.com&utm_medium=referral&utm_content=xpack/vscode-xpack-extension-ts&utm_campaign=Badge_Grade)
 
 # Developer Information
 
@@ -102,24 +102,25 @@ TBD
 npm install
 ```
 
-### Start the webpack-dev Background Task
+### Start the esbuild Watch Background Task
 
-The xPack extension uses webpack to make the distribution more compact.
+The xPack extension uses esbuild to bundle the distribution into a
+single, compact file.
 
-To automate the workflow, webpack can be started as a background
-task to convert the `out` folder into the `dist` folder:
+To automate the workflow, esbuild can be started as a background
+task to convert the `src` folder into the `dist/extension.js` bundle:
 
 ```sh
-npm run webpack-dev-watch
+npm run compile-watch
 ```
 
 ### Start Debug Sessions
 
 Use the existing launch configurations.
 
-Note: the `dist` folder content is processed by `webpack` and the
-relationship to the original TypeScript files is lost. Temporarily adjust
-`package.json` to point to the `out` folder if needed.
+Note: the `dist` folder content is processed by `esbuild` and the
+relationship to the original TypeScript files is lost. Source maps are
+generated in development builds to help with debugging.
 
 ## Language Standard Compliance
 
@@ -200,17 +201,19 @@ Scope:
 ### Read Configuration Values
 
 ```js
-vscode.workspace.getConfiguration('xpack').get<number>('maxSearchDepthLevel', 3)
+vscode.workspace.getConfiguration("xpack").get <
+  number >
+  ("maxSearchDepthLevel", 3);
 ```
 
 ### Write Configuration Values
 
 ```js
-const inspectedValue = npm.inspect('exclude')
-const isGlobal = inspectedValue !== undefined &&
-  inspectedValue.workspaceValue === undefined
+const inspectedValue = npm.inspect("exclude");
+const isGlobal =
+  inspectedValue !== undefined && inspectedValue.workspaceValue === undefined;
 
-await npm.update('exclude', newArray, isGlobal)
+await npm.update("exclude", newArray, isGlobal);
 ```
 
 ## Implementation Details

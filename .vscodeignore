@@ -6,7 +6,7 @@ src/**
 .yarnrc
 .codacy.yml
 vsc-extension-quickstart.md
-webpack.config.js
+esbuild.js
 **/tsconfig.json
 **/.eslintrc.json
 **/*.map
@@ -14,10 +14,13 @@ webpack.config.js
 README-*.md
 **/xpacks/**
 tests/**
-# node_modules/**
 out/**
 assets/docs-images/**
 .github/**
 
-# DO NOT add node_modules with plain vsce! (with webpack you can add it)
+config/
+tsconfig.eslint.json
+
+# The extension is bundled with esbuild, so node_modules is not needed.
+node_modules/**
 
