@@ -188,30 +188,40 @@ export class DataModel implements vscode.Disposable {
             dataNodePackage.package.isPackageJsonDirty = true
           }
 
-          const liquidDataModel = new xpmLib.DataModel({
-            log: log,
-            jsonPackage,
-          })
-
           this.addXpmCommands({
             fromJson: jsonPackage.xpack,
             parent: dataNodePackage,
           })
 
-          await liquidDataModel.actions.initialise()
-          if (!liquidDataModel.actions.isEmpty) {
-            await this.addXpmTopActions({
-              liquidDataModel: liquidDataModel,
-              parent: dataNodePackage,
+          try {
+            // A malformed `xpack` section (for example an action or
+            // build configuration referring to an undefined property)
+            // must not abort the scan of the entire workspace.
+            const liquidDataModel = new xpmLib.DataModel({
+              log: log,
+              jsonPackage,
             })
-          }
 
-          await liquidDataModel.buildConfigurations.initialise()
-          if (!liquidDataModel.buildConfigurations.isEmpty) {
-            await this.addXpmBuildConfigurations({
-              liquidDataModel,
-              parent: dataNodePackage,
-            })
+            await liquidDataModel.actions.initialise()
+            if (!liquidDataModel.actions.isEmpty) {
+              await this.addXpmTopActions({
+                liquidDataModel: liquidDataModel,
+                parent: dataNodePackage,
+              })
+            }
+
+            await liquidDataModel.buildConfigurations.initialise()
+            if (!liquidDataModel.buildConfigurations.isEmpty) {
+              await this.addXpmBuildConfigurations({
+                liquidDataModel,
+                parent: dataNodePackage,
+              })
+            }
+          } catch (err) {
+            log.error(
+              `${folderPath}: xpm actions/buildConfigurations ` +
+                `ignored, ${(err as Error).message}`
+            )
           }
         }
       }
