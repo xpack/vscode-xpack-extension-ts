@@ -6,6 +6,11 @@ Please check
 [GitHub](https://github.com/xpack/vscode-xpack-extension-ts/issues/)
 and close existing issues and pull requests.
 
+## 2026-08-05
+
+* v1.2.3 prepared
+* 2b86282 #55: make activation more robust
+
 ## 2026-05-21
 
 * v1.2.2 prepared
