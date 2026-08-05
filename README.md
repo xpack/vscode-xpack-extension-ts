@@ -33,7 +33,7 @@ All required dependencies (such as the C/C++ extension) are handled automaticall
 
 ## Prerequisites (Node.js/npm)
 
-Visual Studio Code 1.102 or later and a recent version of [xpm](https://xpack.github.io/xpm/),
+Visual Studio Code 1.125 or later and a recent version of [xpm](https://xpack.github.io/xpm/),
 which is a portable [Node.js](https://nodejs.org/) command-line application,
 available from [npmjs.com](https://www.npmjs.com/package/xpm/).
 
