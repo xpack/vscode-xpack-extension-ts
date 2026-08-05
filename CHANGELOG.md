@@ -8,7 +8,14 @@ and close existing issues and pull requests.
 
 ## 2026-08-05
 
-* v1.2.3 prepared
+* v1.2.4 prepared
+* c47ddb2 fix the missing require()
+* f7b61ae 1.2.3
+* 15aa42d switch to esbuild
+* 300b503 min vscode 1.125.0
+* 71ee0eb prepare v1.2.3
+* 047af84 package.json bump deps
+* 56de49b re-format
 * 2b86282 #55: make activation more robust
 
 ## 2026-05-21
