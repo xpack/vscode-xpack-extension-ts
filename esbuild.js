@@ -57,6 +57,11 @@ async function main() {
     // The vscode module is provided by the extension host at run time.
     external: ["vscode"],
     logLevel: "warning",
+    // CommonJS dependencies use require() for node builtins (e.g.
+    // "node:assert"); the ESM output has no require, so provide one.
+    banner: {
+      js: "import { createRequire as __createRequire } from 'node:module'; const require = __createRequire(import.meta.url);",
+    },
     plugins: [esbuildProblemMatcherPlugin],
   });
   if (watch) {
