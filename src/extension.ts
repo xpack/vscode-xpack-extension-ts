@@ -51,7 +51,8 @@ export async function activate(
     .get<LogLevelKey>('loggingLevel', 'info')
 
   const log = new Logger({
-    level: loglevel,
+    // The setting uses 'warning', but the logger only accepts 'warn'.
+    level: loglevel === 'warning' ? 'warn' : loglevel,
   })
 
   log.debug('"ilg-vscode.xpack" activated')
