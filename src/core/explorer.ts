@@ -385,7 +385,6 @@ class TreeItemRunnable extends TreeItem {
   // Methods.
 
   async runTask(): Promise<vscode.TaskExecution> {
-    console.log('Running task', this.task)
     return await vscode.tasks.executeTask(this.task)
   }
 

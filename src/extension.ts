@@ -50,9 +50,20 @@ export async function activate(
     .getConfiguration('xpack')
     .get<LogLevelKey>('loggingLevel', 'info')
 
+  // A dedicated Output panel channel, disposed by VS Code after
+  // deactivate() returns, so the final log lines still reach it.
+  const outputChannel = vscode.window.createOutputChannel(
+    'xPack C/C++ Managed Build Tools'
+  )
+  context.subscriptions.push(outputChannel)
+
+  const isDevelopment =
+    context.extensionMode === vscode.ExtensionMode.Development
+
   const log = new Logger({
     // The setting uses 'warning', but the logger only accepts 'warn'.
     level: loglevel === 'warning' ? 'warn' : loglevel,
+    console: createOutputChannelConsole(outputChannel, isDevelopment),
   })
 
   log.debug('"ilg-vscode.xpack" activated')
@@ -104,6 +115,47 @@ export async function deactivate(): Promise<void> {
   const log = _manager.log
 
   log.debug('"ilg-vscode.xpack" deactivated')
+}
+
+/**
+ * Create a console-like object that writes to an Output panel channel.
+ *
+ * @description
+ * The `@xpack/logger` `Logger` accepts a custom console and uses only
+ * its `log()` and `error()` functions, each called with a single,
+ * already formatted string (the level prefixes, such as `debug: `, are
+ * added by the logger). The same `Logger` instance is passed to
+ * `@xpack/xpm-lib`, so the library output also reaches the channel.
+ *
+ * When the extension runs in an Extension Development Host, the
+ * messages are also forwarded to the global console, so they remain
+ * visible in the debugger console.
+ *
+ * @param outputChannel - The channel that receives the messages.
+ * @param alsoToConsole - Whether to also write to the global console.
+ * @returns An object with `log()` and `error()` functions.
+ */
+function createOutputChannelConsole(
+  outputChannel: vscode.OutputChannel,
+  alsoToConsole: boolean
+): {
+  log: (message: string) => void
+  error: (message: string) => void
+} {
+  return {
+    log: (message: string): void => {
+      outputChannel.appendLine(message)
+      if (alsoToConsole) {
+        console.log(message)
+      }
+    },
+    error: (message: string): void => {
+      outputChannel.appendLine(message)
+      if (alsoToConsole) {
+        console.error(message)
+      }
+    },
+  }
 }
 
 // ----------------------------------------------------------------------------
