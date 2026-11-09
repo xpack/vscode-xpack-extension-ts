@@ -17,6 +17,9 @@ tests/**
 out/**
 assets/docs-images/**
 .github/**
+.claude/**
+CLAUDE.md
+maintenance/**
 
 config/
 tsconfig.eslint.json
