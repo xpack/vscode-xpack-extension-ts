@@ -105,6 +105,8 @@ export class ExtensionManager implements vscode.Disposable {
 
     log.trace('ExtensionManager.refresh()')
 
+    const startTime = performance.now()
+
     // Mark all existing candidates as obsolete, such that
     // only the last one will survive.
     this.dataCandidates.forEach((data) => {
@@ -146,6 +148,10 @@ export class ExtensionManager implements vscode.Disposable {
     )
     log.debug(
       'Explorer ' + (this.data.packages.length > 0 ? 'shown' : 'hidden')
+    )
+
+    log.debug(
+      `Refresh completed in ${(performance.now() - startTime).toFixed(0)} ms`
     )
 
     log.trace('ExtensionManager.refresh() completed')

@@ -193,6 +193,7 @@ export class DataModel implements vscode.Disposable {
             parent: dataNodePackage,
           })
 
+          const startTime = performance.now()
           try {
             // A malformed `xpack` section (for example an action or
             // build configuration referring to an undefined property)
@@ -223,6 +224,10 @@ export class DataModel implements vscode.Disposable {
                 `ignored, ${(err as Error).message}`
             )
           }
+          log.debug(
+            `${folderPath}: xpm actions and build configurations ` +
+              `evaluated in ${(performance.now() - startTime).toFixed(0)} ms`
+          )
         }
       }
     }
