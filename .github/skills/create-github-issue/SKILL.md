@@ -52,12 +52,18 @@ CLI, run from the repository root.
      --title "<title>" \
      --label <label> [--label <label>] \
      --assignee @me \
+     --milestone <version> \
      --body-file <scratchpad>/issue-body.md
    ```
 
-   The repository does not use milestones unless some are open; check
-   with `gh api repos/xpack/vscode-xpack-extension-ts/milestones` and,
-   if one applies, propose it in the draft.
+   Milestones are named after the release version (for example
+   `1.3.0`). List the open ones with
+   `gh api repos/xpack/vscode-xpack-extension-ts/milestones` and
+   propose the version milestone of the upcoming release in the draft.
+   If none is open, ask which version to create; do not create it
+   without approval. Do not use the generic `Next Release` milestone,
+   which is kept empty as a placeholder; `Time Permitting` is assigned
+   only by the maintainer.
 8. **Report** the number and URL; for several issues, a table (number,
    title, labels).
 
