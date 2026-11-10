@@ -191,6 +191,20 @@ export function detectJsonIndentation(
   return indentation.length
 }
 
+/**
+ * Detect the line ending used by a text.
+ *
+ * @remarks
+ * A text that contains at least one CRLF sequence is considered to use
+ * CRLF; any other text, including an undefined one, uses LF.
+ *
+ * @param content - The text to analyse.
+ * @returns `'\r\n'` for CRLF line endings, otherwise `'\n'`.
+ */
+export function detectLineEnding(content: string | undefined): string {
+  return content?.includes('\r\n') === true ? '\r\n' : '\n'
+}
+
 export function testForExclusionPattern(
   path: string,
   pattern: string

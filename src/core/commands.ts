@@ -511,9 +511,7 @@ export class Commands implements vscode.Disposable {
     }
     log.trace(jsonPackage)
 
-    const fileNewContent = JSON.stringify(jsonPackage, null, 2) + os.EOL
-    await fs.writeFile(treeItem.packageJsonPath, fileNewContent)
-    log.trace(`${treeItem.packageJsonPath} written back`)
+    await this.writePackageJson(treeItem.packageJsonPath, jsonPackage)
   }
 
   async addXpmAction(treeItem: TreeItem): Promise<void> {
@@ -567,9 +565,7 @@ export class Commands implements vscode.Disposable {
 
     log.trace(jsonPackage)
 
-    const fileNewContent = JSON.stringify(jsonPackage, null, 2) + os.EOL
-    await fs.writeFile(treeItemPackage.packageJsonPath, fileNewContent)
-    log.trace(`${treeItemPackage.packageJsonPath} written back`)
+    await this.writePackageJson(treeItemPackage.packageJsonPath, jsonPackage)
   }
 
   async removeAction(treeItem: TreeItem): Promise<void> {
@@ -621,9 +617,7 @@ export class Commands implements vscode.Disposable {
       delete jsonActions[actionName]
     }
 
-    const fileNewContent = JSON.stringify(jsonPackage, null, 2) + os.EOL
-    await fs.writeFile(treeItemPackage.packageJsonPath, fileNewContent)
-    log.trace(`${treeItemPackage.packageJsonPath} written back`)
+    await this.writePackageJson(treeItemPackage.packageJsonPath, jsonPackage)
   }
 
   async duplicateConfiguration(treeItem: TreeItem): Promise<void> {
@@ -665,9 +659,7 @@ export class Commands implements vscode.Disposable {
       }
       log.trace(jsonPackage)
 
-      const fileNewContent = JSON.stringify(jsonPackage, null, 2) + os.EOL
-      await fs.writeFile(treeItem.parent.packageJsonPath, fileNewContent)
-      log.trace(`${treeItem.parent.packageJsonPath} written back`)
+      await this.writePackageJson(treeItem.parent.packageJsonPath, jsonPackage)
     }
   }
 
@@ -701,9 +693,46 @@ export class Commands implements vscode.Disposable {
       delete buildConfigurations[buildConfigurationName]
     }
 
-    const fileNewContent = JSON.stringify(jsonPackage, null, 2) + os.EOL
-    await fs.writeFile(treeItem.parent.packageJsonPath, fileNewContent)
-    log.trace(`${treeItem.parent.packageJsonPath} written back`)
+    await this.writePackageJson(treeItem.parent.packageJsonPath, jsonPackage)
+  }
+
+  /**
+   * Write an edited `package.json` file back.
+   *
+   * @remarks
+   * The indentation (tabs or a number of spaces) and the line endings
+   * (LF or CRLF) of the existing file are preserved, so that only the
+   * edited lines appear as changed. If the file cannot be read, it is
+   * written with 2 spaces and LF.
+   *
+   * @param filePath - The absolute path of the `package.json` file.
+   * @param jsonPackage - The edited package content.
+   * @returns A promise that resolves when the file is written.
+   */
+  async writePackageJson(
+    filePath: string,
+    jsonPackage: xpmLib.JsonXpmPackage
+  ): Promise<void> {
+    const log = this.log
+
+    let fileOldContent: string | undefined
+    try {
+      fileOldContent = await fs.readFile(filePath, 'utf8')
+    } catch {
+      // The defaults are used.
+    }
+
+    const indentation = utils.detectJsonIndentation(fileOldContent)
+    const lineEnding = utils.detectLineEnding(fileOldContent)
+
+    // JSON.stringify() emits only LF, since line breaks in strings are
+    // escaped; replace them with the original line ending.
+    const fileNewContent = (
+      JSON.stringify(jsonPackage, null, indentation) + '\n'
+    ).replace(/\n/g, lineEnding)
+
+    await fs.writeFile(filePath, fileNewContent)
+    log.trace(`${filePath} written back`)
   }
 
   // --------------------------------------------------------------------------
