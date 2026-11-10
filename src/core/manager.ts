@@ -100,7 +100,21 @@ export class ExtensionManager implements vscode.Disposable {
     this.callbacksRefresh.push(func)
   }
 
-  async refresh(): Promise<void> {
+  /**
+   * Create a new data model and, unless a newer refresh supersedes it,
+   * make it the current one and invoke the refresh callbacks.
+   *
+   * @param params - The parameters.
+   * @param params.isActivation - Whether this is the refresh made at
+   * activation. Its evaluation does not yield to the event loop, since
+   * while other extensions are activating, yielding delays the refresh
+   * by several seconds. Defaults to `false`.
+   * @returns A promise that resolves when the refresh is completed or
+   * cancelled.
+   */
+  async refresh({
+    isActivation = false,
+  }: { isActivation?: boolean } = {}): Promise<void> {
     const log = this.log
 
     log.trace('ExtensionManager.refresh()')
@@ -116,6 +130,7 @@ export class ExtensionManager implements vscode.Disposable {
     const data = new DataModel({
       log: this.log,
       maxSearchDepth: this.maxSearchDepthLevel,
+      shouldYield: !isActivation,
     })
     this.dataCandidates.add(data)
 

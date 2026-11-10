@@ -97,7 +97,7 @@ export async function activate(
   intelliSense.registerCompileCommandsJsonWatchers()
 
   // Refresh everything again, when all objects are created.
-  await _manager.refresh()
+  await _manager.refresh({ isActivation: true })
 
   log.debug('"ilg-vscode.xpack" activation completed')
 }

@@ -18,6 +18,7 @@ import assert from 'node:assert'
 import * as fs from 'node:fs/promises'
 import { Dirent } from 'node:fs'
 import * as path from 'node:path'
+import { setImmediate as yieldToEventLoop } from 'node:timers/promises'
 
 import * as vscode from 'vscode'
 
@@ -48,6 +49,18 @@ export class DataModel implements vscode.Disposable {
 
   #maxSearchDepth: number
 
+  /**
+   * The longest time, in milliseconds, that the evaluation may run
+   * without yielding to the event loop.
+   */
+  static readonly maxBlockMilliseconds = 20
+
+  /** Whether the evaluation yields to the event loop. */
+  #shouldYield: boolean
+
+  /** The time of the last yield to the event loop. */
+  #lastYieldTime: number = performance.now()
+
   log: Logger
 
   cancellation: vscode.CancellationTokenSource =
@@ -56,15 +69,29 @@ export class DataModel implements vscode.Disposable {
   // --------------------------------------------------------------------------
   // Constructor.
 
+  /**
+   * Create an empty data model; the tree is created by `createTree()`.
+   *
+   * @param params - The parameters.
+   * @param params.log - The logger.
+   * @param params.maxSearchDepth - The maximum depth of the folder
+   * search for `package.json` files.
+   * @param params.shouldYield - Whether the evaluation yields to the
+   * event loop, so that it does not block the extension host for long;
+   * see {@link DataModel.maxBlockMilliseconds}. Defaults to `true`.
+   */
   constructor({
     log,
     maxSearchDepth,
+    shouldYield = true,
   }: {
     log: Logger
     maxSearchDepth: number
+    shouldYield?: boolean
   }) {
     this.log = log
     this.#maxSearchDepth = maxSearchDepth
+    this.#shouldYield = shouldYield
 
     log.trace(`${DataModel.name}()`)
   }
@@ -77,6 +104,35 @@ export class DataModel implements vscode.Disposable {
     this.workspaceFolders.forEach((node) => {
       node.dispose()
     })
+  }
+
+  /**
+   * Yield to the event loop if the evaluation has been running for more
+   * than {@link DataModel.maxBlockMilliseconds} since the last yield.
+   *
+   * @remarks
+   * The `@xpack/xpm-lib` evaluation is asynchronous only in form; it
+   * performs no real I/O, so without explicit yields the evaluation of
+   * a large package would block the extension host, shared by all
+   * extensions, for seconds. Yielding after every step would instead
+   * let other extensions run in every gap; hence the time threshold.
+   *
+   * While other extensions are activating, even occasional yields delay
+   * the refresh by several seconds, so the refresh at activation is
+   * created with `shouldYield` set to `false`, and this method does
+   * nothing.
+   *
+   * @returns A promise that resolves when the evaluation may continue.
+   */
+  async #yieldIfBusy(): Promise<void> {
+    if (
+      !this.#shouldYield ||
+      performance.now() - this.#lastYieldTime < DataModel.maxBlockMilliseconds
+    ) {
+      return
+    }
+    await yieldToEventLoop()
+    this.#lastYieldTime = performance.now()
   }
 
   async createTree(): Promise<void> {
@@ -438,6 +494,8 @@ export class DataModel implements vscode.Disposable {
       this.xpmActions.push(dataNodeAction)
 
       this.tasks.push(task)
+
+      await this.#yieldIfBusy()
     }
   }
 
@@ -534,6 +592,8 @@ export class DataModel implements vscode.Disposable {
         liquidDataModel,
         parent: dataNodeConfiguration,
       })
+
+      await this.#yieldIfBusy()
 
       if (this.cancellation.token.isCancellationRequested) {
         return
