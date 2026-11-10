@@ -1,7 +1,7 @@
 # Refresh performance after editing `package.json`
 
-Status: cause identified; partly fixed (#58, #59); further changes
-proposed below.
+Status: cause identified; partly fixed (#58, #59, #60); the open items
+are listed in [Remaining work](#remaining-work).
 
 Analysis started on 2026-09-23 (extension version 1.2.4) and completed
 on 2026-11-10 (VS Code 1.145.2, macOS, development version after 1.2.4,
@@ -119,13 +119,36 @@ covered one complete refresh and part of the next, recorded 3,933
 `_LiquidPropertiesDrop` constructions and 1,772 evaluations of
 `buildFolderRelativePathPosix`.
 
-### 2. The evaluation blocks the extension host for about 2 s
+### 2. The evaluation blocked the extension host for about 2 s (mitigated)
 
 The evaluation is `async` only in form. liquidjs `parseAndRender()` in
 asynchronous mode performs no real I/O; it awaits only promises that
 are already resolved, and those continue as microtasks. The event loop
-is therefore never released, and the evaluation of a package runs as
+was therefore never released, and the evaluation of a package ran as
 one block of about 2 s at `info`.
+
+Mitigated in #60: the evaluation yields to the event loop when it has
+run for 20 ms or more since the last yield. Three variants were
+compared (activation figures are single samples):
+
+| Variant | Yields (benchmark) | Longest block (benchmark) | Activation refresh | Refresh after a save |
+| --- | ---: | ---: | ---: | ---: |
+| No yields | 0 | 690–770 ms | 10.3 s | 2.2–2.5 s |
+| After every step | about 620 | 72–78 ms | 16.2 s | about 2.4 s |
+| Time-based, 20 ms | 29–32 | 86–92 ms | 13.2 s | 2.4–2.6 s |
+| Time-based, 50 ms | 15–16 | 130–212 ms | 14.5 s | 2.6–2.9 s |
+| Time-based, 20 ms, not at activation (chosen) | 29–32 | 86–92 ms | 11.8 s | 2.4–2.5 s |
+
+Any yielding during activation delays the refresh by several seconds,
+because the other extensions that are activating run their work in the
+gaps; the number of yields hardly matters. The refresh made at
+activation therefore does not yield, and blocks the extension host for
+about 4–5 s, as before.
+
+The longest remaining block, about 90 ms, comes from steps that cannot
+be split and run back to back before the first yield: creating the
+xpm-lib `DataModel` (about 25 ms) and `actions.initialise()` (about
+42 ms).
 
 Two details in `@xpack/xpm-lib` add to the cost:
 
@@ -166,33 +189,59 @@ established.
   a file that cannot be parsed untouched.
 - #59 (`839f0d0`): log at the `debug` level the total duration of each
   refresh and the evaluation time of each xpm package.
+- #60 (`04b48e2`): yield to the event loop during the evaluation, when
+  it has run for 20 ms or more since the last yield, except in the
+  refresh made at activation.
 
-## Proposed changes
+## Remaining work
 
-In order of value for effort:
+Items left for later, in order of value for effort. None has an issue
+yet; open one with the `create-github-issue` skill before starting.
 
-1. **Yield to the event loop during the evaluation.** In `data-model.ts`,
-   add `await setImmediate()` (from `node:timers/promises`) after each
-   build configuration and each package. The total time stays the
-   same, but the 2 s block is split into short slices, so the extension
-   host remains responsive. Cancellation then also takes effect sooner.
-2. **Make `trace` affordable.** Batch the Output channel writes (collect
-   the lines and flush them on a timer), then measure again. If it is
-   still too slow, either reduce the substitution tracing in xpm-lib or
-   move it to a separate, more detailed level, or document that `trace`
-   is expensive on large projects.
-3. **Template caching and memoisation in `@xpack/xpm-lib`.** These reduce
-   the total evaluation time, but belong to that project; open an issue
-   there.
-4. **Debounce the `package.json` watcher** (for example 300 ms), if a
-   burst of change events is observed.
-5. **Move the evaluation to a worker thread**, only if 1–3 are not
-   sufficient. The worker would run the xpm-lib evaluation and return
-   plain data (names, command arrays, `buildFolderRelativePath`). The
-   `vscode.Task` objects would still be created on the main thread,
+1. **Make `trace` affordable.** This is the main cause of the reported
+   freeze and is not fixed. `createOutputChannelConsole()` in
+   `src/extension.ts` calls `outputChannel.appendLine()` once per line
+   (and, in an Extension Development Host, also `console.log()`).
+   Collect the lines and flush them on a short timer, then measure a
+   refresh at `trace` again (65.7 s before). If it is still too slow,
+   either reduce the substitution tracing in xpm-lib, move it to a
+   separate, more detailed level, or document that `trace` is expensive
+   on large projects.
+2. **Template caching and memoisation in `@xpack/xpm-lib`.** Enable the
+   liquidjs cache (`LiquidEngine` uses `cache: false`) and memoise the
+   property values rendered by `LiquidPropertiesDrop.liquidMethodMissing()`
+   (see finding 2 and the counts in finding 1). This reduces the total
+   evaluation time, but belongs to that project; open an issue there.
+3. **Explain the time spent outside the evaluation at activation.** At
+   activation, the refresh took 10.3–11.8 s, of which only 4.2–5.5 s
+   were spent in the evaluation; after activation, the difference is
+   about 0.3 s. The remaining 6 s may be the folder walk competing with
+   other extensions for I/O, the callbacks, or `setContext` waiting for
+   the window. Measure each phase at activation before changing
+   anything.
+4. **Reconsider the refresh at activation.** It does not yield (see
+   finding 2), so it blocks the extension host, and the activation of
+   other extensions, for about 4–5 s on the test project. If this turns
+   out to be a problem, consider starting the first refresh only after
+   the other extensions have activated, or yielding with a much larger
+   threshold during activation.
+5. **Skip build folders in the folder walk.** The walk visits 2,283
+   folders, most of them under `build/`, and logs each one at `trace`.
+   The cost at `info` is only 0.1–0.3 s of real I/O, but it adds to the
+   `trace` volume. Consider skipping well-known build folders, or
+   relying on `xpack.exclude`.
+6. **Clarify the behaviour of the C/C++ extension** (finding 5): check
+   whether `cpptools` reacts to a save of `package.json`, now that
+   `c_cpp_properties.json` is no longer rewritten.
+7. **Debounce the `package.json` watcher** (for example 300 ms), only if
+   a burst of change events is observed (finding 4).
+8. **Move the evaluation to a worker thread**, only if the items above
+   are not sufficient. The worker would run the xpm-lib evaluation and
+   return plain data (names, command arrays, `buildFolderRelativePath`).
+   The `vscode.Task` objects would still be created on the main thread,
    because the `vscode` API is not available in workers. This requires a
    second esbuild entry point and a message protocol.
-6. **Lazy evaluation** (for reference; not recommended). Evaluating the
+9. **Lazy evaluation** (for reference; not recommended). Evaluating the
    actions of a build configuration only when its tree node is expanded
    would work, because configurations are created `Collapsed`. However,
    the task provider, the build configuration picker, and IntelliSense
