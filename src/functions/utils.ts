@@ -155,6 +155,42 @@ export function isBoolean(object: unknown): boolean {
   return typeof object === 'boolean'
 }
 
+/**
+ * Detect the indentation used by a JSON text.
+ *
+ * @remarks
+ * The first line that starts with whitespace followed by a
+ * non-whitespace character decides the result: a leading tab selects
+ * tab indentation, otherwise the number of leading spaces is used.
+ * The result can be passed directly as the `space` argument of
+ * `JSON.stringify()`.
+ *
+ * @param content - The JSON text to analyse.
+ * @param defaultIndentation - The value returned when the text is
+ * undefined or has no indented lines.
+ * @returns `'\t'` for tab indentation, or the number of spaces.
+ */
+export function detectJsonIndentation(
+  content: string | undefined,
+  defaultIndentation: string | number = 2
+): string | number {
+  if (content === undefined) {
+    return defaultIndentation
+  }
+
+  const match = /^([ \t]+)\S/m.exec(content)
+  if (match === null) {
+    return defaultIndentation
+  }
+
+  const indentation: string = match[1]
+  if (indentation.startsWith('\t')) {
+    return '\t'
+  }
+
+  return indentation.length
+}
+
 export function testForExclusionPattern(
   path: string,
   pattern: string

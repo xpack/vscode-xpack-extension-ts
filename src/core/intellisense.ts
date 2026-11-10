@@ -162,7 +162,9 @@ export class IntelliSense implements vscode.Disposable {
    * configurations. Existing entries with a matching name are reused,
    * so the properties added to them by hand are preserved; entries that
    * no longer correspond to a build configuration are removed. The
-   * other top-level properties are kept as they are.
+   * other top-level properties are kept as they are. The indentation of
+   * the existing file (tabs or a number of spaces) is preserved; a new
+   * file is indented with 2 spaces.
    *
    * The file is written only when its content changes, since each write
    * makes the C/C++ extension reload it. A file that cannot be read or
@@ -241,7 +243,9 @@ export class IntelliSense implements vscode.Disposable {
       return
     }
 
-    const fileNewContent = jsonc.stringify(json, null, 2) + '\n'
+    // Preserve the indentation of the existing file (tabs or spaces).
+    const indentation = utils.detectJsonIndentation(fileOldContent)
+    const fileNewContent = jsonc.stringify(json, null, indentation) + '\n'
     if (fileNewContent === fileOldContent) {
       log.trace(`${jsonFilePath} unchanged, not written`)
       return
