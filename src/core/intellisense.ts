@@ -38,6 +38,7 @@ import * as cpt from 'vscode-cpptools'
 
 import { Logger } from '@xpack/logger'
 
+import * as utils from '../functions/utils.js'
 import { ExtensionManager } from './manager.js'
 import { DataNodePackage, DataNodeWorkspaceFolder } from './data-model.js'
 
@@ -46,9 +47,10 @@ import { DataNodePackage, DataNodeWorkspaceFolder } from './data-model.js'
 // The content is actually a bit more complicated, since it includes
 // the objects required to store the JSON comments, but this is not
 // relevant here, so keep them hidden.
+// Both properties are optional, since a file edited by hand may lack them.
 interface JsonCCppProperties {
-  configurations: JsonCCppPropertiesConfiguration[]
-  version: number
+  configurations?: JsonCCppPropertiesConfiguration[]
+  version?: number
 }
 
 // Same here.
@@ -154,6 +156,21 @@ export class IntelliSense implements vscode.Disposable {
   /**
    * Update the `c_cpp_properties.json` file for a workspace folder.
    * - https://code.visualstudio.com/docs/cpp/c-cpp-properties-schema-reference
+   *
+   * @remarks
+   * The `configurations` array is rebuilt in the order of the xpm build
+   * configurations. Existing entries with a matching name are reused,
+   * so the properties added to them by hand are preserved; entries that
+   * no longer correspond to a build configuration are removed. The
+   * other top-level properties are kept as they are.
+   *
+   * The file is written only when its content changes, since each write
+   * makes the C/C++ extension reload it. A file that cannot be read or
+   * parsed is left untouched, as it may be in the middle of an edit.
+   *
+   * @param dataNodePackage - The package at the root of the workspace
+   * folder.
+   * @returns A promise that resolves when the file is up to date.
    */
   async updateWorkspaceProjectCCppProperties(
     dataNodePackage: DataNodePackage
@@ -172,41 +189,87 @@ export class IntelliSense implements vscode.Disposable {
       'c_cpp_properties.json'
     )
 
-    let json: JsonCCppProperties
+    // The current content; undefined if the file does not exist.
+    let fileOldContent: string | undefined
     try {
-      const fileContent = await fs.readFile(jsonFilePath)
-      const jc: jsonc.CommentJSONValue = jsonc.parse(fileContent.toString())
-      json = jc as unknown as JsonCCppProperties
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      fileOldContent = await fs.readFile(jsonFilePath, 'utf8')
     } catch (err) {
-      // Ensure that the folder is there.
-      await fs.mkdir(vscodeFolderPath, { recursive: true })
+      if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
+        log.warn(
+          `${jsonFilePath} cannot be read, not updated, ` +
+            (err as Error).message
+        )
+        return
+      }
+    }
+
+    let json: JsonCCppProperties
+    if (fileOldContent === undefined) {
       json = {
         configurations: [],
         version: 4,
       }
+    } else {
+      let parsed: jsonc.CommentJSONValue
+      try {
+        parsed = jsonc.parse(fileOldContent)
+      } catch (err) {
+        log.warn(
+          `${jsonFilePath} is not valid JSON, not updated, ` +
+            (err as Error).message
+        )
+        return
+      }
+      if (!utils.isJsonObject(parsed)) {
+        log.warn(`${jsonFilePath} is not a JSON object, not updated`)
+        return
+      }
+      json = parsed as unknown as JsonCCppProperties
     }
 
-    // If it does not exist, add an empty array.
-    json.configurations = []
+    const oldConfigurations: unknown[] = Array.isArray(json.configurations)
+      ? json.configurations
+      : []
 
-    await this.updateCompileCommandsReferences(
+    json.configurations = await this.updateCompileCommandsReferences(
       dataNodePackage,
-      json.configurations
+      oldConfigurations
     )
 
-    if (json.configurations.length > 0) {
-      const fileNewContent = jsonc.stringify(json, null, 2) + '\n'
-      await fs.writeFile(jsonFilePath, fileNewContent)
-      log.trace(`${jsonFilePath} written back`)
+    if (json.configurations.length === 0) {
+      // There are no build configurations; leave the file as it is.
+      return
     }
+
+    const fileNewContent = jsonc.stringify(json, null, 2) + '\n'
+    if (fileNewContent === fileOldContent) {
+      log.trace(`${jsonFilePath} unchanged, not written`)
+      return
+    }
+
+    await fs.mkdir(vscodeFolderPath, { recursive: true })
+    await fs.writeFile(jsonFilePath, fileNewContent)
+    log.trace(`${jsonFilePath} written back`)
   }
 
+  /**
+   * Create the list of C/C++ configurations, one for each visible xpm
+   * build configuration of the packages in the workspace folder.
+   *
+   * @param dataNodePackage - The package at the root of the workspace
+   * folder.
+   * @param oldConfigurations - The entries currently in the file, reused
+   * when their names match.
+   * @returns The new list of configurations, in the order of the build
+   * configurations.
+   */
   async updateCompileCommandsReferences(
     dataNodePackage: DataNodePackage,
-    jsonConfigurations: JsonCCppPropertiesConfiguration[]
-  ): Promise<void> {
+    oldConfigurations: unknown[]
+  ): Promise<JsonCCppPropertiesConfiguration[]> {
     const log = this.log
+
+    const newConfigurations: JsonCCppPropertiesConfiguration[] = []
 
     const parentWorkspaceFolder: DataNodeWorkspaceFolder =
       dataNodePackage.parent
@@ -234,8 +297,9 @@ export class IntelliSense implements vscode.Disposable {
         const currentJsonConfiguration =
           this.prepareCCppPropertiesConfiguration(
             globalConfigurationName,
-            jsonConfigurations
+            oldConfigurations
           )
+        newConfigurations.push(currentJsonConfiguration)
 
         // Get the variable value (via substitutions).
         const buildFolderRelativePath =
@@ -285,37 +349,41 @@ export class IntelliSense implements vscode.Disposable {
         log.trace(`c/c++ compileCommands: ${compileCommandsValue}`)
       }
     }
+
+    return newConfigurations
   }
 
   /**
-   * First try to identify an existing configuration in the given array;
-   * if not found, create a new empty one and add it to the array.
+   * Find an existing configuration with the given name; if there is
+   * none, create a new one with only the name set.
    *
    * @param configurationName - The configuration name as it
-   * is expected to appear in the compile_commands.json file.
-   * @param jsonConfigurations - An array of configurations.
+   * is expected to appear in the `c_cpp_properties.json` file.
+   * @param oldConfigurations - The entries currently in the file; those
+   * that are not objects are ignored.
    *
-   * @returns Either an existing configuration or a new empty one.
+   * @returns Either an existing configuration or a new one. The new one
+   * is not added to any array.
    */
   prepareCCppPropertiesConfiguration(
     configurationName: string,
-    jsonConfigurations: JsonCCppPropertiesConfiguration[]
+    oldConfigurations: unknown[]
   ): JsonCCppPropertiesConfiguration {
     // If a configuration with the same name exists, return it.
-    for (const jsonConfiguration of jsonConfigurations) {
-      if (jsonConfiguration.name === configurationName) {
-        return jsonConfiguration
+    for (const oldConfiguration of oldConfigurations) {
+      if (
+        utils.isJsonObject(oldConfiguration) &&
+        (oldConfiguration as JsonCCppPropertiesConfiguration).name ===
+          configurationName
+      ) {
+        return oldConfiguration as JsonCCppPropertiesConfiguration
       }
     }
 
-    // If it does not exist, create a minimal named object...
-    const currentJsonConfiguration: JsonCCppPropertiesConfiguration = {
+    // If it does not exist, create a minimal named object.
+    return {
       name: configurationName,
     }
-    // ... and add it to the array.
-    jsonConfigurations.push(currentJsonConfiguration)
-
-    return currentJsonConfiguration
   }
 
   // --------------------------------------------------------------------------
